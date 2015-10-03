@@ -47,7 +47,7 @@ class YouTubeAPI:
 
         if result['pageInfo']['totalResults'] == result['pageInfo']['resultsPerPage']:
             print('YouTubeAPI.getComments(' + depth + '): got ' + result['pageInfo']['totalResults'] + ' results!')
-            return getComments(video_id, results, result['pageNextToken'], depth+1)
+            return getComments(video_id, results, result['pageNextToken'], depth+1, get_replies)
 
         return results
 
