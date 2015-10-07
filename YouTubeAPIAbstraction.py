@@ -1,8 +1,7 @@
-#!/usr/bin/env python3.5
-
 from pprint import pprint
-from urllib.request import urlopen
+from urllib2 import urlopen
 import json
+import sys
 
 _COMMENTTHREAD_MAXRESULTS = 100
 _COMMENTS_MAXRESULTS = 100
@@ -87,7 +86,9 @@ class YouTubeAPI:
 
 
 if __name__ == "__main__":
-    with open('dash_wallenburg_youtube_apikey_1') as apikeyfile:
+    reload(sys)
+    sys.setdefaultencoding('utf8')
+    with open('APIkey') as apikeyfile:
         test = YouTubeAPI('https://www.googleapis.com/youtube/v3',
                           apikeyfile.readline().rstrip())
 
