@@ -103,7 +103,7 @@ class YouTubeAPI:
 
         if result['pageInfo']['totalResults'] == result['pageInfo']['resultsPerPage']:
             try:
-                return self.getVideosAtTime(self, published_after, published_before, results, page_token)
+                return self.getVideosAtTime(self, published_after, published_before, results, result['nextPageToken'])
             except KeyError:
                 pass
 
