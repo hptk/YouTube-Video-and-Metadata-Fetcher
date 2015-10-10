@@ -1,4 +1,6 @@
 test
 tags
 *apikey*
+*APIkey*
 client_secrets.json
+*.swp

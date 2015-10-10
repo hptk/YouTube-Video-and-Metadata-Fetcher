@@ -5,6 +5,7 @@ import sys
 
 _COMMENTTHREAD_MAXRESULTS = 100
 _COMMENTS_MAXRESULTS = 100
+_VIDEOS_MAXRESULTS = 50
 _TESTVID = "JjDsP5n2kSM"
 
 class APIRequestString:
@@ -82,8 +83,31 @@ class YouTubeAPI:
                 pass
 
         return results
+ 
+    def getVideosAtTime(self, published_after, published_before, results=[], page_token=''):
+        request = APIRequestString(self.url, 'search', self.key)
+        request.add('part', 'snippet')
+        request.add('maxResults', _VIDEOS_MAXRESULTS)
+        request.add('order', 'date')
+        request.add('publishedAfter', published_after)
+        request.add('publishedBefore', published_before)
+        request.add('type', video)
+        if page_token != '':
+            request.add('pageToken', page_token)
+    
+        result = self.makeRequest(request)
+        if not result['items']:
+            return results
 
+        results += result['items']
 
+        if result['pageInfo']['totalResults'] == result['pageInfo']['resultsPerPage']:
+            try:
+                return self.getVideosAtTime(self, published_after, published_before, results, page_token)
+            except KeyError:
+                pass
+
+        return results
 
 if __name__ == "__main__":
     reload(sys)
