@@ -3,6 +3,6 @@ tags
 *apikey*
 *APIkey*
 client_secrets.json
-*.swp
-*.pyc
 res/*
+*.pyc
+*.swp
