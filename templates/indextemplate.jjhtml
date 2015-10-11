@@ -14,6 +14,7 @@
     <div {# id="footer" #}>
         {% block footer %}
         &copy; Copyright 2015, Hans Petter Taugbøl Kragset, Lukas Krieger, Christian Resell and Hugo Wallenburg.
+        {# names are alphabetical! #}
         {% endblock %}
     </div>
 </body>

@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 from YouTubeAPIAbstraction import YouTubeAPI
 app = Flask(__name__)
 
@@ -15,12 +15,16 @@ def hello(name=None):
     return render_template('hello.jjhtml', name=name)
 
 @app.route('/getComments/')
-@app.route('/getComments/<videoID>/')
-def getComments(videoID='9bZkp7q19f0'):
+def getComments():
     with open('APIkey') as apikeyfile:
         temp = YouTubeAPI('https://www.googleapis.com/youtube/v3', apikeyfile.readline().rstrip())
-    res = temp.getComments(videoID)
-    return str(res)
+
+    try:
+        videoID = request.args.get('videoID')
+        res = temp.getComments(videoID)
+        return str(res)
+    except KeyError:
+        return "Error"
 
 if __name__ == '__main__':
     app.run(debug=True)
