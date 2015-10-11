@@ -1,0 +1,9 @@
+{% extends "indextemplate.jjhtml" %}
+{% block title %}Index{% endblock %}
+{% block head %}
+{% endblock %}
+
+{% block content %}
+    <h1>Index</h1>
+      Welcome to our awesome homepage.
+{% endblock %}

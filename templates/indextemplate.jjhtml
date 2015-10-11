@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% block head %}
+    {# <link rel="stylesheet" href="style.css" /> #}
+    <title>{% block title %}{% endblock %} - YouTube Video and Metadata Downloader</title>
+    <meta charset="UTF-8">
+    {% endblock %}
+</head>
+<body>
+    <div {# id="content" #}>
+        {% block content %}{% endblock %}
+    </div>
+    <div {# id="footer" #}>
+        {% block footer %}
+        &copy; Copyright 2015, Hans Petter Taugbøl Kragset, Lukas Krieger, Christian Resell and Hugo Wallenburg.
+        {% endblock %}
+    </div>
+</body>
+</html>
