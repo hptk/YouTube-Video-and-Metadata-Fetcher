@@ -7,9 +7,12 @@ reload(sys)
 sys.setdefaultencoding("utf-8")
 
 @app.route('/')
+def index():
+    return render_template('index.jjhtml')
+
 @app.route('/hello/<name>/')
 def hello(name=None):
-    return render_template('hello.html', name=name)
+    return render_template('hello.jjhtml', name=name)
 
 @app.route('/getComments/')
 @app.route('/getComments/<videoID>/')
