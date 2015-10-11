@@ -4,6 +4,14 @@
 {% endblock %}
 
 {% block content %}
-    <h1>Index</h1>
-      Welcome to our awesome homepage.
+<h1>Index</h1>
+Use the form below to get the comments from a YouTube video :)
+
+<form action="/getComments/">
+    YouTube VideoID: <br>
+    <input type="text" name="videoID">
+    <br><br>
+    <input type="submit" value="Get comments!">
+</form> 
+
 {% endblock %}
