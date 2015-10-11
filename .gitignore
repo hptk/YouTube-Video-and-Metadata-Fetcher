@@ -4,4 +4,5 @@ tags
 *APIkey*
 client_secrets.json
 *.swp
+*.pyc
 res/*
