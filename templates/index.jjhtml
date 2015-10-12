@@ -7,11 +7,24 @@
 <h1>Index</h1>
 Use the form below to get the comments from a YouTube video :)
 
-<form action="/getComments/">
-    YouTube VideoID: <br>
-    <input type="text" name="videoID">
-    <br><br>
+<form role="form" action="/getComments/">
+    <br />
+    YouTube VideoID: <input type="text" name="videoID"><br />
+    APIkey: <input id="APIKeyField" type="text" name="key" onchange="setAPIkey();"><br />
     <input type="submit" value="Get comments!">
 </form> 
 
+{% endblock %}
+{% block script %}
+<script>
+(function() {
+    if(localStorage.getItem('key')) {
+        document.getElementById('APIKeyField').value=localStorage.getItem('key')
+    }
+})();
+
+function setAPIkey() {
+    localStorage.setItem('key', document.getElementById('APIKeyField').value);
+}
+</script>
 {% endblock %}

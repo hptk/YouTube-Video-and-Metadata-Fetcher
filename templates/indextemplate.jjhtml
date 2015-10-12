@@ -17,5 +17,6 @@
         {# names are alphabetical! #}
         {% endblock %}
     </div>
+{% block script %}{% endblock %}
 </body>
 </html>

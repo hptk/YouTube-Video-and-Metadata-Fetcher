@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request
-from YouTubeAPIAbstraction import YouTubeAPI
+from RenameMe import getCommentsHandler
+
 app = Flask(__name__)
 
 import sys
@@ -16,15 +17,7 @@ def hello(name=None):
 
 @app.route('/getComments/')
 def getComments():
-    with open('APIkey') as apikeyfile:
-        temp = YouTubeAPI('https://www.googleapis.com/youtube/v3', apikeyfile.readline().rstrip())
-
-    try:
-        videoID = request.args.get('videoID')
-        res = temp.getComments(videoID)
-        return str(res)
-    except KeyError:
-        return "Error"
+    return getCommentsHandler(request.args)
 
 if __name__ == '__main__':
     app.run(debug=True)
