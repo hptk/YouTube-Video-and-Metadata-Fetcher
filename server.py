@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request
-from RenameMe import getCommentsHandler
+from pageRequestHandler import getCommentsHandler
 
 app = Flask(__name__)
 
