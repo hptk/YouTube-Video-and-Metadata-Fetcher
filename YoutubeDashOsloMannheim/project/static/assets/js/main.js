@@ -9,6 +9,7 @@ require(
         'shared/services/routeResolver',
         'shared/services/userService',
         'shared/services/APIKeyService',
+        'shared/services/queryService',
         'shared/services/authenticationService',
         'shared/services/flashService',
         

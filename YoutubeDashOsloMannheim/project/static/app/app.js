@@ -39,7 +39,8 @@ define(['shared/services/routeResolver'], function () {
                 .when('/login',route.resolve('login','login/', 'vm'))
                 .when('/register',route.resolve('register','register/', 'vm'))
                 .when('/manageKeys',route.resolve('manageKeys','manageKeys/', 'vm', true))
-                .when('/fetch',route.resolve('fetch','fetch/', 'vm', true))
+                .when('/query',route.resolve('query','query/', 'vm', true))
+                .when('/query/:hash',route.resolve('query','query/', 'vm', true))
                 
                 .otherwise({ redirectTo: '/' });
 

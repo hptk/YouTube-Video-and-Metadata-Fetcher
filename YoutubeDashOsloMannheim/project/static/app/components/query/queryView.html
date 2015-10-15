@@ -1,0 +1,87 @@
+﻿<div ng-include src="'static/app/shared/topnavigation/navigationView.html'"></div>
+<div class="container">
+	
+	<div class="row">
+	<div class="col-xs-3">
+		<div class="panel panel-default">
+		  <div class="panel-heading">
+		    <h3 class="panel-title">Old Queries</h3>
+		    <select name="maxOldQueries" id="maxOldQueries"
+      			ng-options="option.name for option in vm.maxOldQueries.availableOptions track by option.value"
+      			ng-model="vm.maxOldQueries.selectedOption"
+      			ng-change="vm.loadOldQueries()"
+      			>
+      		</select>
+		  </div>
+		  <div class="panel-body">
+		    
+			<div class="list-group">
+				<a ng-repeat="query in vm.oldQueries" href="#/query/{{query.queryHash }}" class="list-group-item">{{ query.queryRaw }}</a>
+				
+			</div>
+		</div>
+		  </div>
+		</div>
+		
+		
+		<div class="col-xs-9">
+			<form class="row" name="form" ng-submit="vm.createQuery()" role="form">
+				
+				  <div class="form-group col-xs-12" ng-class="{ 'has-error': form.apikey.$dirty && form.apikey.$error.required }">
+		            <label for="apikey">Select API Key</label>
+		            <select name="apikey" id="apikey" class="form-control" ng-model="vm.query.key" required >
+		            	<option value="">---Please select---</option>
+		            	<option ng-repeat="key in vm.APIKeyList" value="{{key.key}}">{{key.name}} {{key.key}}</option>
+		            </select>
+		            <span ng-show="form.apikey.$dirty && form.apikey.$error.required" class="help-block">API Key is required</span>
+		        </div>
+		        <div class="form-group col-xs-6" ng-class="{ 'has-error': form.publishedAfter.$dirty && form.publishedAfter.$error.required }">
+		            <label for="publishedAfter">publishedAfter</label>
+		            <input type="text" name="publishedAfter" id="publishedAfter" class="form-control" ng-model="vm.query.publishedAfter" required />
+		            <span ng-show="form.publishedAfter.$dirty && form.publishedAfter.$error.required" class="help-block">publishedAfter is required</span>
+		        </div>
+		        
+		        <div class="form-group col-xs-6" ng-class="{ 'has-error': form.publishedBefore.$dirty && form.publishedBefore.$error.required }">
+		            <label for="publishedBefore">publishedBefore</label>
+		            <input type="text" name="publishedBefore" id="publishedBefore" class="form-control" ng-model="vm.query.publishedBefore" required />
+		            <span ng-show="form.publishedBefore.$dirty && form.publishedBefore.$error.required" class="help-block">publishedBefore is required</span>
+		        </div>
+		        
+  				<div class="form-group col-xs-12">
+		            <label for="q">Search Query</label>
+		            <input type="text" name="q" id="q" class="form-control" ng-model="vm.query.q" />
+		        </div>
+		        
+		        <div class="form-group col-xs-3">
+		            <label for="channelId">Channel ID</label>
+		            <input type="text" name="channelId" id="channelId" class="form-control" ng-model="vm.query.channelId" />
+		        </div>
+		        <div class="form-group col-xs-3">
+		            <label for="channelType">Channel Type</label>
+		            <input type="text" name="channelType" id="channelType" class="form-control" ng-model="vm.query.channelType" />
+		        </div>
+		        <div class="form-group col-xs-3">
+		            <label for="eventType">Channel Type</label>
+		            <input type="text" name="eventType" id="eventType" class="form-control" ng-model="vm.query.eventType" />
+		        </div>
+		        
+		        <div class="form-group col-xs-3">
+		            <label for=relevanceLanguage>relevanceLanguage</label>
+		            <input type="text" name="relevanceLanguage" id="relevanceLanguage" class="form-control" ng-model="vm.query.relevanceLanguage" />
+		        </div>
+		        
+		        <div class="form-group col-xs-3">
+		            <label for=regionCode>regionCode</label>
+		            <input type="text" name="regionCode" id="regionCode" class="form-control" ng-model="vm.query.regionCode" />
+		        </div>
+		        
+		        
+		        <div class="form-actions col-xs-12">
+		            <button type="submit" ng-disabled="form.$invalid || vm.dataLoading" class="btn btn-primary">Create Query</button>
+		            <img ng-if="vm.dataLoading" src="data:image/gif;base64,R0lGODlhEAAQAPIAAP///wAAAMLCwkJCQgAAAGJiYoKCgpKSkiH/C05FVFNDQVBFMi4wAwEAAAAh/hpDcmVhdGVkIHdpdGggYWpheGxvYWQuaW5mbwAh+QQJCgAAACwAAAAAEAAQAAADMwi63P4wyklrE2MIOggZnAdOmGYJRbExwroUmcG2LmDEwnHQLVsYOd2mBzkYDAdKa+dIAAAh+QQJCgAAACwAAAAAEAAQAAADNAi63P5OjCEgG4QMu7DmikRxQlFUYDEZIGBMRVsaqHwctXXf7WEYB4Ag1xjihkMZsiUkKhIAIfkECQoAAAAsAAAAABAAEAAAAzYIujIjK8pByJDMlFYvBoVjHA70GU7xSUJhmKtwHPAKzLO9HMaoKwJZ7Rf8AYPDDzKpZBqfvwQAIfkECQoAAAAsAAAAABAAEAAAAzMIumIlK8oyhpHsnFZfhYumCYUhDAQxRIdhHBGqRoKw0R8DYlJd8z0fMDgsGo/IpHI5TAAAIfkECQoAAAAsAAAAABAAEAAAAzIIunInK0rnZBTwGPNMgQwmdsNgXGJUlIWEuR5oWUIpz8pAEAMe6TwfwyYsGo/IpFKSAAAh+QQJCgAAACwAAAAAEAAQAAADMwi6IMKQORfjdOe82p4wGccc4CEuQradylesojEMBgsUc2G7sDX3lQGBMLAJibufbSlKAAAh+QQJCgAAACwAAAAAEAAQAAADMgi63P7wCRHZnFVdmgHu2nFwlWCI3WGc3TSWhUFGxTAUkGCbtgENBMJAEJsxgMLWzpEAACH5BAkKAAAALAAAAAAQABAAAAMyCLrc/jDKSatlQtScKdceCAjDII7HcQ4EMTCpyrCuUBjCYRgHVtqlAiB1YhiCnlsRkAAAOwAAAAAAAAAAAA==" />
+		        </div>
+		    </form>
+		</div>
+	</div>
+	
+</div>
