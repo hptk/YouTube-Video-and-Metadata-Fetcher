@@ -1,0 +1,10 @@
+.oldQueries ul {
+	padding-left:0px;
+	margin-left:0px;
+}
+.oldQueries ul li {
+	list-style:none;
+	display:block;
+	clear:both;
+	
+}
