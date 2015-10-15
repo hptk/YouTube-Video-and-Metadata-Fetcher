@@ -2,7 +2,7 @@
 
 import datetime
 from project import db,bcrypt
-
+import json
 class User(db.Model):
 	
 	__tablename__ = "users"
@@ -82,7 +82,6 @@ class YoutubeQuery(db.Model):
 	user_id = db.Column(db.Integer,db.ForeignKey('users.id'))
 	queryHash = db.Column(db.String(255),nullable=False)
 	queryRaw = db.Column(db.Text(),nullable=False)
-	
 	apikey_id = db.Column(db.Integer,db.ForeignKey('apikeys.id'))
 	#apikey_id = db.Column(db.Integer,db.ForeignKey('apikeys.id'))
 	#apikey = db.relationship("APIKey",)
@@ -96,6 +95,8 @@ class YoutubeQuery(db.Model):
 
 	def get_queryRaw(self):
 		return self.queryRaw
+	def get_queryJson(self):
+		return json.dumps(self.queryRaw)
 	
 	def as_dict(self):
 		obj_d = {

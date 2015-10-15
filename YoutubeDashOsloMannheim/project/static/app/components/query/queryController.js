@@ -3,14 +3,27 @@
 define(['app'], function (app) {
 
     
-    app.register.controller('queryController', ['APIKeyService','queryService', '$rootScope','$routeParams', 
+    app.register.controller('queryController', ['APIKeyService','queryService', '$rootScope','$routeParams',
      function (APIKeyService,queryService, $rootScope, $routeParams) {
 
         var vm = this;
-   
-        
+  
+    	
         vm.loadOldQueries = loadOldQueries;
         vm.createQuery = createQuery;
+        
+        var today = new Date();
+        vm.datepicker = {
+        		format:"dd.MM.yyyy",
+        		publishedAfter: {
+        			maxDate:today
+        		},
+        		publishedBefore: {
+        			maxDate:today
+        		}
+        		
+        };
+        
         vm.APIKeyList = [];
         vm.oldQueries = [];
         vm.maxOldQueries = {
@@ -19,7 +32,7 @@ define(['app'], function (app) {
         	      {value: '20', name: '20'},
         	      {value: '30', name: '30'},
         	      {value: '40', name: '40'},
-        	      {value: '40', name: '40'}
+        	      {value: '50', name: '50'}
         	    ],
         	    selectedOption: {value: '10', name: '10'} //This sets the default value of the select in the ui
         	    };
@@ -27,13 +40,16 @@ define(['app'], function (app) {
         
         
         function initController() {
+        	
             loadAllKeys();
             loadOldQueries();
             if(typeof $routeParams.hash !== 'undefined') {
             	loadHashQuery();
             }
         }
-
+        
+        
+       
         function loadAllKeys() {
         	APIKeyService.getAll()
         		.then(function (data) {

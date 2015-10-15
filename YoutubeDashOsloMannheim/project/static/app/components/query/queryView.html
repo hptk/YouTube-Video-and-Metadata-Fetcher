@@ -2,21 +2,42 @@
 <div class="container">
 	
 	<div class="row">
-	<div class="col-xs-3">
+	<div class="col-xs-4">
 		<div class="panel panel-default">
-		  <div class="panel-heading">
-		    <h3 class="panel-title">Old Queries</h3>
+		  <div style="width:100%;" class="panel-heading btn" uib-dropdown is-open="status.isopen">
+		    
+		    
+		      <h3 class="panel-title" uib-dropdown-toggle ng-disabled="disabled">
+		        {{vm.maxOldQueries.selectedOption.value}} recent queries <span class="caret"></span>
+		      </h3>
+		      <ul class="uib-dropdown-menu" role="menu" style="width:100%;">
+		      
+		      	<li ng-repeat="option in vm.maxOldQueries.availableOptions">
+		      		<a ng-click="vm.maxOldQueries.selectedOption.value=option.value;vm.loadOldQueries()">{{option.value}} recent queries</a>
+		      	</li>
+
+		      </ul>
+		    
+		    <!-- 
 		    <select name="maxOldQueries" id="maxOldQueries"
       			ng-options="option.name for option in vm.maxOldQueries.availableOptions track by option.value"
       			ng-model="vm.maxOldQueries.selectedOption"
       			ng-change="vm.loadOldQueries()"
       			>
       		</select>
+      		 -->
+      		 
 		  </div>
-		  <div class="panel-body">
+		  <div style="padding:0px;" class="panel-body">
 		    
-			<div class="list-group">
-				<a ng-repeat="query in vm.oldQueries" href="#/query/{{query.queryHash }}" class="list-group-item">{{ query.queryRaw }}</a>
+			<div class="list-group oldQueries ">
+				<a ng-repeat="query in vm.oldQueries" href="#/query/{{query.queryHash }}" class="list-group-item">
+					<ul>
+						<li ng-repeat="(key, value) in query.queryRaw " >
+							<b class="pull-left">{{ key }}:</b> <span class="pull-right">{{ value }}</span>
+						</li>
+					</ul>
+				</a>
 				
 			</div>
 		</div>
@@ -24,54 +45,76 @@
 		</div>
 		
 		
-		<div class="col-xs-9">
+		<div class="col-xs-8">
 			<form class="row" name="form" ng-submit="vm.createQuery()" role="form">
 				
 				  <div class="form-group col-xs-12" ng-class="{ 'has-error': form.apikey.$dirty && form.apikey.$error.required }">
-		            <label for="apikey">Select API Key</label>
+		            <label for="apikey">Select API Key <i class="glyphicon glyphicon-info-sign" uib-popover="Select a working API Key for this query" popover-trigger="mouseenter"></i></label>
 		            <select name="apikey" id="apikey" class="form-control" ng-model="vm.query.key" required >
 		            	<option value="">---Please select---</option>
 		            	<option ng-repeat="key in vm.APIKeyList" value="{{key.key}}">{{key.name}} {{key.key}}</option>
 		            </select>
 		            <span ng-show="form.apikey.$dirty && form.apikey.$error.required" class="help-block">API Key is required</span>
 		        </div>
-		        <div class="form-group col-xs-6" ng-class="{ 'has-error': form.publishedAfter.$dirty && form.publishedAfter.$error.required }">
-		            <label for="publishedAfter">publishedAfter</label>
-		            <input type="text" name="publishedAfter" id="publishedAfter" class="form-control" ng-model="vm.query.publishedAfter" required />
-		            <span ng-show="form.publishedAfter.$dirty && form.publishedAfter.$error.required" class="help-block">publishedAfter is required</span>
+		        
+		        <div class="form-group col-xs-12">
+		        	<div class="row">
+		        		<div class="col-xs-6"  ng-class="{ 'has-error': form.publishedAfter.$dirty && form.publishedAfter.$error.required }">
+		        			<label for="publishedAfter">publishedAfter <i class="glyphicon glyphicon-info-sign" uib-popover="The publishedAfter parameter indicates that the API response should only contain resources created after the specified time." popover-trigger="mouseenter"></i></label>
+				            <div class="input-group">
+				              <input type="text" name="publishedAfter" id="publishedAfter" class="form-control" uib-datepicker-popup="{{vm.datepicker.format}}" ng-model="vm.query.publishedAfter" is-open="vm.datepicker.publishedAfter.open" min-date="vm.datepicker.publishedAfter.minDate" max-date="vm.datepicker.publishedAfter.maxDate" datepicker-options="vm.datepicker.dateOptions" date-disabled="disabled(date, mode)"  close-text="Close" required/>
+				              <span class="input-group-btn">
+				                <button type="button" class="btn btn-default" ng-click="vm.datepicker.publishedAfter.open=true"><i class="glyphicon glyphicon-calendar"></i></button>
+				              </span>
+				            </div>
+				            <span ng-show="form.publishedAfter.$dirty && form.publishedAfter.$error.required" class="help-block">publishedAfter is required</span>
+				        </div>
+				
+				        <div class="col-xs-6"  ng-class="{ 'has-error': form.publishedBefore.$dirty && form.publishedBefore.$error.required }">
+		        			<label for="publishedBefore">publishedBefore <i class="glyphicon glyphicon-info-sign" uib-popover="The publishedBefore parameter indicates that the API response should only contain resources created before the specified time." popover-trigger="mouseenter"></i></label>
+				            <div class="input-group">
+				              <input type="text" name="publishedBefore" id="publishedBefore" class="form-control" uib-datepicker-popup="{{vm.datepicker.format}}" ng-model="vm.query.publishedBefore" is-open="vm.datepicker.publishedBefore.open" min-date="vm.datepicker.publishedBefore.minDate" max-date="vm.datepicker.publishedBefore.maxDate" datepicker-options="vm.datepicker.dateOptions" date-disabled="disabled(date, mode)"  close-text="Close" required/>
+				              <span class="input-group-btn">
+				                <button type="button" class="btn btn-default" ng-click="vm.datepicker.publishedBefore.open=true"><i class="glyphicon glyphicon-calendar"></i></button>
+				              </span>
+				            </div>
+				            <span ng-show="form.publishedBefore.$dirty && form.publishedBefore.$error.required" class="help-block">publishedBefore is required</span>
+				        </div>
+		        	</div>
 		        </div>
 		        
-		        <div class="form-group col-xs-6" ng-class="{ 'has-error': form.publishedBefore.$dirty && form.publishedBefore.$error.required }">
-		            <label for="publishedBefore">publishedBefore</label>
-		            <input type="text" name="publishedBefore" id="publishedBefore" class="form-control" ng-model="vm.query.publishedBefore" required />
-		            <span ng-show="form.publishedBefore.$dirty && form.publishedBefore.$error.required" class="help-block">publishedBefore is required</span>
-		        </div>
+		        
+		        
+		        <div class="row">
+        
+    </div>
+		        
 		        
   				<div class="form-group col-xs-12">
-		            <label for="q">Search Query</label>
+		            <label for="q">Search Query <i class="glyphicon glyphicon-info-sign" uib-popover="The q parameter specifies the query term to search for. Your request can also use the Boolean NOT (-) and OR (|) operators to exclude videos or to find videos that are associated with one of several search terms. For example, to search for videos matching either 'boating' or 'sailing', set the q parameter value to boating|sailing. Similarly, to search for videos matching either 'boating' or 'sailing' but not 'fishing', set the q parameter value to boating|sailing -fishing." popover-trigger="mouseenter"></i></label>
 		            <input type="text" name="q" id="q" class="form-control" ng-model="vm.query.q" />
 		        </div>
 		        
 		        <div class="form-group col-xs-3">
-		            <label for="channelId">Channel ID</label>
+		            <label for="channelId">Channel ID <i class="glyphicon glyphicon-info-sign" uib-popover="The channelId parameter indicates that the API response should only contain resources created by the channel (string)" popover-trigger="mouseenter"></i></label>
 		            <input type="text" name="channelId" id="channelId" class="form-control" ng-model="vm.query.channelId" />
 		        </div>
 		        <div class="form-group col-xs-3">
-		            <label for="channelType">Channel Type</label>
+		            <label for="channelType">Channel Type <i class="glyphicon glyphicon-info-sign" uib-popover="The channelType parameter lets you restrict a search to a particular type of channel. (string)" popover-trigger="mouseenter"></i></label>
 		            <input type="text" name="channelType" id="channelType" class="form-control" ng-model="vm.query.channelType" />
 		        </div>
 		        <div class="form-group col-xs-3">
-		            <label for="eventType">Channel Type</label>
+		            <label for="eventType">Event Type <i class="glyphicon glyphicon-info-sign" uib-popover="The eventType parameter restricts a search to broadcast events. If you specify a value for this parameter, you must also set the type parameter's value to video. (string)" popover-trigger="mouseenter"></i></label>
 		            <input type="text" name="eventType" id="eventType" class="form-control" ng-model="vm.query.eventType" />
 		        </div>
 		        
 		        <div class="form-group col-xs-3">
-		            <label for=relevanceLanguage>relevanceLanguage</label>
+		            <label for=relevanceLanguage>relevanceLanguage <i class="glyphicon glyphicon-info-sign" uib-popover="The relevanceLanguage parameter instructs the API to return search results that are most relevant to the specified language. The parameter value is typically an ISO 639-1 two-letter language code." popover-trigger="mouseenter"></i></label>
 		            <input type="text" name="relevanceLanguage" id="relevanceLanguage" class="form-control" ng-model="vm.query.relevanceLanguage" />
 		        </div>
 		        
 		        <div class="form-group col-xs-3">
-		            <label for=regionCode>regionCode</label>
+		            <label for=regionCode>regionCode <i class="glyphicon glyphicon-info-sign" uib-popover="The regionCode parameter instructs the API to return search results for the specified country. The parameter value is an ISO 3166-1 alpha-2 country code. (string)" popover-trigger="mouseenter"></i></label>
 		            <input type="text" name="regionCode" id="regionCode" class="form-control" ng-model="vm.query.regionCode" />
 		        </div>
 		        

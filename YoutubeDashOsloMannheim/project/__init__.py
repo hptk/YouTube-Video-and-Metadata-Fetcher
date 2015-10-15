@@ -115,7 +115,7 @@ def deleteAPIKey(keyid):
 def createQuery():
 	query = YoutubeQuery(
 		#experimential, hashing should be changed
-		queryHash=base64.b64encode(json.dumps(request.json)),
+		queryHash=base64.urlsafe_b64encode(json.dumps(request.json)),
 		queryRaw=json.dumps(request.json)
 	)
 
@@ -140,7 +140,7 @@ def createQuery():
 def getQuery(hash):
 	try:
 		query = YoutubeQuery.query.filter_by(user_id=session['id'],queryHash=hash).first()
-
+		
 		return jsonify({'success': True,'query':json.loads(query.get_queryRaw())})
 	except:
 		pass
@@ -151,6 +151,8 @@ def getQueries(amount):
 	try:
 		queries = YoutubeQuery.query.filter_by(user_id=session['id']).order_by(desc(YoutubeQuery.id)).limit(amount)
 		dict_queries = [query.as_dict() for query in queries]
+		for query in dict_queries:
+			query["queryRaw"] = json.loads(query["queryRaw"])
 		return jsonify({'success': True,'queries':dict_queries})
 	except:
 		pass
