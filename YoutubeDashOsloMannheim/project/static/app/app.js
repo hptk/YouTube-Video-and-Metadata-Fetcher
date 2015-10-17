@@ -2,14 +2,43 @@
 
 define(['shared/services/routeResolver'], function () {
 
-    var app = angular.module('youtubeApp', ['ngRoute', 'routeResolverServices', 'ngCookies', 'ui.bootstrap']);
+    var app = angular.module('youtubeApp', ['ngRoute', 'routeResolverServices', 'ngCookies', 'ui.bootstrap','ngSanitize','ui.select']);
 
     app.config(['$routeProvider', 'routeResolverProvider', '$controllerProvider',
                 '$compileProvider', '$filterProvider', '$provide', '$httpProvider',
 
         function ($routeProvider, routeResolverProvider, $controllerProvider,
                   $compileProvider, $filterProvider, $provide, $httpProvider) {
+    		
+    		//default convert received date string into javascript date objects
+	    	$httpProvider.defaults.transformResponse.push(function(responseData){
+	            convertDateStringsToDates(responseData);
+	            return responseData;
+	        });
+	    	var regexIso8601 = /(\d\d\d\d)(-)?(\d\d)(-)?(\d\d)(T)?(\d\d)(:)?(\d\d)(:)?(\d\d)(\.\d+)?(Z|([+-])(\d\d)(:)?(\d\d))/;
 
+	    	function convertDateStringsToDates(input) {
+	    	    // Ignore things that aren't objects.
+	    	    if (typeof input !== "object") return input;
+
+	    	    for (var key in input) {
+	    	        if (!input.hasOwnProperty(key)) continue;
+
+	    	        var value = input[key];
+	    	        var match;
+	    	        // Check for string properties which look like dates.
+	    	        if (typeof value === "string" && (match = value.match(regexIso8601))) {
+	    	            var milliseconds = Date.parse(match[0])
+	    	            if (!isNaN(milliseconds)) {
+	    	                input[key] = new Date(milliseconds);
+	    	            }
+	    	        } else if (typeof value === "object") {
+	    	            // Recurse into object
+	    	            convertDateStringsToDates(value);
+	    	        }
+	    	    }
+	    	}
+    	
             //Change default views and controllers directory using the following:
             //routeResolverProvider.routeConfig.setBaseDirectories('/app/views', '/app/controllers');
 
@@ -40,7 +69,7 @@ define(['shared/services/routeResolver'], function () {
                 .when('/register',route.resolve('register','register/', 'vm'))
                 .when('/manageKeys',route.resolve('manageKeys','manageKeys/', 'vm', true))
                 .when('/query',route.resolve('query','query/', 'vm', true))
-                .when('/query/:hash',route.resolve('query','query/', 'vm', true))
+                .when('/query/:id',route.resolve('query','query/', 'vm', true))
                 
                 .otherwise({ redirectTo: '/' });
 

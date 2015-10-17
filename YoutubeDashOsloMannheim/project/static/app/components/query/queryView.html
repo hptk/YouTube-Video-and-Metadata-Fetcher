@@ -4,7 +4,7 @@
 	<div class="row">
 	<div class="col-xs-4">
 		<div class="panel panel-default">
-		  <div style="width:100%;" class="panel-heading btn" uib-dropdown is-open="status.isopen">
+		  <div style="width:100%;" class="panel-heading btn" uib-dropdown>
 		    
 		    
 		      <h3 class="panel-title" uib-dropdown-toggle ng-disabled="disabled">
@@ -31,7 +31,7 @@
 		  <div style="padding:0px;" class="panel-body">
 		    
 			<div class="list-group oldQueries ">
-				<a ng-repeat="query in vm.oldQueries" href="#/query/{{query.queryHash }}" class="list-group-item">
+				<a ng-repeat="query in vm.oldQueries" href="#/query/{{query.id }}" class="list-group-item">
 					<ul>
 						<li ng-repeat="(key, value) in query.queryRaw " >
 							<b class="pull-left">{{ key }}:</b> <span class="pull-right">{{ value }}</span>
@@ -47,13 +47,23 @@
 		
 		<div class="col-xs-8">
 			<form class="row" name="form" ng-submit="vm.createQuery()" role="form">
-				
-				  <div class="form-group col-xs-12" ng-class="{ 'has-error': form.apikey.$dirty && form.apikey.$error.required }">
+				<div class="panel panel-default">
+  					<div class="panel-heading">
+    					<h3 class="panel-title">Required</h3>
+  					</div>
+  				<div class="panel-body">
+  				<div class="row">
+    				<div class="form-group col-xs-12" ng-class="{ 'has-error': form.apikey.$dirty && form.apikey.$error.required }">
 		            <label for="apikey">Select API Key <i class="glyphicon glyphicon-info-sign" uib-popover="Select a working API Key for this query" popover-trigger="mouseenter"></i></label>
-		            <select name="apikey" id="apikey" class="form-control" ng-model="vm.query.key" required >
-		            	<option value="">---Please select---</option>
-		            	<option ng-repeat="key in vm.APIKeyList" value="{{key.key}}">{{key.name}} {{key.key}}</option>
-		            </select>
+		                       
+		            <ui-select ng-model="vm.query.key" required>
+			            <ui-select-match placeholder="Select an API Key">{{$select.selected.name}}</ui-select-match>
+			            <ui-select-choices repeat="key.key as key in vm.APIKeyList | filter:{availability:true}">
+			              <div ng-bind-html="key.name | highlight: $select.search"></div>
+			              <small ng-bind-html="key.key | highlight: $select.search"></small>
+			            </ui-select-choices>
+			          </ui-select>
+          
 		            <span ng-show="form.apikey.$dirty && form.apikey.$error.required" class="help-block">API Key is required</span>
 		        </div>
 		        
@@ -82,42 +92,137 @@
 				        </div>
 		        	</div>
 		        </div>
-		        
-		        
-		        
-		        <div class="row">
-        
-    </div>
-		        
-		        
-  				<div class="form-group col-xs-12">
+  				</div>
+  				</div>
+		</div>
+				  
+		 <div class="panel panel-default">
+			  <div class="panel-heading btn" style="width:100%;">
+			    <h3 class="panel-title" ng-click="vm.optionalIsCollapsed = !vm.optionalIsCollapsed">Optional</h3>
+			  </div>
+			  <div class="panel-body">
+			  <div class="row" uib-collapse="vm.optionalIsCollapsed">
+			    <div class="form-group col-xs-12">
 		            <label for="q">Search Query <i class="glyphicon glyphicon-info-sign" uib-popover="The q parameter specifies the query term to search for. Your request can also use the Boolean NOT (-) and OR (|) operators to exclude videos or to find videos that are associated with one of several search terms. For example, to search for videos matching either 'boating' or 'sailing', set the q parameter value to boating|sailing. Similarly, to search for videos matching either 'boating' or 'sailing' but not 'fishing', set the q parameter value to boating|sailing -fishing." popover-trigger="mouseenter"></i></label>
 		            <input type="text" name="q" id="q" class="form-control" ng-model="vm.query.q" />
 		        </div>
 		        
-		        <div class="form-group col-xs-3">
+		        <div class="form-group col-xs-6">
 		            <label for="channelId">Channel ID <i class="glyphicon glyphicon-info-sign" uib-popover="The channelId parameter indicates that the API response should only contain resources created by the channel (string)" popover-trigger="mouseenter"></i></label>
 		            <input type="text" name="channelId" id="channelId" class="form-control" ng-model="vm.query.channelId" />
 		        </div>
-		        <div class="form-group col-xs-3">
+		        <div class="form-group col-xs-6">
 		            <label for="channelType">Channel Type <i class="glyphicon glyphicon-info-sign" uib-popover="The channelType parameter lets you restrict a search to a particular type of channel. (string)" popover-trigger="mouseenter"></i></label>
-		            <input type="text" name="channelType" id="channelType" class="form-control" ng-model="vm.query.channelType" />
+		            
+		            <ui-select ng-model="vm.query.channelType">
+			            <ui-select-match>{{$select.selected.type}}</ui-select-match>
+			            <ui-select-choices repeat="type.type as type in vm.channelType">
+			              <div ng-bind-html="type.type | highlight: $select.search"></div>
+			              <small ng-bind-html="type.name | highlight: $select.search"></small>
+			            </ui-select-choices>
+			          </ui-select>
+          
 		        </div>
-		        <div class="form-group col-xs-3">
+		        <div class="form-group col-xs-6">
 		            <label for="eventType">Event Type <i class="glyphicon glyphicon-info-sign" uib-popover="The eventType parameter restricts a search to broadcast events. If you specify a value for this parameter, you must also set the type parameter's value to video. (string)" popover-trigger="mouseenter"></i></label>
-		            <input type="text" name="eventType" id="eventType" class="form-control" ng-model="vm.query.eventType" />
+		            <ui-select ng-model="vm.query.eventType">
+			            <ui-select-match>{{$select.selected.type}}</ui-select-match>
+			            <ui-select-choices repeat="type.type as type in vm.eventType">
+			              <div ng-bind-html="type.type | highlight: $select.search"></div>
+			              <small ng-bind-html="type.name | highlight: $select.search"></small>
+			            </ui-select-choices>
+			          </ui-select>
 		        </div>
 		        
-		        <div class="form-group col-xs-3">
+		        <div class="form-group col-xs-6">
 		            <label for=relevanceLanguage>relevanceLanguage <i class="glyphicon glyphicon-info-sign" uib-popover="The relevanceLanguage parameter instructs the API to return search results that are most relevant to the specified language. The parameter value is typically an ISO 639-1 two-letter language code." popover-trigger="mouseenter"></i></label>
-		            <input type="text" name="relevanceLanguage" id="relevanceLanguage" class="form-control" ng-model="vm.query.relevanceLanguage" />
+		            <ui-select ng-model="vm.query.relevanceLanguage">
+			            <ui-select-match>{{$select.selected.name}}</ui-select-match>
+			            <ui-select-choices repeat="code.code as code in vm.relevanceLanguage | filter: $select.search">
+			              <div ng-bind-html="code.name | highlight: $select.search"></div>
+			              <small ng-bind-html="code.code | highlight: $select.search"></small>
+			            </ui-select-choices>
+			          </ui-select>
 		        </div>
 		        
-		        <div class="form-group col-xs-3">
+		        <div class="form-group col-xs-6">
 		            <label for=regionCode>regionCode <i class="glyphicon glyphicon-info-sign" uib-popover="The regionCode parameter instructs the API to return search results for the specified country. The parameter value is an ISO 3166-1 alpha-2 country code. (string)" popover-trigger="mouseenter"></i></label>
-		            <input type="text" name="regionCode" id="regionCode" class="form-control" ng-model="vm.query.regionCode" />
+		            <ui-select ng-model="vm.query.regionCode">
+			            <ui-select-match>{{$select.selected.name}}</ui-select-match>
+			            <ui-select-choices repeat="code.code as code in vm.regionCode | filter: $select.search">
+			              <div ng-bind-html="code.name | highlight: $select.search"></div>
+			              <small ng-bind-html="code.code | highlight: $select.search"></small>
+			            </ui-select-choices>
+			          </ui-select>
 		        </div>
 		        
+		        <div class="form-group col-xs-6">
+		            <label for=safeSearch>safeSearch <i class="glyphicon glyphicon-info-sign" uib-popover="The safeSearch parameter indicates whether the search results should include restricted content as well as standard content. (string)" popover-trigger="mouseenter"></i></label>
+		            <ui-select ng-model="vm.query.safeSearch">
+			            <ui-select-match>{{$select.selected.type}}</ui-select-match>
+			            <ui-select-choices repeat="type.type as type in vm.safeSearch">
+			              <div ng-bind-html="type.type | highlight: $select.search"></div>
+			              <small ng-bind-html="type.name | highlight: $select.search"></small>
+			            </ui-select-choices>
+			          </ui-select>
+		        </div>
+		        
+		        <div class="form-group col-xs-6">
+		            <label for=type>type <i class="glyphicon glyphicon-info-sign" uib-popover="The type parameter restricts a search query to only retrieve a particular type of resource. The value is a comma-separated list of resource types. (string)" popover-trigger="mouseenter"></i></label>
+		            <input type="text" name="type" id="type" class="form-control" ng-model="vm.query.type" />
+		        </div>
+		        
+		        <div class="form-group col-xs-6">
+		            <label for=videoCaption>videoCaption <i class="glyphicon glyphicon-info-sign" uib-popover="The videoCaption parameter indicates whether the API should filter video search results based on whether they have captions. If you specify a value for this parameter, you must also set the type parameter's value to video. (string)" popover-trigger="mouseenter"></i></label>
+		            <ui-select ng-model="vm.query.videoCaption">
+			            <ui-select-match>{{$select.selected.type}}</ui-select-match>
+			            <ui-select-choices repeat="type.type as type in vm.videoCaption">
+			              <div ng-bind-html="type.type | highlight: $select.search"></div>
+			              <small ng-bind-html="type.name | highlight: $select.search"></small>
+			            </ui-select-choices>
+			          </ui-select>
+		        </div>
+		        
+		        <div class="form-group col-xs-6">
+		            <label for=videoDefinition>videoDefinition <i class="glyphicon glyphicon-info-sign" uib-popover="The videoDefinition parameter lets you restrict a search to only include either high definition (HD) or standard definition (SD) videos. HD videos are available for playback in at least 720p, though higher resolutions, like 1080p, might also be available. If you specify a value for this parameter, you must also set the type parameter's value to video. (string)" popover-trigger="mouseenter"></i></label>
+		            <ui-select ng-model="vm.query.videoDefinition">
+			            <ui-select-match>{{$select.selected.type}}</ui-select-match>
+			            <ui-select-choices repeat="type.type as type in vm.videoDefinition">
+			              <div ng-bind-html="type.type | highlight: $select.search"></div>
+			              <small ng-bind-html="type.name | highlight: $select.search"></small>
+			            </ui-select-choices>
+			          </ui-select>
+		        </div>
+		        
+		        <div class="form-group col-xs-6">
+		            <label for=videoDimension>videoDimension <i class="glyphicon glyphicon-info-sign" uib-popover="The videoDimension parameter lets you restrict a search to only retrieve 2D or 3D videos. If you specify a value for this parameter, you must also set the type parameter's value to video. (string)" popover-trigger="mouseenter"></i></label>
+		            <ui-select ng-model="vm.query.videoDimension">
+			            <ui-select-match>{{$select.selected.type}}</ui-select-match>
+			            <ui-select-choices repeat="type.type as type in vm.videoDimension">
+			              <div ng-bind-html="type.type | highlight: $select.search"></div>
+			              <small ng-bind-html="type.name | highlight: $select.search"></small>
+			            </ui-select-choices>
+			          </ui-select>
+		        </div>
+		        
+		        <div class="form-group col-xs-6">
+		            <label for=videoDuration>videoDuration <i class="glyphicon glyphicon-info-sign" uib-popover="The videoDuration parameter filters video search results based on their duration. If you specify a value for this parameter, you must also set the type parameter's value to video. (string)" popover-trigger="mouseenter"></i></label>
+		            <ui-select ng-model="vm.query.videoDuration">
+			            <ui-select-match>{{$select.selected.type}}</ui-select-match>
+			            <ui-select-choices repeat="type.type as type in vm.videoDuration">
+			              <div ng-bind-html="type.type | highlight: $select.search"></div>
+			              <small ng-bind-html="type.name | highlight: $select.search"></small>
+			            </ui-select-choices>
+			          </ui-select>
+		        </div>
+			  </div>
+			</div>       
+		        </div>
+		        
+		        
+		        
+		        
+  				
 		        
 		        <div class="form-actions col-xs-12">
 		            <button type="submit" ng-disabled="form.$invalid || vm.dataLoading" class="btn btn-primary">Create Query</button>

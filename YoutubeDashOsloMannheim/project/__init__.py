@@ -1,6 +1,6 @@
 # project/__init__.py
 
-from flask import Flask, request, jsonify, session
+from flask import Flask, request, jsonify, session, redirect
 from flask.ext.bcrypt import Bcrypt
 from flask.ext.sqlalchemy import SQLAlchemy
 from project.config import BaseConfig
@@ -129,17 +129,19 @@ def createQuery():
 		#query.apikey.append(usedKey)
 		
 		db.session.commit()
-
+		
 		status = True
+		queryId = query.id
+		
 	except:
 		#some error
 		status = False
 	db.session.close()
-	return jsonify({'success':status})
-@app.route('/api/queries/<hash>', methods=['GET'])
-def getQuery(hash):
+	return jsonify({'success':status,'id':queryId})
+@app.route('/api/queries/<int:id>', methods=['GET'])
+def getQuery(id):
 	try:
-		query = YoutubeQuery.query.filter_by(user_id=session['id'],queryHash=hash).first()
+		query = YoutubeQuery.query.filter_by(user_id=session['id'],id=id).first()
 		
 		return jsonify({'success': True,'query':json.loads(query.get_queryRaw())})
 	except:

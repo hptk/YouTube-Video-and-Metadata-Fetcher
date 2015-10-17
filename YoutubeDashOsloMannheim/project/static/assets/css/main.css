@@ -8,3 +8,6 @@
 	clear:both;
 	
 }
+small.ng-binding.ng-scope {
+	white-space:normal;
+}

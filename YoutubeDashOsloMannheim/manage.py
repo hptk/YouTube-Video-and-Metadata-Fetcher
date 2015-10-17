@@ -13,9 +13,6 @@ manager = Manager(app)
 manager.add_command('db', MigrateCommand)
 
 
-# migrations
-manager.add_command('db', MigrateCommand)
-
 @manager.command 
 def create_db():
 	"""Creates the db tables"""
