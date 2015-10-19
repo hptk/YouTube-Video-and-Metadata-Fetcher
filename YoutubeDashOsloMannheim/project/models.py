@@ -42,6 +42,10 @@ class User(db.Model):
 	def get_lastname(self):
 		return self.lastname
 
+class YoutubeVideo(db.Model):
+	__tablename__ = "video"
+	
+	id = db.Column(db.String(255),primary_key=True,unique=True)
 	
 
 class APIKey(db.Model):

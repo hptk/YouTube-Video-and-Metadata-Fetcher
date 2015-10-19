@@ -115,7 +115,8 @@ def deleteAPIKey(keyid):
 def createQuery():
 	query = YoutubeQuery(
 		#experimential, hashing should be changed
-		queryHash=base64.urlsafe_b64encode(json.dumps(request.json)),
+		#queryHash=base64.urlsafe_b64encode(json.dumps(request.json)),
+		queryHash = "dummy",
 		queryRaw=json.dumps(request.json)
 	)
 

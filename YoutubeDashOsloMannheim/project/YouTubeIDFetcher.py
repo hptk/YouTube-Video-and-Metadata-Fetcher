@@ -12,7 +12,7 @@ from project.models import YoutubeVideo
 numberHTTPClients = 50
 numberClientConcurrent = 100
 
-publishedBefore = datetime.datetime.utcnow().replace(hour=0,minute=0,second=0,microsecond=0) -datetime.timedelta(days=0)
+publishedBefore = datetime.datetime.utcnow().replace(hour=0,minute=0,second=0,microsecond=0) -datetime.timedelta(days=30)
 publishedAfter = publishedBefore - datetime.timedelta(days=7)
 totalFrame = int((publishedBefore-publishedAfter).total_seconds())
 secondsPerFrame = int(totalFrame/numberHTTPClients)
