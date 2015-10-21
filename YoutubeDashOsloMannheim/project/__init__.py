@@ -1,20 +1,29 @@
 # project/__init__.py
 
-from flask import Flask, request, jsonify, session, redirect
+from flask import Flask, request, jsonify, session,flash, redirect, url_for
 from flask.ext.bcrypt import Bcrypt
 from flask.ext.sqlalchemy import SQLAlchemy
-from project.config import BaseConfig
+import project.config
 import json
 import base64
 from sqlalchemy.sql.expression import desc
+import logging.config
+from redis import ConnectionError
+from celery_setup import make_celery
+
 # config
 app = Flask(__name__)
-app.config.from_object(BaseConfig)
+app.config.from_object(project.config.BaseConfig)
+if 'LOGGING' in app.config:
+	logging.config.dictConfig(app.config['LOGGING'])
+	
 
 bcrypt = Bcrypt(app)
 db = SQLAlchemy(app)
-
+celery = make_celery(app)
 from project.models import User, APIKey, YoutubeQuery
+from tasks import fetch
+
 
 @app.route('/')
 def index():
@@ -128,17 +137,57 @@ def createQuery():
 		#query.apikey.append(usedKey)
 		#query.user.append(user)
 		#query.apikey.append(usedKey)
-		
 		db.session.commit()
-		
 		status = True
 		queryId = query.id
+		
 		
 	except:
 		#some error
 		status = False
 	db.session.close()
 	return jsonify({'success':status,'id':queryId})
+
+@app.route('/api/queries/<int:id>', methods=['POST'])
+def setTask(id):
+	json_data = request.json
+	action = json_data['action']
+	task = fetch.delay()
+	return jsonify({'success':True,'task':{'task_id':task.id, 'task_action':action,'task_action_id':id, 'progress_url':url_for('getProgress',task_action_id=id,task_action=action,task_id=task.id)}})
+
+@app.route('/api/queries/<int:task_action_id>/<task_action>/progress/<task_id>', methods=['GET'])
+def getProgress(task_action_id,task_action,task_id):
+	task = fetch.AsyncResult(task_id)
+	if task.state == 'PENDING':
+		#job did not started yet
+		response = {
+			'state': task.state, 
+			'workedRequests': 0,
+			'maxRequests': 0,
+			'current':0,
+			'queueSize':0,
+		}
+	elif task.state != 'FAILURE':
+		response = {
+			'state': task.state,
+			'workedRequests': task.info.get('workedRequests', 0),
+			'maxRequests': task.info.get('maxRequests', 0),
+			'current': task.info.get('current', 0),
+			'queueSize':task.info.get('queueSize', 0)
+		}
+		if 'result' in task.info:
+			response['result'] = task.info['result']
+	else:
+		# something went wrong in the background job
+		response = {
+			'state': task.state,
+			'workedRequests': 0,
+			'current': 0, 
+			'queueSize':0,
+			'status': str(task.info)  # this is the exception raised
+		}
+	return jsonify(response)
+   
 @app.route('/api/queries/<int:id>', methods=['GET'])
 def getQuery(id):
 	try:
@@ -159,3 +208,11 @@ def getQueries(amount):
 		return jsonify({'success': True,'queries':dict_queries})
 	except:
 		pass
+	
+	
+@app.errorhandler(ConnectionError)
+def connection_error(e):
+	debug_description = "<strong>redis-server</strong> is"
+	production_description = "both <strong>redis-server</strong> and <strong>worker.py</strong> are"
+	description = "Check to make sure that %s running." % (debug_description if app.debug else production_description)
+	return description, 500

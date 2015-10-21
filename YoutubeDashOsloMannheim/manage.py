@@ -2,9 +2,7 @@
 
 from flask.ext.script import Manager
 from flask.ext.migrate import Migrate, MigrateCommand
-from project import app, db
-from project.models import User
-
+from project import app, db, celery
 
 migrate = Migrate(app, db)
 manager = Manager(app)
@@ -30,4 +28,17 @@ def create_sample_data():
 	
 
 if __name__ == '__main__':
+	debug = app.config.get('DEBUG',True)
+	#argv = [
+    #    'worker',
+    #    '--loglevel=DEBUG',
+    #    '&'
+    #]
+	#celery.worker_main(argv)
+	#celery.start(argv=['celery', 'worker', '-l', 'info'])
+	#celery.start()
+	#from project.worker import TaskWorker
+	#worker = TaskWorker(app,debug=debug)
+	#worker.reset()
+	#worker.start()
 	manager.run()

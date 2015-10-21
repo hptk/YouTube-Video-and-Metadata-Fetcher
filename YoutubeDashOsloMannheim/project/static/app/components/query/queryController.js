@@ -3,8 +3,8 @@
 define(['app'], function (app) {
 
     
-    app.register.controller('queryController', ['APIKeyService','queryService', '$rootScope','$routeParams','$location',
-     function (APIKeyService,queryService, $rootScope, $routeParams, $location) {
+    app.register.controller('queryController', ['APIKeyService','queryService','taskService', '$rootScope','$routeParams','$location','$timeout',
+     function (APIKeyService,queryService,taskService, $rootScope, $routeParams, $location, $timeout) {
 
         var vm = this;
         vm.optionalIsCollapsed = true;
@@ -58,6 +58,8 @@ define(['app'], function (app) {
         vm.loadOldQueries = loadOldQueries;
         vm.createQuery = createQuery;
         
+        vm.createTask = createTask;
+        
         var today = new Date();
         vm.datepicker = {
         		format:"dd.MM.yyyy",
@@ -94,6 +96,66 @@ define(['app'], function (app) {
             }
         }
         
+       function createTask(action) {
+    	   vm.createTaskClicked = true;
+    	   vm.dataCheckingQuery = true;
+    	   
+    	   taskService.createTask($routeParams.id,action)
+   			.then(function (data) {
+   				if(data.success===true)
+   				{
+   					vm.task = data.task;
+   					vm.dataCheckingQuery = false;
+   					updateProgress(vm.task.progress_url)
+   				}
+   				else
+   				{
+   					alert("some serverside error");
+   					vm.createTaskClicked = false;
+   					vm.dataCheckingQuery = false;
+   				}
+   			});
+       }
+       
+       function updateProgress(url)
+       {
+    	   vm.showProgress=true;
+    	   taskService.getProgress(url)
+    	   .then(function (data) {
+  				if(data.success!==false)
+  				{
+  					if(data.state=='PENDING') {
+  						
+  					} else {
+  						vm.task.progress = angular.toJson(data);
+  	  					vm.taskprogressmax = data.workedRequests+data.queueSize;
+  	  					vm.taskprogressvalue = data.workedRequests;
+  	  					vm.taskprogresscurrent = data.current;
+  					}
+  						
+  					
+  					if (data.state != 'PENDING' && data.state != 'PROGRESS') {
+  		                if ('result' in data) {
+  		                    // show result
+  		                	vm.task.result = data.result;
+  		                	vm.taskprogresscurrent = data.result
+  		                }
+  		                else {
+  		                    // something unexpected happened
+  		                	vm.task.error = data.state;
+  		                }
+  		            }
+  		            else {
+  		                // rerun in 1 seconds
+  		                $timeout(function(){updateProgress(url)},1000);
+  		            }
+  					vm.task.progress = angular.toJson(data);
+  					
+  				}
+  				
+  			});
+    	   vm.dataCheckingQuery = false;
+       }
        
        
         function loadAllKeys() {
@@ -114,10 +176,33 @@ define(['app'], function (app) {
         		.then(function (data) {
         			if(data.success===true)
         			{
+        				vm.loadedQuery = true
+        				vm.dataCheckingQuery = true
         				vm.query = data.query;
+        				/*
+        				 * checking the query again destroys the data handler, vm.publishedBefore+After is ISO string, no date object anymore
+        				 * */
+        				queryService.testQuery(vm.query)
+        	    		.then(function (response) {
+        	    			if(response.code)
+        	    			{
+        	    				alert(response.message)
+        	        			vm.dataCheckingQuery = false;
+        	    			}
+        	    			else {
+        	    				vm.loadedQueryStatus = true
+        	    				vm.dataCheckingQuery = false;
+        	    	    	}
+        	    	    			
+        	    	    	});
+        				vm.dataCheckingQuery = false;
+        			} else {
+        				vm.loadedQuery = false
+        				alert("could not fetch query from server");
         			}
-        	});
+        		});
         }
+     
         
         function loadOldQueries() {
         	

@@ -10,6 +10,7 @@ require(
         'shared/services/userService',
         'shared/services/APIKeyService',
         'shared/services/queryService',
+        'shared/services/taskService',
         'shared/services/authenticationService',
         'shared/services/flashService',
         

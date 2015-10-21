@@ -1,1 +1,4 @@
 /dev.sqlite
+/__init__.pyc
+/config.pyc
+/models.pyc

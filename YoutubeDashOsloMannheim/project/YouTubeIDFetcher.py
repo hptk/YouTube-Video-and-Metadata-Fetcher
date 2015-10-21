@@ -2,13 +2,13 @@ import gevent.pool
 from gevent.queue import JoinableQueue
 from geventhttpclient import HTTPClient, URL
 
-import time
+#import time
 import json
 import datetime
 
-from project import db
+#from project import db
 
-from project.models import YoutubeVideo
+#from project.models import YoutubeVideo
 numberHTTPClients = 50
 numberClientConcurrent = 100
 
