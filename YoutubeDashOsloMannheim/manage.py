@@ -1,3 +1,4 @@
+#!/usr/bin/env python2.7
 # manage.py
 
 from flask.ext.script import Manager
@@ -11,7 +12,7 @@ manager = Manager(app)
 manager.add_command('db', MigrateCommand)
 
 
-@manager.command 
+@manager.command
 def create_db():
 	"""Creates the db tables"""
 	db.create_all()
@@ -25,7 +26,7 @@ def drop_db():
 def create_sample_data():
 	"""Creates sample data"""
 	pass
-	
+
 
 if __name__ == '__main__':
 	debug = app.config.get('DEBUG',True)
