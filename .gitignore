@@ -1,0 +1,7 @@
+*.pyc
+migrate/
+venv/
+test/
+*.swp
+*.DS_Store
+*apikey*
