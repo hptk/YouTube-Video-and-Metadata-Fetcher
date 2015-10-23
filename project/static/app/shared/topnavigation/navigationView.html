@@ -1,0 +1,26 @@
+<nav class="navbar navbar-default" role="navigation" bs-navbar>
+  <div class="navbar-header">
+    <a class="navbar-brand" href="#">Teleseminar - Mannheim Oslo</a>
+  </div>
+  <ul class="nav navbar-nav">
+    <li><a href="#/manageKeys">Manage API Keys</a></li>
+    <li><a href="#/query">Query Builder</a></li>
+    <li data-match-route="/page-two.*"><a href="#/page-two/sub-a">Page Two</a></li>
+  </ul>
+	
+	<ul class="nav navbar-nav pull-right" uib-dropdown>
+  	
+          <li><a id="user-menu" uib-dropdown-toggle ng-disabled="disabled">{{globals.currentUser.firstname}} {{globals.currentUser.lastname}} <span class="caret"></span></a></li>
+          <ul class="uib-dropdown-menu" role="menu" aria-labelledby="user-menu">
+            <li role="menuitem"><a href="#/login">Logout</a></li>
+            <li role="menuitem"><a href="#">Another action</a></li>
+            <li role="menuitem"><a href="#">Something else here</a></li>
+            <li role="divider" class="divider"></li>
+            <li role="menuitem"><a href="#">Separated link</a></li>
+            <li role="divider" class="divider"></li>
+            <li role="menuitem"><a href="#">One more separated link</a></li>
+          </ul>
+        
+  </ul>
+  
+</nav>
