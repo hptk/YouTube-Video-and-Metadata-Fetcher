@@ -152,9 +152,13 @@ def createQuery():
 def setTask(id):
 	json_data = request.json
 	action = json_data['action']
-	task = fetch.delay()
-	return jsonify({'success':True,'task':{'task_id':task.id, 'task_action':action,'task_action_id':id, 'progress_url':url_for('getProgress',task_action_id=id,task_action=action,task_id=task.id)}})
-
+	try:
+		query = YoutubeQuery.query.filter_by(user_id=session['id'],id=id).first()
+		task = fetch.delay(query.get_queryRaw())
+		return jsonify({'success':True,'task':{'task_id':task.id, 'task_action':action,'task_action_id':id, 'progress_url':url_for('getProgress',task_action_id=id,task_action=action,task_id=task.id)}})
+	except:
+		pass
+	
 @app.route('/api/queries/<int:task_action_id>/<task_action>/progress/<task_id>', methods=['GET'])
 def getProgress(task_action_id,task_action,task_id):
 	task = fetch.AsyncResult(task_id)
@@ -168,15 +172,17 @@ def getProgress(task_action_id,task_action,task_id):
 			'queueSize':0,
 		}
 	elif task.state != 'FAILURE':
-		response = {
-			'state': task.state,
-			'workedRequests': task.info.get('workedRequests', 0),
-			'maxRequests': task.info.get('maxRequests', 0),
-			'current': task.info.get('current', 0),
-			'queueSize':task.info.get('queueSize', 0)
-		}
-		if 'result' in task.info:
-			response['result'] = task.info['result']
+		#response = {
+		#	'state': task.state,
+		#	'workedRequests': task.info.get('workedRequests', 0),
+		#	'maxRequests': task.info.get('maxRequests', 0),
+		#	'current': task.info.get('current', 0),
+		#	'queueSize':task.info.get('queueSize', 0)
+		#}
+		#if 'result' in task.info:
+		#	response['result'] = task.info['result']
+		response = task.info
+		response['state']=task.state
 	else:
 		# something went wrong in the background job
 		response = {
