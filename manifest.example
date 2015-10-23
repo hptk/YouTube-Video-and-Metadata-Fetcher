@@ -1,0 +1,352 @@
+{
+    "MPD": {
+        "@mediaPresentationDuration": "PT531.922S",
+        "@minBufferTime": "PT1.500S",
+        "@profiles": "urn:mpeg:dash:profile:isoff-on-demand:2011",
+        "@type": "static",
+        "@xmlns": "urn:mpeg:DASH:schema:MPD:2011",
+        "@xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance",
+        "@xmlns:yt": "http://youtube.com/yt/2012/10/10",
+        "@xsi:schemaLocation": "urn:mpeg:DASH:schema:MPD:2011 DASH-MPD.xsd",
+        "Period": {
+            "AdaptationSet": [
+                {
+                    "@id": "0",
+                    "@mimeType": "audio/mp4",
+                    "@subsegmentAlignment": "true",
+                    "Representation": {
+                        "@audioSamplingRate": "44100",
+                        "@bandwidth": "128233",
+                        "@codecs": "mp4a.40.2",
+                        "@id": "140",
+                        "@startWithSAP": "1",
+                        "AudioChannelConfiguration": {
+                            "@schemeIdUri": "urn:mpeg:dash:23003:3:audio_channel_configuration:2011",
+                            "@value": "2"
+                        },
+                        "BaseURL": {
+                            "#text": "http://r4---sn-ovgq0oxu-5goe.googlevideo.com/videoplayback?id=9d3e9e6819bcd9b4&itag=140&source=youtube&mv=u&mn=sn-ovgq0oxu-5goe&mm=31&ms=au&pl=23&ratebypass=yes&mime=audio/mp4&gir=yes&clen=8448711&lmt=1443591261368393&dur=531.922&sver=3&signature=542B188D9A10B803338CECD2610D7760873CF453.7C6008B6E34E9737B487DE851B42AB0F168256A1&fexp=9405994,9406821,9408207,9408710,9410706,9414764,9416126,9416402,9416554,9416729,9417707,9419837,9421294,9422342,9422997,9423421&mt=1445628650&upn=f2wtg8UBdK0&key=dg_yt0&ip=193.157.198.200&ipbits=0&expire=1445650703&sparams=ip,ipbits,expire,id,itag,source,mv,mn,mm,ms,pl,ratebypass,mime,gir,clen,lmt,dur",
+                            "@yt:contentLength": "8448711"
+                        },
+                        "SegmentBase": {
+                            "@indexRange": "592-1271",
+                            "@indexRangeExact": "true",
+                            "Initialization": {
+                                "@range": "0-591"
+                            }
+                        }
+                    },
+                    "Role": {
+                        "@schemeIdUri": "urn:mpeg:DASH:role:2011",
+                        "@value": "main"
+                    }
+                },
+                {
+                    "@id": "1",
+                    "@mimeType": "audio/webm",
+                    "@subsegmentAlignment": "true",
+                    "Representation": {
+                        "@audioSamplingRate": "44100",
+                        "@bandwidth": "127579",
+                        "@codecs": "vorbis",
+                        "@id": "171",
+                        "@startWithSAP": "1",
+                        "AudioChannelConfiguration": {
+                            "@schemeIdUri": "urn:mpeg:dash:23003:3:audio_channel_configuration:2011",
+                            "@value": "2"
+                        },
+                        "BaseURL": {
+                            "#text": "http://r4---sn-ovgq0oxu-5goe.googlevideo.com/videoplayback?id=9d3e9e6819bcd9b4&itag=171&source=youtube&mv=u&mn=sn-ovgq0oxu-5goe&mm=31&ms=au&pl=23&ratebypass=yes&mime=audio/webm&gir=yes&clen=7491648&lmt=1443456630324209&dur=531.875&sver=3&signature=51C17AA9D9A19A4689774A95535F886E626A397A.5A8A6378610F6677D955E53C884772AFCEB161D8&fexp=9405994,9406821,9408207,9408710,9410706,9414764,9416126,9416402,9416554,9416729,9417707,9419837,9421294,9422342,9422997,9423421&mt=1445628650&upn=f2wtg8UBdK0&key=dg_yt0&ip=193.157.198.200&ipbits=0&expire=1445650703&sparams=ip,ipbits,expire,id,itag,source,mv,mn,mm,ms,pl,ratebypass,mime,gir,clen,lmt,dur",
+                            "@yt:contentLength": "7491648"
+                        },
+                        "SegmentBase": {
+                            "@indexRange": "4452-5366",
+                            "@indexRangeExact": "true",
+                            "Initialization": {
+                                "@range": "0-4451"
+                            }
+                        }
+                    },
+                    "Role": {
+                        "@schemeIdUri": "urn:mpeg:DASH:role:2011",
+                        "@value": "main"
+                    }
+                },
+                {
+                    "@id": "2",
+                    "@mimeType": "video/mp4",
+                    "@subsegmentAlignment": "true",
+                    "Representation": [
+                        {
+                            "@bandwidth": "250938",
+                            "@codecs": "avc1.4d4015",
+                            "@frameRate": "24",
+                            "@height": "240",
+                            "@id": "133",
+                            "@maxPlayoutRate": "1",
+                            "@startWithSAP": "1",
+                            "@width": "426",
+                            "BaseURL": {
+                                "#text": "http://r4---sn-ovgq0oxu-5goe.googlevideo.com/videoplayback?id=9d3e9e6819bcd9b4&itag=133&source=youtube&mv=u&mn=sn-ovgq0oxu-5goe&mm=31&ms=au&pl=23&ratebypass=yes&mime=video/mp4&gir=yes&clen=16136669&lmt=1443591634948069&dur=531.864&sver=3&signature=863983EDD0E478879B34396424E137E9701C32BD.1B771E12D8312D7DAB8CA7085880EC83BB83EB42&fexp=9405994,9406821,9408207,9408710,9410706,9414764,9416126,9416402,9416554,9416729,9417707,9419837,9421294,9422342,9422997,9423421&mt=1445628650&upn=f2wtg8UBdK0&key=dg_yt0&ip=193.157.198.200&ipbits=0&expire=1445650703&sparams=ip,ipbits,expire,id,itag,source,mv,mn,mm,ms,pl,ratebypass,mime,gir,clen,lmt,dur",
+                                "@yt:contentLength": "16136669"
+                            },
+                            "SegmentBase": {
+                                "@indexRange": "673-1904",
+                                "@indexRangeExact": "true",
+                                "Initialization": {
+                                    "@range": "0-672"
+                                }
+                            }
+                        },
+                        {
+                            "@bandwidth": "606204",
+                            "@codecs": "avc1.4d401e",
+                            "@frameRate": "24",
+                            "@height": "360",
+                            "@id": "134",
+                            "@maxPlayoutRate": "1",
+                            "@startWithSAP": "1",
+                            "@width": "640",
+                            "BaseURL": {
+                                "#text": "http://r4---sn-ovgq0oxu-5goe.googlevideo.com/videoplayback?id=9d3e9e6819bcd9b4&itag=134&source=youtube&mv=u&mn=sn-ovgq0oxu-5goe&mm=31&ms=au&pl=23&ratebypass=yes&mime=video/mp4&gir=yes&clen=23293316&lmt=1443591636651191&dur=531.864&sver=3&signature=17801326C2DAA7255E602DC1DEB10A97FD4446F7.2D7EA810CD1C666FB603F7E2E61E2AC91F41E2A5&fexp=9405994,9406821,9408207,9408710,9410706,9414764,9416126,9416402,9416554,9416729,9417707,9419837,9421294,9422342,9422997,9423421&mt=1445628650&upn=f2wtg8UBdK0&key=dg_yt0&ip=193.157.198.200&ipbits=0&expire=1445650703&sparams=ip,ipbits,expire,id,itag,source,mv,mn,mm,ms,pl,ratebypass,mime,gir,clen,lmt,dur",
+                                "@yt:contentLength": "23293316"
+                            },
+                            "SegmentBase": {
+                                "@indexRange": "709-1940",
+                                "@indexRangeExact": "true",
+                                "Initialization": {
+                                    "@range": "0-708"
+                                }
+                            }
+                        },
+                        {
+                            "@bandwidth": "1111390",
+                            "@codecs": "avc1.4d401e",
+                            "@frameRate": "24",
+                            "@height": "480",
+                            "@id": "135",
+                            "@maxPlayoutRate": "1",
+                            "@startWithSAP": "1",
+                            "@width": "854",
+                            "BaseURL": {
+                                "#text": "http://r4---sn-ovgq0oxu-5goe.googlevideo.com/videoplayback?id=9d3e9e6819bcd9b4&itag=135&source=youtube&mv=u&mn=sn-ovgq0oxu-5goe&mm=31&ms=au&pl=23&ratebypass=yes&mime=video/mp4&gir=yes&clen=45329250&lmt=1443591637317489&dur=531.864&sver=3&signature=196B10F8C553085477FA059918CD6E8624A56AD4.68B1CF5E85BFAB427D6257EB146A42A1DBF3AF8D&fexp=9405994,9406821,9408207,9408710,9410706,9414764,9416126,9416402,9416554,9416729,9417707,9419837,9421294,9422342,9422997,9423421&mt=1445628650&upn=f2wtg8UBdK0&key=dg_yt0&ip=193.157.198.200&ipbits=0&expire=1445650703&sparams=ip,ipbits,expire,id,itag,source,mv,mn,mm,ms,pl,ratebypass,mime,gir,clen,lmt,dur",
+                                "@yt:contentLength": "45329250"
+                            },
+                            "SegmentBase": {
+                                "@indexRange": "709-1940",
+                                "@indexRangeExact": "true",
+                                "Initialization": {
+                                    "@range": "0-708"
+                                }
+                            }
+                        },
+                        {
+                            "@bandwidth": "112828",
+                            "@codecs": "avc1.42c00c",
+                            "@frameRate": "12",
+                            "@height": "144",
+                            "@id": "160",
+                            "@maxPlayoutRate": "1",
+                            "@startWithSAP": "1",
+                            "@width": "256",
+                            "BaseURL": {
+                                "#text": "http://r4---sn-ovgq0oxu-5goe.googlevideo.com/videoplayback?id=9d3e9e6819bcd9b4&itag=160&source=youtube&mv=u&mn=sn-ovgq0oxu-5goe&mm=31&ms=au&pl=23&ratebypass=yes&mime=video/mp4&gir=yes&clen=7204380&lmt=1443591634632444&dur=531.864&sver=3&signature=6EE2525B8F943945E9D61E9304D906445EA1BDDE.87F5CDAE83C86CCC0339CCE85FE93D7350D1D809&fexp=9405994,9406821,9408207,9408710,9410706,9414764,9416126,9416402,9416554,9416729,9417707,9419837,9421294,9422342,9422997,9423421&mt=1445628650&upn=f2wtg8UBdK0&key=dg_yt0&ip=193.157.198.200&ipbits=0&expire=1445650703&sparams=ip,ipbits,expire,id,itag,source,mv,mn,mm,ms,pl,ratebypass,mime,gir,clen,lmt,dur",
+                                "@yt:contentLength": "7204380"
+                            },
+                            "SegmentBase": {
+                                "@indexRange": "671-1902",
+                                "@indexRangeExact": "true",
+                                "Initialization": {
+                                    "@range": "0-670"
+                                }
+                            }
+                        },
+                        {
+                            "@bandwidth": "2230309",
+                            "@codecs": "avc1.4d401f",
+                            "@frameRate": "24",
+                            "@height": "720",
+                            "@id": "136",
+                            "@maxPlayoutRate": "1",
+                            "@startWithSAP": "1",
+                            "@width": "1280",
+                            "BaseURL": {
+                                "#text": "http://r4---sn-ovgq0oxu-5goe.googlevideo.com/videoplayback?id=9d3e9e6819bcd9b4&itag=136&source=youtube&mv=u&mn=sn-ovgq0oxu-5goe&mm=31&ms=au&pl=23&ratebypass=yes&mime=video/mp4&gir=yes&clen=83938314&lmt=1443591641615047&dur=531.864&sver=3&signature=2C2CBD8DFAD6DE72E496A555E3D5B1C96E63B425.784D8586803E15FEFE91168853105442C14542E9&fexp=9405994,9406821,9408207,9408710,9410706,9414764,9416126,9416402,9416554,9416729,9417707,9419837,9421294,9422342,9422997,9423421&mt=1445628650&upn=f2wtg8UBdK0&key=dg_yt0&ip=193.157.198.200&ipbits=0&expire=1445650703&sparams=ip,ipbits,expire,id,itag,source,mv,mn,mm,ms,pl,ratebypass,mime,gir,clen,lmt,dur",
+                                "@yt:contentLength": "83938314"
+                            },
+                            "SegmentBase": {
+                                "@indexRange": "709-1940",
+                                "@indexRangeExact": "true",
+                                "Initialization": {
+                                    "@range": "0-708"
+                                }
+                            }
+                        },
+                        {
+                            "@bandwidth": "4133205",
+                            "@codecs": "avc1.640028",
+                            "@frameRate": "24",
+                            "@height": "1080",
+                            "@id": "137",
+                            "@maxPlayoutRate": "1",
+                            "@startWithSAP": "1",
+                            "@width": "1920",
+                            "BaseURL": {
+                                "#text": "http://r4---sn-ovgq0oxu-5goe.googlevideo.com/videoplayback?id=9d3e9e6819bcd9b4&itag=137&source=youtube&mv=u&mn=sn-ovgq0oxu-5goe&mm=31&ms=au&pl=23&ratebypass=yes&mime=video/mp4&gir=yes&clen=148765820&lmt=1443591699166739&dur=531.864&sver=3&signature=98323DEF15311934A5167A4E786AA58372D4FBED.4ABAE53A4E19210FAD452550BAC47076C8FED31F&fexp=9405994,9406821,9408207,9408710,9410706,9414764,9416126,9416402,9416554,9416729,9417707,9419837,9421294,9422342,9422997,9423421&mt=1445628650&upn=f2wtg8UBdK0&key=dg_yt0&ip=193.157.198.200&ipbits=0&expire=1445650703&sparams=ip,ipbits,expire,id,itag,source,mv,mn,mm,ms,pl,ratebypass,mime,gir,clen,lmt,dur",
+                                "@yt:contentLength": "148765820"
+                            },
+                            "SegmentBase": {
+                                "@indexRange": "711-1942",
+                                "@indexRangeExact": "true",
+                                "Initialization": {
+                                    "@range": "0-710"
+                                }
+                            }
+                        }
+                    ],
+                    "Role": {
+                        "@schemeIdUri": "urn:mpeg:DASH:role:2011",
+                        "@value": "main"
+                    }
+                },
+                {
+                    "@id": "3",
+                    "@mimeType": "video/webm",
+                    "@subsegmentAlignment": "true",
+                    "Representation": [
+                        {
+                            "@bandwidth": "238012",
+                            "@codecs": "vp9",
+                            "@frameRate": "24",
+                            "@height": "240",
+                            "@id": "242",
+                            "@maxPlayoutRate": "1",
+                            "@startWithSAP": "1",
+                            "@width": "426",
+                            "BaseURL": {
+                                "#text": "http://r4---sn-ovgq0oxu-5goe.googlevideo.com/videoplayback?id=9d3e9e6819bcd9b4&itag=242&source=youtube&mv=u&mn=sn-ovgq0oxu-5goe&mm=31&ms=au&pl=23&ratebypass=yes&mime=video/webm&gir=yes&clen=12525191&lmt=1443458115930588&dur=531.823&sver=3&signature=8AAD1E40346E707CF66BF76C02E3B1A710E5B89C.7821C4A3FB15DE3B02A4882614020D0C25D65058&fexp=9405994,9406821,9408207,9408710,9410706,9414764,9416126,9416402,9416554,9416729,9417707,9419837,9421294,9422342,9422997,9423421&mt=1445628650&upn=f2wtg8UBdK0&key=dg_yt0&ip=193.157.198.200&ipbits=0&expire=1445650703&sparams=ip,ipbits,expire,id,itag,source,mv,mn,mm,ms,pl,ratebypass,mime,gir,clen,lmt,dur",
+                                "@yt:contentLength": "12525191"
+                            },
+                            "SegmentBase": {
+                                "@indexRange": "242-1932",
+                                "@indexRangeExact": "true",
+                                "Initialization": {
+                                    "@range": "0-241"
+                                }
+                            }
+                        },
+                        {
+                            "@bandwidth": "441684",
+                            "@codecs": "vp9",
+                            "@frameRate": "24",
+                            "@height": "360",
+                            "@id": "243",
+                            "@maxPlayoutRate": "1",
+                            "@startWithSAP": "1",
+                            "@width": "640",
+                            "BaseURL": {
+                                "#text": "http://r4---sn-ovgq0oxu-5goe.googlevideo.com/videoplayback?id=9d3e9e6819bcd9b4&itag=243&source=youtube&mv=u&mn=sn-ovgq0oxu-5goe&mm=31&ms=au&pl=23&ratebypass=yes&mime=video/webm&gir=yes&clen=23162003&lmt=1443458029057726&dur=531.823&sver=3&signature=7AB9F98F6B93D342EA6ED49F646828597BBEE827.6EBFBCC6F2079689DA7C80D5E72337360B30BC46&fexp=9405994,9406821,9408207,9408710,9410706,9414764,9416126,9416402,9416554,9416729,9417707,9419837,9421294,9422342,9422997,9423421&mt=1445628650&upn=f2wtg8UBdK0&key=dg_yt0&ip=193.157.198.200&ipbits=0&expire=1445650703&sparams=ip,ipbits,expire,id,itag,source,mv,mn,mm,ms,pl,ratebypass,mime,gir,clen,lmt,dur",
+                                "@yt:contentLength": "23162003"
+                            },
+                            "SegmentBase": {
+                                "@indexRange": "243-1961",
+                                "@indexRangeExact": "true",
+                                "Initialization": {
+                                    "@range": "0-242"
+                                }
+                            }
+                        },
+                        {
+                            "@bandwidth": "810062",
+                            "@codecs": "vp9",
+                            "@frameRate": "24",
+                            "@height": "480",
+                            "@id": "244",
+                            "@maxPlayoutRate": "1",
+                            "@startWithSAP": "1",
+                            "@width": "854",
+                            "BaseURL": {
+                                "#text": "http://r4---sn-ovgq0oxu-5goe.googlevideo.com/videoplayback?id=9d3e9e6819bcd9b4&itag=244&source=youtube&mv=u&mn=sn-ovgq0oxu-5goe&mm=31&ms=au&pl=23&ratebypass=yes&mime=video/webm&gir=yes&clen=40568796&lmt=1443458004061956&dur=531.823&sver=3&signature=44D1F62C7CE0CD711ECB228B2E6EE8BB6CA34853.8A4EBFA700B1ABD2C7F20BA7170C805D5D5D22A5&fexp=9405994,9406821,9408207,9408710,9410706,9414764,9416126,9416402,9416554,9416729,9417707,9419837,9421294,9422342,9422997,9423421&mt=1445628650&upn=f2wtg8UBdK0&key=dg_yt0&ip=193.157.198.200&ipbits=0&expire=1445650703&sparams=ip,ipbits,expire,id,itag,source,mv,mn,mm,ms,pl,ratebypass,mime,gir,clen,lmt,dur",
+                                "@yt:contentLength": "40568796"
+                            },
+                            "SegmentBase": {
+                                "@indexRange": "243-1992",
+                                "@indexRangeExact": "true",
+                                "Initialization": {
+                                    "@range": "0-242"
+                                }
+                            }
+                        },
+                        {
+                            "@bandwidth": "122909",
+                            "@codecs": "vp9",
+                            "@frameRate": "12",
+                            "@height": "144",
+                            "@id": "278",
+                            "@maxPlayoutRate": "1",
+                            "@startWithSAP": "1",
+                            "@width": "256",
+                            "BaseURL": {
+                                "#text": "http://r4---sn-ovgq0oxu-5goe.googlevideo.com/videoplayback?id=9d3e9e6819bcd9b4&itag=278&source=youtube&mv=u&mn=sn-ovgq0oxu-5goe&mm=31&ms=au&pl=23&ratebypass=yes&mime=video/webm&gir=yes&clen=6299316&lmt=1443457999998863&dur=531.781&sver=3&signature=3BF89FB881F3CA5EFD85AE2DC7847B991AA37CEB.1CB1ACEA0DBB0D13B70104BBFFACD6145F2B0B5F&fexp=9405994,9406821,9408207,9408710,9410706,9414764,9416126,9416402,9416554,9416729,9417707,9419837,9421294,9422342,9422997,9423421&mt=1445628650&upn=f2wtg8UBdK0&key=dg_yt0&ip=193.157.198.200&ipbits=0&expire=1445650703&sparams=ip,ipbits,expire,id,itag,source,mv,mn,mm,ms,pl,ratebypass,mime,gir,clen,lmt,dur",
+                                "@yt:contentLength": "6299316"
+                            },
+                            "SegmentBase": {
+                                "@indexRange": "242-1931",
+                                "@indexRangeExact": "true",
+                                "Initialization": {
+                                    "@range": "0-241"
+                                }
+                            }
+                        },
+                        {
+                            "@bandwidth": "1586565",
+                            "@codecs": "vp9",
+                            "@frameRate": "24",
+                            "@height": "720",
+                            "@id": "247",
+                            "@maxPlayoutRate": "1",
+                            "@startWithSAP": "1",
+                            "@width": "1280",
+                            "BaseURL": {
+                                "#text": "http://r4---sn-ovgq0oxu-5goe.googlevideo.com/videoplayback?id=9d3e9e6819bcd9b4&itag=247&source=youtube&mv=u&mn=sn-ovgq0oxu-5goe&mm=31&ms=au&pl=23&ratebypass=yes&mime=video/webm&gir=yes&clen=78252821&lmt=1443458020758133&dur=531.823&sver=3&signature=3BB93EE3A2B91227E833CD7BD3C032E298240A57.47C18A0FFAFC85BE3977CCC8AC82291FB890BC3B&fexp=9405994,9406821,9408207,9408710,9410706,9414764,9416126,9416402,9416554,9416729,9417707,9419837,9421294,9422342,9422997,9423421&mt=1445628650&upn=f2wtg8UBdK0&key=dg_yt0&ip=193.157.198.200&ipbits=0&expire=1445650703&sparams=ip,ipbits,expire,id,itag,source,mv,mn,mm,ms,pl,ratebypass,mime,gir,clen,lmt,dur",
+                                "@yt:contentLength": "78252821"
+                            },
+                            "SegmentBase": {
+                                "@indexRange": "243-2011",
+                                "@indexRangeExact": "true",
+                                "Initialization": {
+                                    "@range": "0-242"
+                                }
+                            }
+                        },
+                        {
+                            "@bandwidth": "2809468",
+                            "@codecs": "vp9",
+                            "@frameRate": "24",
+                            "@height": "1080",
+                            "@id": "248",
+                            "@maxPlayoutRate": "1",
+                            "@startWithSAP": "1",
+                            "@width": "1920",
+                            "BaseURL": {
+                                "#text": "http://r4---sn-ovgq0oxu-5goe.googlevideo.com/videoplayback?id=9d3e9e6819bcd9b4&itag=248&source=youtube&mv=u&mn=sn-ovgq0oxu-5goe&mm=31&ms=au&pl=23&ratebypass=yes&mime=video/webm&gir=yes&clen=139831710&lmt=1443457375453177&dur=531.823&sver=3&signature=51F065FFCBEFD4AAA821B66F0F21E134D9797FAD.99B52CE655B2976771BA32CF556F9CF0DC6B3EBA&fexp=9405994,9406821,9408207,9408710,9410706,9414764,9416126,9416402,9416554,9416729,9417707,9419837,9421294,9422342,9422997,9423421&mt=1445628650&upn=f2wtg8UBdK0&key=dg_yt0&ip=193.157.198.200&ipbits=0&expire=1445650703&sparams=ip,ipbits,expire,id,itag,source,mv,mn,mm,ms,pl,ratebypass,mime,gir,clen,lmt,dur",
+                                "@yt:contentLength": "139831710"
+                            },
+                            "SegmentBase": {
+                                "@indexRange": "243-2019",
+                                "@indexRangeExact": "true",
+                                "Initialization": {
+                                    "@range": "0-242"
+                                }
+                            }
+                        }
+                    ],
+                    "Role": {
+                        "@schemeIdUri": "urn:mpeg:DASH:role:2011",
+                        "@value": "main"
+                    }
+                }
+            ]
+        }
+    }
+}
