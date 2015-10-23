@@ -1,120 +1,84 @@
-import gevent.pool
-from gevent.queue import JoinableQueue
-from geventhttpclient import HTTPClient, URL
-
-#import time
-import json
+from RequestAbstraction import RequestAbstraction
 import datetime
-
-#from project import db
-
-#from project.models import YoutubeVideo
-numberHTTPClients = 50
-numberClientConcurrent = 100
-
-publishedBefore = datetime.datetime.utcnow().replace(hour=0,minute=0,second=0,microsecond=0) -datetime.timedelta(days=30)
-publishedAfter = publishedBefore - datetime.timedelta(days=7)
-totalFrame = int((publishedBefore-publishedAfter).total_seconds())
-secondsPerFrame = int(totalFrame/numberHTTPClients)
-
-
-DEVELOPER_KEY = "AIzaSyBlO0GfmL5LuRJoVlRhMVM8VjViE5BAAs8"
-
-
-countAll = 0
-pageAll = 0
-countRequests = 0
-videoIDs = {}
-
-
-def calculateTimeframe(publishedBefore,frame):
-    return publishedBefore - datetime.timedelta(seconds=frame)
-
-def formatDate(date):
-    return date.strftime('%FT%TZ')
-
-def buildRequest(publishedAfter,publishedBefore,pageToken=''):
-    return URL("https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=50&order=date&pageToken="+pageToken+"&publishedAfter="+formatDate(publishedAfter)+"&publishedBefore="+formatDate(publishedBefore)+"&type=video&key=AIzaSyBlO0GfmL5LuRJoVlRhMVM8VjViE5BAAs8")
-def printDateTuple(dateTuple):
-    print dateTuple[0].strftime('%FT%TZ')+"\t"+dateTuple[1].strftime('%FT%TZ')
-
-def makeRequest(publishedAfter,publishedBefore):
-    global countAll, pageAll, videoIDs, countRequests, pool
-    countRequests += 1
-    request = buildRequest(publishedAfter,publishedBefore)
-    print str(q.qsize())+" "+str(len(videoIDs))+" "+str(request)
-    response = http.get(request.request_uri)
-    result = json.load(response)
-    
-    if "items" in result:
-        req_results = len(result['items'])
-        countAll += req_results
-        
-        #do something with the data
-        for item in result['items']:
-            videoIDs[str(item['id']['videoId'])]=1
-            #video = YoutubeVideo(
-            #                id=item['id']
-            #                )
-            #try:
-                #db.session.add(video)
-                #db.session.commit()
-                
-            #except:
-                #video already inserted
-                #print "err"
-                #pass
-            #db.session.close()
-        secondsTimeSpan = int((publishedBefore-publishedAfter).total_seconds())
-        #slice the timeframe if has more pages and more results than 50 and the timespan is bigger than 1 (maybe there are more than 50 videos per second and it will result in a loop)
-        if "nextPageToken" in result and req_results==50 and secondsTimeSpan > 1:
-            pageAll += 1
-            midDate = publishedAfter+(publishedBefore-publishedAfter)/2
-            #print request
-            #add new timeframes to queue
-            q.put((publishedAfter,midDate-datetime.timedelta(seconds=1)))
-            q.put((midDate,publishedBefore))
-                
+import json
+import urlparse
+import urllib
+import dateutil.parser
+import pprint 
+class YouTubeIDFetcher(RequestAbstraction):
+         
+    def initAdditionalStructures(self):
+        self.query = json.loads(self.parameter)
+        #add default parameter to the list / override
+        self.query['part'] = "snippet"
+        self.query['maxResults'] = "50"
+        self.query['order'] = "date"
+        self.query['type'] = "video"
             
-
-http = HTTPClient.from_url(URL("https://www.googleapis.com"), concurrency=numberClientConcurrent)
-
-def worker(fetcher_id):
-    while not q.empty():
+        #save initial timeframe into variables and delete them from the parameter list, copy value
+        self.publishedBefore = dateutil.parser.parse(self.query['publishedBefore'])
+        self.publishedAfter = dateutil.parser.parse(self.query['publishedAfter'])
+        del self.query['publishedBefore']
+        del self.query['publishedAfter']
         
-        timeFrame = q.get()
+        url_parts = list(urlparse.urlparse(self.url))
+        parameter = dict(urlparse.parse_qsl(url_parts[4]))
+        parameter.update(self.query)
+        url_parts[4] = urllib.urlencode(parameter)
+        self.defaultURL = urlparse.urlunparse(url_parts)
         
-        publishedBefore = timeFrame[1]
-        publishedAfter = timeFrame[0]
-        try:
-            makeRequest(publishedAfter, publishedBefore)
-        finally:
-            q.task_done()
-
-q = JoinableQueue()
-            
-# allow to run 20 greenlet at a time, this is more than concurrency
-# of the http client but isn't a problem since the client has its own
-# connection pool.
-pool = gevent.pool.Pool(numberHTTPClients)
-starttime = datetime.datetime.now()
-
-fetcher_id = 0
-#spawn first frames
-tempTime = publishedBefore
-for x in xrange(0,totalFrame/secondsPerFrame):
-    tempTimeBefore = calculateTimeframe(tempTime,x*secondsPerFrame)
-    tempTimeAfter = calculateTimeframe(tempTimeBefore,secondsPerFrame)
-    #create disjunct timeframes, otherwise there are duplicated videoIDs
-    tempTime = calculateTimeframe(tempTime,1)
-
-    q.put((tempTimeAfter,tempTimeBefore))
+        
+    def calculateTimeframe(self,publishedBefore,frame):
+        return publishedBefore - datetime.timedelta(seconds=frame)
     
-    pool.spawn(worker,fetcher_id)
-    fetcher_id += 1
+    def formatDate(self,date):
+        return date.strftime('%FT%TZ')
+    
+    def buildRequestURL(self, workQueueItem):
+        publishedAfter = workQueueItem[0]
+        publishedBefore = workQueueItem[1] 
+        return self.defaultURL+"&publishedAfter="+self.formatDate(publishedAfter)+"&publishedBefore="+self.formatDate(publishedBefore);
+    
+    def handleResult(self,workQueueItem, result):
+        #pprint.pprint(result)
+        if "items" in result:
+            req_results = len(result['items'])
+            #do something with the data
+            for item in result['items']:
+                self.resultList[str(item['id']['videoId'])]=1
+                
+            publishedAfter = workQueueItem[0]
+            publishedBefore = workQueueItem[1]
+            secondsTimeSpan = int((publishedBefore-publishedAfter).total_seconds())
+            #slice the timeframe if has more pages and more results than 50 and the timespan is bigger than 1 (maybe there are more than 50 videos per second and it will result in a loop)
+            if "nextPageToken" in result and req_results==50 and secondsTimeSpan > 1:
+                midDate = publishedAfter+(publishedBefore-publishedAfter)/2
+                #print request
+                #add new timeframes to queue
+                self.putWorkQueueItem((publishedAfter,midDate-datetime.timedelta(seconds=1)))
+                self.putWorkQueueItem((midDate,publishedBefore)) 
+    
+    def initWorkQueue(self):
+        
+        #self.publishedBefore = datetime.datetime.utcnow().replace(hour=0,minute=0,second=0,microsecond=0) -datetime.timedelta(days=30)
+        #self.publishedAfter = self.publishedBefore - datetime.timedelta(days=7)
+        self.totalFrame = int((self.publishedBefore-self.publishedAfter).total_seconds())
+        self.secondsPerFrame = int(self.totalFrame/(self.numberHTTPClients))
+        self.initFrames = int(self.totalFrame/self.secondsPerFrame)
+        
+        tempTime = self.publishedBefore
+        for x in xrange(0,self.initFrames):
+            tempTimeBefore = self.calculateTimeframe(tempTime,x*self.secondsPerFrame)
+            tempTimeAfter = self.calculateTimeframe(tempTimeBefore,self.secondsPerFrame)
+            tempTime = self.calculateTimeframe(tempTime,1)
+            self.putWorkQueueItem((tempTimeAfter,tempTimeBefore))
+            
+##how to use it
+#query= {}
+#query['publishedBefore'] = "2015-09-03T22:00:00Z"
+#query['publishedAfter'] = "2015-09-01T22:00:00Z"
+#query['key'] = 'AIzaSyBlO0GfmL5LuRJoVlRhMVM8VjViE5BAAs8'
+#json_query = json.dumps(query)
+#test = YouTubeIDFetcher("https://www.googleapis.com/youtube/v3/search",json_query,50,50)  
+#pprint.pprint(test.work())
 
-
-pool.join()
-http.close()
-
-print str(totalFrame)+"\t"+str(secondsPerFrame)+"\t"+str(countAll)+"\t"+str(len(videoIDs))+"\t"+str(pageAll)+"\t"+str(countRequests)+"\t"+str((datetime.datetime.now()-starttime).total_seconds())

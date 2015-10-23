@@ -55,7 +55,7 @@ class YouTubeIDFetcher():
         self.videoIDs = {}
                 
         self.publishedBefore = datetime.datetime.utcnow().replace(hour=0,minute=0,second=0,microsecond=0) -datetime.timedelta(days=30)
-        self.publishedAfter = self.publishedBefore - datetime.timedelta(days=14)
+        self.publishedAfter = self.publishedBefore - datetime.timedelta(days=1)
         self.totalFrame = int((self.publishedBefore-self.publishedAfter).total_seconds())
         self.secondsPerFrame = int(self.totalFrame/self.numberHTTPClients)
         self.initFrames = int(self.totalFrame/self.secondsPerFrame)
