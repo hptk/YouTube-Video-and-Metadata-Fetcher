@@ -1,1 +1,0 @@
-Javascript files written for the app that are not for angular

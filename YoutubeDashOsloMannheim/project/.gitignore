@@ -1,8 +1,0 @@
-/dev.sqlite
-/__init__.pyc
-/config.pyc
-/models.pyc
-/YouTubeIDFetcherClass.pyc
-/worker.pyc
-/tasks.pyc
-/celery_setup.pyc
