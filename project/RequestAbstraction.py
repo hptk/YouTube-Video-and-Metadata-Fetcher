@@ -155,7 +155,7 @@ class RequestAbstraction(object):
     def buildRequestURL(self,workQueueItem):
         pass
     
-    def handleRequestSuccess(self,result):
+    def handleRequestSuccess(self,workQueueItem, result):
         pass
     
     def handleRequestFailure(self,result):
@@ -176,7 +176,7 @@ class RequestAbstraction(object):
             
             try:
                 result = json.load(response)
-                self.handleResult(workQueueItem,result)
+                self.handleRequestSuccess(workQueueItem,result)
             except SSLError,e:
                 print e
             
