@@ -1,5 +1,5 @@
 *.pyc
-migrate/
+migrations/
 venv/
 test/
 *.swp
