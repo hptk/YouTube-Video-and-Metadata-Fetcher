@@ -53,6 +53,12 @@ define(['app'], function (app) {
                               { type:"long", name:"Only include videos longer than 20 minutes"}
                               ];
         
+        /*
+         * default query parameter
+         * */
+        vm.query = {
+        	type:"video",
+        };
        
     	
         vm.loadOldQueries = loadOldQueries;
@@ -128,8 +134,8 @@ define(['app'], function (app) {
   						
   					} else {
   						vm.task.progress = angular.toJson(data);
-  	  					vm.taskprogressmax = data.workedRequests+data.queueSize;
-  	  					vm.taskprogressvalue = data.workedRequests;
+  	  					vm.taskprogressmax = data.workQueueDone+data.workQueue;
+  	  					vm.taskprogressvalue = data.workQueueDone;
   	  					vm.taskprogresscurrent = data.current;
   					}
   						
