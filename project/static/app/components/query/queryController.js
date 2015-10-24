@@ -140,7 +140,7 @@ define(['app'], function (app) {
   					}
   						
   					
-  					if (data.state != 'PENDING' && data.state != 'PROGRESS') {
+  					if (data.state != 'PENDING' && data.state != 'PROGRESS' && data.state!='SAVING') {
   		                if ('result' in data) {
   		                    // show result
   		                	vm.task.result = data.result;
