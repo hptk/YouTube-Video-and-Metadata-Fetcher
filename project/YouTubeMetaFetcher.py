@@ -92,7 +92,7 @@ class YouTubeMetaFetcher(RequestAbstraction):
         #
         #
         # maybe save the result after each request (50 meta data sets), because the dictonary eats a lot of ram if there are a lot of videos
-        #
+        # up to 2.3 GB for 244856 videos in a single task
         #
         #
         
