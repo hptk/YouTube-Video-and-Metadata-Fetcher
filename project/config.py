@@ -15,7 +15,7 @@ class BaseConfig(object):
 	LOGGING = {
 		'version': 1,
 		'handlers': { 'console': { 'level': 'DEBUG', 'class': 'logging.StreamHandler', } },
-		'loggers': { 'worker': { 'handlers': ['console'], 'level': 'DEBUG', } }
+		'loggers': { 'tasks': { 'handlers': ['console'], 'level': 'DEBUG', } }
 	}
 	CELERY_BROKER_URL='redis://localhost:6379/0'
 	CELERY_RESULT_BACKEND='redis://localhost:6379/0'

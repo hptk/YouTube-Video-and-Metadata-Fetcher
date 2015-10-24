@@ -1,4 +1,4 @@
-
+import logging
 import gevent.pool
 from gevent.queue import JoinableQueue
 from geventhttpclient import HTTPClient, URL 
@@ -8,6 +8,7 @@ from pprint import pprint
 from gevent import monkey
 import random
 monkey.patch_time()
+logger = logging.getLogger('tasks')
 
 class RequestAbstraction(object):
     def __init__(self,url,parameter,HTTPClients,ClientConnectionPool,task=None):
@@ -225,10 +226,14 @@ class RequestAbstraction(object):
         self.clientPool.join()
          
     def work(self):
+        logger.info("Start up the work")
         try:
+            logger.info("Initialize WorkQueue")
             self.initWorkQueue()
+            logger.info("Create HTTPClient Pool")
             self.setUpWorkPool()
         finally:
+            logger.info("Save Results")
             self.saveResult()
             self.updateProgress("DONE")
             self.destroy()

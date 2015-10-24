@@ -5,8 +5,10 @@ import urlparse
 import urllib
 import dateutil.parser
 import pprint 
+import time
 from project import db
-
+import logging
+logger = logging.getLogger('tasks')
 class YouTubeIDFetcher(RequestAbstraction):
          
     def initAdditionalStructures(self):
@@ -70,19 +72,35 @@ class YouTubeIDFetcher(RequestAbstraction):
             self.putWorkQueueItem((tempTimeAfter,tempTimeBefore))
     
     def saveResult(self):
-        self.updateProgress('SAVING')
-        from project.models import YoutubeVideo
-        #http://docs.sqlalchemy.org/en/rel_0_8/faq.html#i-m-inserting-400-000-rows-with-the-orm-and-it-s-really-slow
-        #used described pattern to have better performance: sqlalchemy core insert
-        db.engine.execute(YoutubeVideo.__table__.insert(),
+        if len(self.resultList) > 0:
+            self.updateProgress('SAVING')
+            from project.models import YoutubeVideo
+            #http://docs.sqlalchemy.org/en/rel_0_8/faq.html#i-m-inserting-400-000-rows-with-the-orm-and-it-s-really-slow
+            #used described pattern to have better performance: sqlalchemy core insert
+            
+            
+            #fix duplicate key problem: http://stackoverflow.com/questions/6611563/sqlalchemy-on-duplicate-key-update
+            #http://stackoverflow.com/questions/418898/sqlite-upsert-not-insert-or-replace/4330694#4330694
+            from sqlalchemy.ext.compiler import compiles 
+            from sqlalchemy.sql.expression import Insert
+            @compiles(Insert)
+            def replace_string(insert, compiler, **kw):
+                s = compiler.visit_insert(insert, **kw)
+                if 'replace_string' in insert.kwargs:
+                    return s.replace("INSERT",insert.kwargs['replace_string'])
+                return s
+            
+            t0 = time.time()
+            #http://docs.sqlalchemy.org/en/rel_0_9/core/connections.html?highlight=engine#sqlalchemy.engine.Connection.execute
+            db.engine.execute(YoutubeVideo.__table__.insert(replace_string = 'INSERT OR REPLACE'),
                    [{"id": videoID} for videoID in self.resultList]
                    )
-        
+            logger.info("Total time for " + str(len(self.resultList)) +" records " + str(time.time() - t0) + " secs")
         
             
 ##how to use it
 #query= {}
-#query['publishedBefore'] = "2015-09-03T22:00:00Z"
+#query['publishedBefore'] = "2015-09-0T22:00:00Z"
 #query['publishedAfter'] = "2015-09-01T22:00:00Z"
 #query['key'] = 'AIzaSyBlO0GfmL5LuRJoVlRhMVM8VjViE5BAAs8'
 #json_query = json.dumps(query)
