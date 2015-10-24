@@ -12,7 +12,7 @@ logger = logging.getLogger('tasks')
 class YouTubeIDFetcher(RequestAbstraction):
          
     def initAdditionalStructures(self):
-        self.query = json.loads(self.parameter)
+        self.query = json.loads(self.parameter['queryRaw'])
         #add default parameter to the list / override
         self.query['part'] = "snippet"
         self.query['maxResults'] = "50"
@@ -74,7 +74,7 @@ class YouTubeIDFetcher(RequestAbstraction):
     def saveResult(self):
         if len(self.resultList) > 0:
             self.updateProgress('SAVING')
-            from project.models import YoutubeVideo
+            from project.models import YoutubeVideo, QueryVideoMM
             #http://docs.sqlalchemy.org/en/rel_0_8/faq.html#i-m-inserting-400-000-rows-with-the-orm-and-it-s-really-slow
             #used described pattern to have better performance: sqlalchemy core insert
             
@@ -91,12 +91,19 @@ class YouTubeIDFetcher(RequestAbstraction):
                 return s
             
             t0 = time.time()
+            logger.info("save video ids")
             #http://docs.sqlalchemy.org/en/rel_0_9/core/connections.html?highlight=engine#sqlalchemy.engine.Connection.execute
             db.engine.execute(YoutubeVideo.__table__.insert(replace_string = 'INSERT OR REPLACE'),
                    [{"id": videoID} for videoID in self.resultList]
                    )
             logger.info("Total time for " + str(len(self.resultList)) +" records " + str(time.time() - t0) + " secs")
-        
+            
+            logger.info("save query video association")
+            db.engine.execute(QueryVideoMM.__table__.insert(replace_string = 'INSERT OR REPLACE'),
+                   [{"youtube_query_id":self.parameter['queryId'],"video_id": videoID} for videoID in self.resultList]
+                   )
+            logger.info("Total time for " + str(len(self.resultList)) +" records " + str(time.time() - t0) + " secs")
+
             
 ##how to use it
 #query= {}
