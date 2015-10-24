@@ -5,6 +5,8 @@ import urlparse
 import urllib
 import dateutil.parser
 import pprint 
+from project import db
+
 class YouTubeIDFetcher(RequestAbstraction):
          
     def initAdditionalStructures(self):
@@ -43,7 +45,7 @@ class YouTubeIDFetcher(RequestAbstraction):
             req_results = len(result['items'])
             #do something with the data
             for item in result['items']:
-                self.resultList[str(item['id']['videoId'])]=1
+                self.resultList[str(item['id']['videoId'])]=None
                 
             publishedAfter = workQueueItem[0]
             publishedBefore = workQueueItem[1]
@@ -69,6 +71,13 @@ class YouTubeIDFetcher(RequestAbstraction):
     
     def saveResult(self):
         self.updateProgress('SAVING')
+        from project.models import YoutubeVideo
+        #http://docs.sqlalchemy.org/en/rel_0_8/faq.html#i-m-inserting-400-000-rows-with-the-orm-and-it-s-really-slow
+        #used described pattern to have better performance: sqlalchemy core insert
+        db.engine.execute(YoutubeVideo.__table__.insert(),
+                   [{"id": videoID} for videoID in self.resultList]
+                   )
+        
         
             
 ##how to use it
