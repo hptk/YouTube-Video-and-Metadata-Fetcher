@@ -2,6 +2,10 @@ from RequestAbstraction import RequestAbstraction
 from itertools import islice 
 from project import db
 import logging
+import time
+import pprint
+import json
+import dateutil.parser
 logger = logging.getLogger('tasks')
 class YouTubeMetaFetcher(RequestAbstraction):
     
@@ -31,35 +35,86 @@ class YouTubeMetaFetcher(RequestAbstraction):
         videoIDs = ','.join(workQueueItem)
         return self.url+"?part=snippet,contentDetails,liveStreamingDetails,recordingDetails,statistics,status,topicDetails&id="+videoIDs+"&key=AIzaSyBlO0GfmL5LuRJoVlRhMVM8VjViE5BAAs8"
     
+    
+        
     def handleRequestSuccess(self,workQueueItem, result):
         if "items" in result:
             for item in result['items']:
                 #database maping
                 self.resultList[item['id']]= {}
                 self.resultList[item['id']]["id"] = item['id']
-                self.resultList[item['id']]["category_id"] = item['categoryId']
+                        
                 #snippet
-                self.resultList[item['id']]["publishedAt"] = item['snippet']['publishedAt']
-                self.resultList[item['id']]["channel_id"] = item['snippet']['channelId']
-                self.resultList[item['id']]["title"] = item['snippet']['title']
-                self.resultList[item['id']]["description"] = item['snippet']['description']
-                self.resultList[item['id']]["channel_title"] = item['snippet']['channelTitle']
-                self.resultList[item['id']]["tags"] = json.dumps(item['snippet']['tags'])
+                self.resultList[item['id']]["snippet_publishedAt"] = dateutil.parser.parse(item['snippet']['publishedAt'])
+                self.resultList[item['id']]["snippet_channel_id"] = item['snippet']['channelId']
+                self.resultList[item['id']]["snippet_title"] = item['snippet']['title']
+                self.resultList[item['id']]["snippet_description"] = item['snippet']['description']
+                self.resultList[item['id']]["snippet_channel_title"] = item['snippet']['channelTitle']
+                self.resultList[item['id']]["snippet_category_id"] = item['snippet']['categoryId']
+                if 'tags' in item['snippet']:
+                    self.resultList[item['id']]["snippet_tags"] = json.dumps(item['snippet']['tags'])
+                else:
+                    self.resultList[item['id']]["snippet_tags"] = ''
+                    
                 #contentDetails
                 self.resultList[item['id']]["contentDetails_duration"] = item['contentDetails']['duration']
                 self.resultList[item['id']]["contentDetails_dimension"] = item['contentDetails']['dimension']
                 self.resultList[item['id']]["contentDetails_definition"] = item['contentDetails']['definition']
                 self.resultList[item['id']]["contentDetails_caption"] = item['contentDetails']['caption']
                 self.resultList[item['id']]["contentDetails_licensedContent"] = item['contentDetails']['licensedContent']
+                
                 #status
                 self.resultList[item['id']]["status_uploadStatus"] = item['status']['uploadStatus']
                 self.resultList[item['id']]["status_privacyStatus"] = item['status']['privacyStatus']
                 self.resultList[item['id']]["status_license"] = item['status']['license']
                 self.resultList[item['id']]["status_embeddable"] = item['status']['embeddable']
                 self.resultList[item['id']]["status_publicStatsViewable"] = item['status']['publicStatsViewable']
+                
                 #statistics
-                self.resultList[item['id']]["statistics_viewCount"] = item['statistics']['viewCount']
-                self.resultList[item['id']]["statistics_likeCount"] = item['statistics']['likeCount']
-                self.resultList[item['id']]["statistics_dislikeCount"] = item['statistics']['dislikeCount']
-                self.resultList[item['id']]["statistics_favoriteCount"] = item['statistics']['favoriteCount']
-                self.resultList[item['id']]["statistics_commentCount"] = item['statistics']['commentCount']
+                self.resultList[item['id']]["statistics_viewCount"] = int(item['statistics']['viewCount'])
+                if "likeCount" in item['statistics']:
+                    self.resultList[item['id']]["statistics_likeCount"] = int(item['statistics']['likeCount'])
+                else:
+                    self.resultList[item['id']]["statistics_likeCount"] = ''
+                
+                if "dislikeCount" in item['statistics']:
+                    self.resultList[item['id']]["statistics_dislikeCount"] = int(item['statistics']['dislikeCount'])
+                else:
+                    self.resultList[item['id']]["statistics_dislikeCount"] = ''
+                    
+                self.resultList[item['id']]["statistics_favoriteCount"] = int(item['statistics']['favoriteCount'])
+                self.resultList[item['id']]["statistics_commentCount"] = int(item['statistics']['commentCount'])
+                
+                
+    def saveResult(self):
+        
+        #
+        #
+        #
+        # maybe save the result after each request (50 meta data sets), because the dictonary eats a lot of ram if there are a lot of videos
+        #
+        #
+        #
+        
+        if len(self.resultList) > 0:
+            self.updateProgress('SAVING')
+            from project.models import YoutubeVideoMeta
+            from sqlalchemy.ext.compiler import compiles 
+            from sqlalchemy.sql.expression import Insert
+            @compiles(Insert)
+            def replace_string(insert, compiler, **kw):
+                s = compiler.visit_insert(insert, **kw)
+                if 'replace_string' in insert.kwargs:
+                    return s.replace("INSERT",insert.kwargs['replace_string'])
+                return s
+            
+            t0 = time.time()
+            logger.info("save video meta")
+            #http://docs.sqlalchemy.org/en/rel_0_9/core/connections.html?highlight=engine#sqlalchemy.engine.Connection.execute
+            db.engine.execute(YoutubeVideoMeta.__table__.insert(replace_string = 'INSERT OR REPLACE'),
+                   [value for key,value in self.resultList.iteritems()]
+                   )
+            logger.info("Total time for " + str(len(self.resultList)) +" records " + str(time.time() - t0) + " secs")
+            
+
+    
