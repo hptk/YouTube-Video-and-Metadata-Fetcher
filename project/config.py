@@ -19,3 +19,5 @@ class BaseConfig(object):
 	}
 	CELERY_BROKER_URL='redis://localhost:6379/0'
 	CELERY_RESULT_BACKEND='redis://localhost:6379/0'
+	#dont use sqlite result backend. It is much slower since we are doing a lot of status updates in our tasks
+	#CELERY_RESULT_BACKEND='db+sqlite:///'+os.path.join(basedir,'dev.sqlite')

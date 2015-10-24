@@ -47,6 +47,18 @@ class YoutubeVideo(db.Model):
 	
 	id = db.Column(db.String(255),primary_key=True,unique=True)
 	
+class Task(db.Model):
+	__tablename__ = "background_tasks"
+	
+	id = db.Column(db.String(255),primary_key=True)
+	action = db.Column(db.String(255))
+	state = db.Column(db.String(255))
+	result = db.Column(db.Text())
+	query_id = db.Column(db.Integer,db.ForeignKey('youtube_queries.id'))	
+	
+	def __init__(self,id,action):
+		self.id = id
+		self.action=action
 
 class APIKey(db.Model):
 	__tablename__ = "apikeys"
@@ -89,7 +101,8 @@ class YoutubeQuery(db.Model):
 	apikey_id = db.Column(db.Integer,db.ForeignKey('apikeys.id'))
 	#apikey_id = db.Column(db.Integer,db.ForeignKey('apikeys.id'))
 	#apikey = db.relationship("APIKey",)
-
+	tasks = db.relationship("Task",backref="youtube_queries")
+	
 	def __init__(self,queryHash,queryRaw):
 		self.queryHash = queryHash
 		self.queryRaw = queryRaw

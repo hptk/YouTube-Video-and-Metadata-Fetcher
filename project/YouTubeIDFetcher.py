@@ -26,8 +26,7 @@ class YouTubeIDFetcher(RequestAbstraction):
         parameter.update(self.query)
         url_parts[4] = urllib.urlencode(parameter)
         self.defaultURL = urlparse.urlunparse(url_parts)
-        
-        
+           
     def calculateTimeframe(self,publishedBefore,frame):
         return publishedBefore - datetime.timedelta(seconds=frame)
     
@@ -40,7 +39,6 @@ class YouTubeIDFetcher(RequestAbstraction):
         return self.defaultURL+"&publishedAfter="+self.formatDate(publishedAfter)+"&publishedBefore="+self.formatDate(publishedBefore);
     
     def handleRequestSuccess(self,workQueueItem, result):
-        #pprint.pprint(result)
         if "items" in result:
             req_results = len(result['items'])
             #do something with the data
@@ -53,15 +51,11 @@ class YouTubeIDFetcher(RequestAbstraction):
             #slice the timeframe if has more pages and more results than 50 and the timespan is bigger than 1 (maybe there are more than 50 videos per second and it will result in a loop)
             if "nextPageToken" in result and req_results==50 and secondsTimeSpan > 1:
                 midDate = publishedAfter+(publishedBefore-publishedAfter)/2
-                #print request
                 #add new timeframes to queue
                 self.putWorkQueueItem((publishedAfter,midDate-datetime.timedelta(seconds=1)))
                 self.putWorkQueueItem((midDate,publishedBefore)) 
     
     def initWorkQueue(self):
-        
-        #self.publishedBefore = datetime.datetime.utcnow().replace(hour=0,minute=0,second=0,microsecond=0) -datetime.timedelta(days=30)
-        #self.publishedAfter = self.publishedBefore - datetime.timedelta(days=7)
         self.totalFrame = int((self.publishedBefore-self.publishedAfter).total_seconds())
         self.secondsPerFrame = int(self.totalFrame/(self.numberHTTPClients))
         self.initFrames = int(self.totalFrame/self.secondsPerFrame)
@@ -72,6 +66,10 @@ class YouTubeIDFetcher(RequestAbstraction):
             tempTimeAfter = self.calculateTimeframe(tempTimeBefore,self.secondsPerFrame)
             tempTime = self.calculateTimeframe(tempTime,1)
             self.putWorkQueueItem((tempTimeAfter,tempTimeBefore))
+    
+    def saveResult(self):
+        self.updateProgress('SAVING')
+        
             
 ##how to use it
 #query= {}

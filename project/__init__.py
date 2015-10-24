@@ -153,8 +153,7 @@ def setTask(id):
 	json_data = request.json
 	action = json_data['action']
 	try:
-		query = YoutubeQuery.query.filter_by(user_id=session['id'],id=id).first()
-		task = fetch.delay(query.get_queryRaw())
+		task = fetch.delay(id)
 		return jsonify({'success':True,'task':{'task_id':task.id, 'task_action':action,'task_action_id':id, 'progress_url':url_for('getProgress',task_action_id=id,task_action=action,task_id=task.id)}})
 	except:
 		pass

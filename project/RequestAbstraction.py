@@ -17,9 +17,7 @@ class RequestAbstraction(object):
             self.celeryTaskId = task.request.id
         else:
             self.celeryTask = None
-            
-    
-        
+
         self.parameter = parameter
         self.url = url
         self.numberHTTPClients = HTTPClients
@@ -62,6 +60,7 @@ class RequestAbstraction(object):
         return self.meta
     
     def updateProgress(self,state="PROGRESS"):
+        '''Updates the status'''
         self.meta = {'state':state,'workQueueDone': self.workQueueDone, 'workQueueMax': self.workQueueMax,'current':len(self.resultList),'workQueue':self.workQueue.qsize(),'requests':self.countRequests}
         #self.meta['status_codes'] = self.status_codes
         #iterate over status_codes dict and save the queue size. may be not the best solution from performance view
@@ -153,12 +152,15 @@ class RequestAbstraction(object):
         self.exitFlag=True
             
     def buildRequestURL(self,workQueueItem):
+        '''Function used to build the request URL from a workingQueue item'''
         pass
     
     def handleRequestSuccess(self,workQueueItem, result):
+        '''Required function, called after every successful request'''
         pass
     
     def handleRequestFailure(self,result):
+        '''Function called after a failed request. For example error code 404'''
         pass
     
     def makeRequest(self,http,workQueueItem):
@@ -187,24 +189,32 @@ class RequestAbstraction(object):
         
             
     def putWorkQueueItem(self,item):
+        '''Puts a single item on the workingQueue and calculates the maximum of the global workingQueue'''
         self.workQueue.put(item)
         if self.workQueueMax<self.workQueue.qsize():
             self.workQueueMax=self.workQueue.qsize()
         
     def getWorkQueueItem(self):
+        '''Returns a single item from the working queue and removes it'''
         self.workQueueDone+=1 
-        
         self.updateProgress()
         return self.workQueue.get()
               
     def initWorkQueue(self):
+        '''Required function which is called at the beginning in order to set up the initial workingQueue'''
+        pass
+    
+    def saveResult(self):
+        '''Function called after all requests are done. For example can be used to modify/save the results'''
         pass
     
     def returnResult(self):
+        '''returns the meta result, which is set by updateProgress'''
         self.meta['result']=len(self.resultList)
         return self.meta
     
     def setUpWorkPool(self):
+        '''Sets up the worker pool of the HTTP clients.'''
         HTTPClientId = 0
         while HTTPClientId < self.numberHTTPClients:
             self.limitHit[str(HTTPClientId)] = 0
@@ -219,6 +229,7 @@ class RequestAbstraction(object):
             self.initWorkQueue()
             self.setUpWorkPool()
         finally:
+            self.saveResult()
             self.updateProgress("DONE")
             self.destroy()
             self.destroyAdditionstrucutres()
