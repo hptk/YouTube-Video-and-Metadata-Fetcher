@@ -153,7 +153,10 @@ def setTask(id):
 	json_data = request.json
 	action = json_data['action']
 	try:
-		task = fetch.delay(id)
+		if action == "fetch":
+			task = fetch.delay(id)
+		elif action == "meta":
+			task = meta.delay(id)
 		return jsonify({'success':True,'task':{'task_id':task.id, 'task_action':action,'task_action_id':id, 'progress_url':url_for('getProgress',task_action_id=id,task_action=action,task_id=task.id)}})
 	except:
 		pass
