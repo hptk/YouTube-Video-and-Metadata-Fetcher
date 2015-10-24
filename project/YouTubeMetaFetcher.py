@@ -1,5 +1,4 @@
 from RequestAbstraction import RequestAbstraction
-import pprint
 from itertools import islice 
 from project import db
 import logging
@@ -35,5 +34,32 @@ class YouTubeMetaFetcher(RequestAbstraction):
     def handleRequestSuccess(self,workQueueItem, result):
         if "items" in result:
             for item in result['items']:
-                self.resultList[str(item['id'])]=1
-                print item['snippet']['title']
+                #database maping
+                self.resultList[item['id']]= {}
+                self.resultList[item['id']]["id"] = item['id']
+                self.resultList[item['id']]["category_id"] = item['categoryId']
+                #snippet
+                self.resultList[item['id']]["publishedAt"] = item['snippet']['publishedAt']
+                self.resultList[item['id']]["channel_id"] = item['snippet']['channelId']
+                self.resultList[item['id']]["title"] = item['snippet']['title']
+                self.resultList[item['id']]["description"] = item['snippet']['description']
+                self.resultList[item['id']]["channel_title"] = item['snippet']['channelTitle']
+                self.resultList[item['id']]["tags"] = json.dumps(item['snippet']['tags'])
+                #contentDetails
+                self.resultList[item['id']]["contentDetails_duration"] = item['contentDetails']['duration']
+                self.resultList[item['id']]["contentDetails_dimension"] = item['contentDetails']['dimension']
+                self.resultList[item['id']]["contentDetails_definition"] = item['contentDetails']['definition']
+                self.resultList[item['id']]["contentDetails_caption"] = item['contentDetails']['caption']
+                self.resultList[item['id']]["contentDetails_licensedContent"] = item['contentDetails']['licensedContent']
+                #status
+                self.resultList[item['id']]["status_uploadStatus"] = item['status']['uploadStatus']
+                self.resultList[item['id']]["status_privacyStatus"] = item['status']['privacyStatus']
+                self.resultList[item['id']]["status_license"] = item['status']['license']
+                self.resultList[item['id']]["status_embeddable"] = item['status']['embeddable']
+                self.resultList[item['id']]["status_publicStatsViewable"] = item['status']['publicStatsViewable']
+                #statistics
+                self.resultList[item['id']]["statistics_viewCount"] = item['statistics']['viewCount']
+                self.resultList[item['id']]["statistics_likeCount"] = item['statistics']['likeCount']
+                self.resultList[item['id']]["statistics_dislikeCount"] = item['statistics']['dislikeCount']
+                self.resultList[item['id']]["statistics_favoriteCount"] = item['statistics']['favoriteCount']
+                self.resultList[item['id']]["statistics_commentCount"] = item['statistics']['commentCount']
