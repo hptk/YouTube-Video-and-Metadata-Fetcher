@@ -22,7 +22,7 @@ bcrypt = Bcrypt(app)
 db = SQLAlchemy(app)
 celery = make_celery(app)
 from project.models import User, APIKey, YoutubeQuery
-from tasks import fetch
+from tasks import fetch,meta
 
 
 @app.route('/')
