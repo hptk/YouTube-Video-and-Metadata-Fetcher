@@ -1,5 +1,5 @@
 
-from urllib2 import urlopen, unquote; 
+from urllib2 import urlopen, unquote;
 from urlparse import parse_qs;
 import xmltodict
 import json
@@ -12,8 +12,8 @@ def get_video_manifest(url):
     return urlopen(url).read()
 
 def manifest_to_dict(manifest):
-    return json.dumps(xmltodict.parse(manifest))
-                         
+    return json.dumps(xmltodict.parse(manifest), indent=4, separators=(',', ': '))
+
 video_info = get_video_info(video_id)
 
 manifest = get_video_manifest(video_info["dashmpd"][0])
