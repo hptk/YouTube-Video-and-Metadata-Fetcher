@@ -200,8 +200,9 @@ def getProgress(task_action_id,task_action,task_id):
 def getQuery(id):
 	try:
 		query = YoutubeQuery.query.filter_by(user_id=session['id'],id=id).first()
+		tasks = [task.as_dict() for task in query.tasks]
 		
-		return jsonify({'success': True,'query':json.loads(query.get_queryRaw())})
+		return jsonify({'success': True,'query':json.loads(query.get_queryRaw()),'tasks':tasks})
 	except:
 		pass
 		
@@ -211,8 +212,7 @@ def getQueries(amount):
 	try:
 		queries = YoutubeQuery.query.filter_by(user_id=session['id']).order_by(desc(YoutubeQuery.id)).limit(amount)
 		dict_queries = [query.as_dict() for query in queries]
-		for query in dict_queries:
-			query["queryRaw"] = json.loads(query["queryRaw"])
+		
 		return jsonify({'success': True,'queries':dict_queries})
 	except:
 		pass

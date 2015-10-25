@@ -90,6 +90,15 @@ class Task(db.Model):
 	def __init__(self,id,action):
 		self.id = id
 		self.action=action
+		
+	def as_dict(self):
+		obj_d = {
+			'id': self.id,
+			'action': self.action,
+			'state': self.state,
+			'result': json.loads(self.result),
+		}
+		return obj_d
 
 class QueryVideoMM(db.Model):
 	__tablename__ = "query_video_mm"
@@ -157,6 +166,6 @@ class YoutubeQuery(db.Model):
 			'id':self.id,
 			'user_id':self.user_id,
 			'queryHash':self.queryHash,
-			'queryRaw':self.queryRaw
+			'queryRaw':json.loads(self.queryRaw)
 		}
 		return obj_d
