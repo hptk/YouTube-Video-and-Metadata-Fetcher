@@ -72,7 +72,7 @@ class YoutubeVideo(db.Model):
 	def as_dict(self):
 		return {
 			'id':self.id,
-                        'representations':self.representations.as_dict(),
+            #            'representations':self.representations.as_dict(),
 			'meta':self.meta.as_dict()
 			}
 
@@ -145,14 +145,20 @@ class Task(db.Model):
 		self.id = id
 		self.action=action
 
-	def as_dict(self):
-		obj_d = {
+	def as_dict(self):		
+		return {
 			'id': self.id,
 			'action': self.action,
 			'state': self.state,
-			'result': json.loads(self.result),
+			'result': json.loads(self.result) if self.result is not None else None
 		}
-		return obj_d
+		"""obj_d = {
+			'id': self.id,
+			'action': self.action,
+			'state': self.state
+			#'result': json.loads(self.result) if self.result else null,
+		}
+		return obj_d"""
 
 class QueryVideoMM(db.Model):
 	__tablename__ = "query_video_mm"
@@ -221,6 +227,7 @@ class YoutubeQuery(db.Model):
 			'id':self.id,
 			'user_id':self.user_id,
 			'queryHash':self.queryHash,
-			'queryRaw':json.loads(self.queryRaw)
+			'queryRaw':json.loads(self.queryRaw),
+			'tasks':[task.as_dict() for task in self.tasks]
 		}
 		return obj_d

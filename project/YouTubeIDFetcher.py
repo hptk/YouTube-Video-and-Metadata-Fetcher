@@ -87,7 +87,7 @@ class YouTubeIDFetcher(RequestAbstraction):
             def replace_string(insert, compiler, **kw):
                 s = compiler.visit_insert(insert, **kw)
                 if 'replace_string' in insert.kwargs:
-                    return s.replace("INSERT",insert.kwargs['replace_string'])
+                    return str(s).replace("INSERT",insert.kwargs['replace_string'])
                 return s
             
             t0 = time.time()
