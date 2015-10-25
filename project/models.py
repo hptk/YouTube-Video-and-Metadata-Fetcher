@@ -51,7 +51,7 @@ class VideoRepresentation(db.Model):
     width = db.Column(db.Integer)
     bitrate = db.Column(db.Integer)
     framerate = db.Column(db.Integer)
-    codec = db.Column(db.VARCHAR(20)
+    codec = db.Column(db.VARCHAR(20))
 
     def as_dict(self):
         return {
