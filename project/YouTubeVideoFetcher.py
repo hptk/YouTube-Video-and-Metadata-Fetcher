@@ -1,15 +1,19 @@
-from RequestAbstraction import RequestAbstraction
+from RequestBase import RequestBase
 import datetime
-import json
 import urlparse
 import urllib
 import dateutil.parser
 import pprint
 import time
+import json
 import os
-from project import db
+from urllib2 import urlopen, unquote;
+from urlparse import parse_qs;
+import xmltodict
+
+#from project import db
 import logging
-from project.models import YoutubeQuery
+#from project.models import YoutubeQuery
 logger = logging.getLogger('tasks')
 
 # TODO:
@@ -21,33 +25,46 @@ logger = logging.getLogger('tasks')
 #           1: the height (resolution) preffered to be dl'ed (e.g. 1080, 720)
 #           2: get sound? Boolean value
 
-class YouTubeVideoFetcher(RequestAbstraction):
+class YouTubeVideoFetcher(RequestBase):
     video_ids = []
     dl_path = ''
     get_sound = False
 
     def initAdditionalStructures(self):
-        self.defaultURL = 'http://www.youtube.com/get_video_info?'
         dir = os.path.dirname(__file__)
         self.dl_path = os.path.join(dir, '../downloads/')
 
     def buildRequestURL(self, workQueueItem):
-        return self.defaultURL+'&video_id='+workQueueItem[0]
+        return self.url+'?video_id='+workQueueItem[0]
 
     def initWorkQueue(self):
-        queries = YoutubeQuery.query.filter_by(id=id)
-        for video in queries.videos:
-            self.video_ids += video.video_id
+        #queries = YoutubeQuery.query.filter_by(id=id)
+        #for video in queries.videos:
+        #    self.video_ids += video.video_id
+        item = {}
+        item[0] = self.parameter
+        item[1] = 720
+        item[2] = False
+        self.putWorkQueueItem(item)
+        
+    def handleRequestSuccess(self,workQueueItem, response): 
+        
+        #get the video_info file
+        video_info = parse_qs(unquote(response.read().decode('utf-8')))
+        
+        #extract the manifest_url
+        manifest_url = video_info["dashmpd"][0]
+        manifest_file = urlopen(manifest_url).read() 
+        #load the manifest
+        manifest = xmltodict.parse(manifest_file)['MPD']['Period']
 
-    def handleRequestSuccess(self,workQueueItem, result):
-        manifest = xmltodict.parse(result)['MPD']['Period']
         got_video = False
         got_sound = False
         CHUNK = 16 * 1024
         if workQueueItem[2]:
             self.get_sound = True
         for adaptationSet in manifest:
-            mimeType = (str)adaptationSet['@mimeType'].split('/')
+            mimeType = adaptationSet['@mimeType'].split('/')
 
             # Downloading sound, for now first quality listed (should be mp4)
             if mimeType[0] == 'audio' and self.get_sound:
@@ -90,3 +107,5 @@ class YouTubeVideoFetcher(RequestAbstraction):
     def saveResult(self):
         pass
 
+test = YouTubeVideoFetcher("http://www.youtube.com/get_video_info",'50KDpBMnADA',1,1,)
+pprint.pprint(test.work())
