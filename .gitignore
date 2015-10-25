@@ -1,7 +1,9 @@
-*.pyc
 migrations/
 venv/
 test/
+project/dev.sqlite
+dump.rdb
 *.swp
 *.DS_Store
+*.pyc
 *apikey*

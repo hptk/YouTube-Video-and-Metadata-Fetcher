@@ -5,7 +5,7 @@ from project import db,bcrypt
 import json
 from sqlalchemy.orm import relationship
 class User(db.Model):
-	
+
 	__tablename__ = "users"
 
 	id = db.Column(db.Integer,primary_key=True,autoincrement=True)
@@ -23,7 +23,7 @@ class User(db.Model):
 		self.registered_on = datetime.datetime.now()
 		self.firstname = firstname
 		self.lastname = lastname
-	
+
 	def is_authenticated(self):
 		return True
 
@@ -43,21 +43,42 @@ class User(db.Model):
 	def get_lastname(self):
 		return self.lastname
 
+class VideoRepresentation(db.Model):
+    __tablename__ = "videoRepresentation"
+
+    video_id = db.Column(db.VARCHAR(12),db.ForeignKey('video.id'),primary_key=True)
+    heigth = db.Column(db.Integer, primary_key=True)
+    width = db.Column(db.Integer)
+    bitrate = db.Column(db.Integer)
+    framerate = db.Column(db.Integer)
+    codec = db.Column(db.VARCHAR(20)
+
+    def as_dict(self):
+        return {
+                'heigth':self.heigth,
+                'width':self.width,
+                'bitrate':self.bitrate,
+                'framerate':self.framerate,
+                'codec':self.codec
+                }
+
 class YoutubeVideo(db.Model):
 	__tablename__ = "video"
-	
+
 	id = db.Column(db.VARCHAR(12),primary_key=True,unique=True)
-	meta = db.relationship("YoutubeVideoMeta",backref="video",uselist=False)
-	
+	meta = db.relationship("YoutubeVideoMeta", backref="video", uselist=False)
+        representations = db.relationship("VideoRepresentation", backref="video")
+
 	def as_dict(self):
 		return {
 			'id':self.id,
+                        'representations':self.representations.as_dict(),
 			'meta':self.meta.as_dict()
 			}
 
 class YoutubeVideoMeta(db.Model):
 	__tablename__ = "meta"
-	
+
 	id = db.Column(db.VARCHAR(12),db.ForeignKey("video.id"),primary_key=True,unique=True)
 	snippet_publishedAt = db.Column(db.DateTime(timezone=True))
 	snippet_channel_id = db.Column(db.VARCHAR(50))
@@ -74,18 +95,20 @@ class YoutubeVideoMeta(db.Model):
 	#deprecated since august 28, 2015. always set to one
 	statistics_favoriteCount = db.Column(db.Integer)
 	statistics_commentCount = db.Column(db.Integer)
-	
+
 	status_uploadStatus = db.Column(db.VARCHAR(20))
 	status_privacyStatus = db.Column(db.VARCHAR(20))
 	status_license = db.Column(db.VARCHAR(20))
 	status_embeddable = db.Column(db.BOOLEAN)
 	status_publicStatsViewable = db.Column(db.BOOLEAN)
-	
+
 	contentDetails_duration = db.Column(db.Integer)
 	contentDetails_dimension = db.Column(db.VARCHAR(2))
 	contentDetails_definition = db.Column(db.VARCHAR(2))
 	#based on google documentation this field is a string, containing 'true' or 'false', if you want to use boolean instead, you have to manually convert the string into bool
 	contentDetails_caption = db.Column(db.String(4))
+	#not sure what data type caption should be
+	#contentDetails_caption
 	contentDetails_licensedContent = db.Column(db.BOOLEAN)
 	
 	recordingDetails_location_latitude = db.Column(db.Float(precision='10,6'))
@@ -108,20 +131,20 @@ class YoutubeVideoMeta(db.Model):
 					'tags':self.tags_as_dict()
 					}
 		}
-	
+
 class Task(db.Model):
 	__tablename__ = "background_tasks"
-	
+
 	id = db.Column(db.VARCHAR(255),primary_key=True)
 	action = db.Column(db.VARCHAR(255))
 	state = db.Column(db.VARCHAR(255))
 	result = db.Column(db.Text())
-	query_id = db.Column(db.Integer,db.ForeignKey('youtube_queries.id'))	
-	
+	query_id = db.Column(db.Integer,db.ForeignKey('youtube_queries.id'))
+
 	def __init__(self,id,action):
 		self.id = id
 		self.action=action
-		
+
 	def as_dict(self):
 		obj_d = {
 			'id': self.id,
@@ -136,7 +159,7 @@ class QueryVideoMM(db.Model):
 	youtube_query_id = db.Column(db.Integer,db.ForeignKey('youtube_queries.id'),primary_key=True)
 	video_id = db.Column(db.VARCHAR(12),db.ForeignKey('video.id'),primary_key=True)
 	video = db.relationship("YoutubeVideo")
- 
+
 class APIKey(db.Model):
 	__tablename__ = "apikeys"
 
@@ -144,14 +167,14 @@ class APIKey(db.Model):
 	user_id = db.Column(db.Integer,db.ForeignKey('users.id'))
 	name = db.Column(db.String(255),nullable=False)
 	key = db.Column(db.String(255),nullable=False,unique=True)
-	
+
 	queries = db.relationship("YoutubeQuery",backref="apikeys")
 	#query_id = db.Column(db.Integer,db.ForeignKey('queries.id'))
 	#query = db.relationship("Query")
-	
+
 	def __init__(self,name,key):
 		self.name = name
-		self.key = key 
+		self.key = key
 
 	def get_key(self):
 		return self.key
@@ -180,7 +203,7 @@ class YoutubeQuery(db.Model):
 	#apikey = db.relationship("APIKey",)
 	tasks = db.relationship("Task",backref="youtube_queries")
 	videos = relationship("QueryVideoMM",backref="queries")
-	
+
 	def __init__(self,queryHash,queryRaw):
 		self.queryHash = queryHash
 		self.queryRaw = queryRaw
@@ -192,7 +215,7 @@ class YoutubeQuery(db.Model):
 		return self.queryRaw
 	def get_queryJson(self):
 		return json.dumps(self.queryRaw)
-	
+
 	def as_dict(self):
 		obj_d = {
 			'id':self.id,
