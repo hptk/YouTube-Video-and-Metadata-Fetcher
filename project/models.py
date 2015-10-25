@@ -60,30 +60,38 @@ class YoutubeVideoMeta(db.Model):
 	
 	id = db.Column(db.VARCHAR(12),db.ForeignKey("video.id"),primary_key=True,unique=True)
 	snippet_publishedAt = db.Column(db.DateTime(timezone=True))
-	snippet_channel_id = db.Column(db.VARCHAR(255))
-	snippet_channel_title = db.Column(db.VARCHAR(255))
+	snippet_channel_id = db.Column(db.VARCHAR(50))
+	snippet_channel_title = db.Column(db.VARCHAR(100))
 	snippet_title = db.Column(db.Text())
-	snippet_description = db.Column(db.Text())
+	snippet_description = db.Column(db.VARCHAR(5000))
 	snippet_category_id = db.Column(db.Integer)
 	snippet_tags = db.Column(db.Text())
+	snippet_liveBroadcastContent = db.Column(db.VARCHAR(10))
+	
 	statistics_viewCount = db.Column(db.Integer)
 	statistics_likeCount = db.Column(db.Integer)
 	statistics_dislikeCount = db.Column(db.Integer)
+	#deprecated since august 28, 2015. always set to one
 	statistics_favoriteCount = db.Column(db.Integer)
 	statistics_commentCount = db.Column(db.Integer)
 	
-	status_uploadStatus = db.Column(db.VARCHAR(255))
-	status_privacyStatus = db.Column(db.VARCHAR(255))
-	status_license = db.Column(db.VARCHAR(255))
+	status_uploadStatus = db.Column(db.VARCHAR(20))
+	status_privacyStatus = db.Column(db.VARCHAR(20))
+	status_license = db.Column(db.VARCHAR(20))
 	status_embeddable = db.Column(db.BOOLEAN)
 	status_publicStatsViewable = db.Column(db.BOOLEAN)
 	
 	contentDetails_duration = db.Column(db.Integer)
 	contentDetails_dimension = db.Column(db.VARCHAR(2))
 	contentDetails_definition = db.Column(db.VARCHAR(2))
-	#not sure what data type caption should be
-	#contentDetails_caption 
+	contentDetails_caption = db.Column(db.BOOLEAN)
 	contentDetails_licensedContent = db.Column(db.BOOLEAN)
+	
+	recordingDetails_location_latitude = db.Column(db.Float(precision='10,6'))
+	recordingDetails_location_longitude = db.Column(db.Float(precision='10,6'))
+	recordingDetails_location_altitude = db.Column(db.Float(precision='10,6'))
+	recordingDetails_recordingDate = db.Column(db.DateTime(timezone=True))
+	
 	def tags_as_dict(self):
 		if self.snippet_tags != '':
 			return json.loads(self.snippet_tags)
