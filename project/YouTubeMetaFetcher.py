@@ -88,16 +88,26 @@ class YouTubeMetaFetcher(RequestAbstraction):
                 self.resultList[item['id']]["statistics_commentCount"] = int(item['statistics']['commentCount'])
                 
                 #recordingDetails
-                if "recordingDetails" in item['id']:
-                    if 'recordingDate' in item['id']['recordingDetails']:
-                        self.resultList[item['id']]["recordingDetails_recordingDate"] = dateutil.parser.parse(item['recordingDetails']['recordingDetails'])
+                if 'recordingDetails' in item:
+                    
+                    if 'recordingDate' in item['recordingDetails']:
+                        self.resultList[item['id']]["recordingDetails_recordingDate"] = dateutil.parser.parse(item['recordingDetails']['recordingDate'])
                     else:
                         #add epoch to the field if value not exists, because SQLite DateTime type only accepts Python datetime and date objects as input
                         self.resultList[item['id']]["recordingDetails_recordingDate"] = datetime.utcfromtimestamp(0)
-                    if "location" in item['id']['recordingDetails']:
-                        self.resultList[item['id']]["recordingDetails_location_latitude"] = item['recordingDetails']['location']['latitude']
-                        self.resultList[item['id']]["recordingDetails_location_longitude"] = item['recordingDetails']['location']['longitude']
-                        self.resultList[item['id']]["recordingDetails_location_altitude"] = item['recordingDetails']['location']['altitude']
+                    if "location" in item['recordingDetails']:
+                        if 'latitude' in item['recordingDetails']['location']:
+                            self.resultList[item['id']]["recordingDetails_location_latitude"] = item['recordingDetails']['location']['latitude']
+                        else:
+                            self.resultList[item['id']]["recordingDetails_location_latitude"] = 0
+                        if 'longitude' in item['recordingDetails']['location']:
+                            self.resultList[item['id']]["recordingDetails_location_longitude"] = item['recordingDetails']['location']['longitude']
+                        else:
+                            self.resultList[item['id']]["recordingDetails_location_longitude"] = 0
+                        if 'altitude' in item['recordingDetails']['location']:
+                            self.resultList[item['id']]["recordingDetails_location_altitude"] = item['recordingDetails']['location']['altitude']
+                        else:
+                            self.resultList[item['id']]["recordingDetails_location_altitude"] = 0
                     else:
                         self.resultList[item['id']]["recordingDetails_location_latitude"] = 0
                         self.resultList[item['id']]["recordingDetails_location_longitude"] = 0
@@ -128,7 +138,7 @@ class YouTubeMetaFetcher(RequestAbstraction):
             def replace_string(insert, compiler, **kw):
                 s = compiler.visit_insert(insert, **kw)
                 if 'replace_string' in insert.kwargs:
-                    return s.replace("INSERT",insert.kwargs['replace_string'])
+                    return str(s).replace("INSERT",insert.kwargs['replace_string'])
                 return s
             
             t0 = time.time()
