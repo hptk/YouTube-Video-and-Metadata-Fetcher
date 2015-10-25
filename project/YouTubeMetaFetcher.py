@@ -6,6 +6,7 @@ import time
 import pprint
 import json
 import dateutil.parser
+from datetime import datetime
 logger = logging.getLogger('tasks')
 class YouTubeMetaFetcher(RequestAbstraction):
     
@@ -51,6 +52,7 @@ class YouTubeMetaFetcher(RequestAbstraction):
                 self.resultList[item['id']]["snippet_description"] = item['snippet']['description']
                 self.resultList[item['id']]["snippet_channel_title"] = item['snippet']['channelTitle']
                 self.resultList[item['id']]["snippet_category_id"] = item['snippet']['categoryId']
+                self.resultList[item['id']]["snippet_liveBroadcastContent"] = item['snippet']['liveBroadcastContent']
                 if 'tags' in item['snippet']:
                     self.resultList[item['id']]["snippet_tags"] = json.dumps(item['snippet']['tags'])
                 else:
@@ -85,7 +87,28 @@ class YouTubeMetaFetcher(RequestAbstraction):
                 self.resultList[item['id']]["statistics_favoriteCount"] = int(item['statistics']['favoriteCount'])
                 self.resultList[item['id']]["statistics_commentCount"] = int(item['statistics']['commentCount'])
                 
-                
+                #recordingDetails
+                if "recordingDetails" in item['id']:
+                    if 'recordingDate' in item['id']['recordingDetails']:
+                        self.resultList[item['id']]["recordingDetails_recordingDate"] = dateutil.parser.parse(item['recordingDetails']['recordingDetails'])
+                    else:
+                        #add epoch to the field if value not exists, because SQLite DateTime type only accepts Python datetime and date objects as input
+                        self.resultList[item['id']]["recordingDetails_recordingDate"] = datetime.utcfromtimestamp(0)
+                    if "location" in item['id']['recordingDetails']:
+                        self.resultList[item['id']]["recordingDetails_location_latitude"] = item['recordingDetails']['location']['latitude']
+                        self.resultList[item['id']]["recordingDetails_location_longitude"] = item['recordingDetails']['location']['longitude']
+                        self.resultList[item['id']]["recordingDetails_location_altitude"] = item['recordingDetails']['location']['altitude']
+                    else:
+                        self.resultList[item['id']]["recordingDetails_location_latitude"] = 0
+                        self.resultList[item['id']]["recordingDetails_location_longitude"] = 0
+                        self.resultList[item['id']]["recordingDetails_location_altitude"] = 0
+                else:
+                    #add epoch to the field if value not exists, because SQLite DateTime type only accepts Python datetime and date objects as input
+                    self.resultList[item['id']]["recordingDetails_recordingDate"] = datetime.utcfromtimestamp(0)
+                    self.resultList[item['id']]["recordingDetails_location_latitude"] = 0
+                    self.resultList[item['id']]["recordingDetails_location_longitude"] = 0
+                    self.resultList[item['id']]["recordingDetails_location_altitude"] = 0
+                    
     def saveResult(self):
         
         #

@@ -84,7 +84,8 @@ class YoutubeVideoMeta(db.Model):
 	contentDetails_duration = db.Column(db.Integer)
 	contentDetails_dimension = db.Column(db.VARCHAR(2))
 	contentDetails_definition = db.Column(db.VARCHAR(2))
-	contentDetails_caption = db.Column(db.BOOLEAN)
+	#based on google documentation this field is a string, containing 'true' or 'false', if you want to use boolean instead, you have to manually convert the string into bool
+	contentDetails_caption = db.Column(db.String(4))
 	contentDetails_licensedContent = db.Column(db.BOOLEAN)
 	
 	recordingDetails_location_latitude = db.Column(db.Float(precision='10,6'))
