@@ -10,7 +10,7 @@ import random
 monkey.patch_time()
 logger = logging.getLogger('tasks')
 
-class RequestAbstraction(object):
+class RequestBase(object):
     def __init__(self,url,parameter,HTTPClients,ClientConnectionPool,task=None):
         
         if task is not None:
@@ -178,8 +178,7 @@ class RequestAbstraction(object):
             self.status_codes[str(statusCode)].put(workQueueItem)
             
             try:
-                result = json.load(response)
-                self.handleRequestSuccess(workQueueItem,result)
+                self.handleRequestSuccess(workQueueItem,resonse)
             except SSLError,e:
                 print e
             
