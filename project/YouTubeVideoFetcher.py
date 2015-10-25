@@ -43,6 +43,7 @@ class YouTubeVideoFetcher(RequestAbstraction):
         manifest = xmltodict.parse(result)['MPD']['Period']
         got_video = False
         got_sound = False
+        CHUNK = 16 * 1024
         if workQueueItem[2]:
             self.get_sound = True
         for adaptationSet in manifest:
@@ -56,7 +57,6 @@ class YouTubeVideoFetcher(RequestAbstraction):
                 with open(filename, "w") as f:
                     url = adaptationSet['Representation']['BaseURL']['#text']
                     response = urllib.urlopen(url)
-                    CHUNK = 16 * 1024
                     while True:
                         chunk = response.read(CHUNK)
                         if not chunk: break
@@ -79,7 +79,6 @@ class YouTubeVideoFetcher(RequestAbstraction):
                             break
                     url = last_representation['BaseURL']['#text']
                     response = urllib.urlopen(url)
-                    CHUNK = 16 * 1024
                     while True:
                         chunk = response.read(CHUNK)
                         if not chunk: break
