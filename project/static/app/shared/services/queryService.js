@@ -73,7 +73,7 @@ define(['app'], function (app) {
           	      + pad(d.getUTCSeconds())+'Z'}
         
         function testQuery(query) {
-        	var modQuery = query;
+        	var modQuery = angular.copy(query);
         	if(modQuery.publishedBefore instanceof Date) {
         		modQuery.publishedBefore = ISODateString(modQuery.publishedBefore);
         	}

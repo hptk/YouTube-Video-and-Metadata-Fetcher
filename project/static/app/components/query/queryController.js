@@ -184,7 +184,7 @@ define(['app'], function (app) {
         			{
         				vm.loadedQuery = true
         				vm.dataCheckingQuery = true
-        				vm.query = data.query;
+        				vm.query = data.query.queryRaw;
         				/*
         				 * checking the query again destroys the data handler, vm.publishedBefore+After is ISO string, no date object anymore
         				 * */

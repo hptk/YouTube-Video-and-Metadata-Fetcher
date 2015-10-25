@@ -55,7 +55,7 @@ def getUserByID(userid):
 	if(userid==session['id']):
 		user = User.query.filter_by(id=userid).first()
 		success = True
-		user = {'username':user.get_username(),'firstname':user.get_firstname(),'lastname':user.get_lastname()}
+		user = {'username':user.username,'firstname':user.firstname,'lastname':user.lastname}
 	return jsonify({"success":success,"user":user})
 
 @app.route('/api/authenticate', methods=['POST'])
@@ -69,9 +69,9 @@ def login():
 	if user and bcrypt.check_password_hash(user.password, json_data['password']):
 		session['logged_in'] = True
 		session['id'] = user.id
-		userid = user.get_id()
-		firstname = user.get_firstname()
-		lastname = user.get_lastname()
+		userid = user.id
+		firstname = user.firstname
+		lastname = user.firstname
 		success = True
 	else:
 		success = False
