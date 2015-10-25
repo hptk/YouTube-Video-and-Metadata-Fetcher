@@ -10,9 +10,10 @@ import os
 from urllib2 import urlopen, unquote;
 from urlparse import parse_qs;
 import xmltodict
-
+import pprint
 #from project import db
 import logging
+import xml.etree.ElementTree as ET
 #from project.models import YoutubeQuery
 logger = logging.getLogger('tasks')
 
@@ -54,18 +55,20 @@ class YouTubeVideoFetcher(RequestBase):
         
         #extract the manifest_url
         manifest_url = video_info["dashmpd"][0]
+
         manifest_file = urlopen(manifest_url).read() 
         #load the manifest
-        manifest = xmltodict.parse(manifest_file)['MPD']['Period']
-
+        #manifest = xmltodict.parse(manifest_file)['MPD']['Period']
+        manifest = ET.fromstring(manifest_file)
         got_video = False
         got_sound = False
         CHUNK = 16 * 1024
         if workQueueItem[2]:
             self.get_sound = True
-        for adaptationSet in manifest:
-            mimeType = adaptationSet['@mimeType'].split('/')
-
+        for adaptationSet in manifest[0]:
+            
+            mimeType = adaptationSet.attrib.get('mimeType').split("/")
+            print mimeType
             # Downloading sound, for now first quality listed (should be mp4)
             if mimeType[0] == 'audio' and self.get_sound:
                 filename = self.dl_path+workQueueItem[0]+'.'+('m4a' if mimeType[1] == 'mp4' else mimeType[1]+'s')
