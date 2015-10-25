@@ -47,11 +47,18 @@ class YoutubeVideo(db.Model):
 	__tablename__ = "video"
 	
 	id = db.Column(db.VARCHAR(12),primary_key=True,unique=True)
+	meta = db.relationship("YoutubeVideoMeta",backref="video",uselist=False)
 	
+	def as_dict(self):
+		return {
+			'id':self.id,
+			'meta':self.meta.as_dict()
+			}
+
 class YoutubeVideoMeta(db.Model):
 	__tablename__ = "meta"
 	
-	id = db.Column(db.VARCHAR(12),primary_key=True,unique=True)
+	id = db.Column(db.VARCHAR(12),db.ForeignKey("video.id"),primary_key=True,unique=True)
 	snippet_publishedAt = db.Column(db.DateTime(timezone=True))
 	snippet_channel_id = db.Column(db.VARCHAR(255))
 	snippet_channel_title = db.Column(db.VARCHAR(255))
@@ -77,6 +84,21 @@ class YoutubeVideoMeta(db.Model):
 	#not sure what data type caption should be
 	#contentDetails_caption 
 	contentDetails_licensedContent = db.Column(db.BOOLEAN)
+	def tags_as_dict(self):
+		if self.snippet_tags != '':
+			return json.loads(self.snippet_tags)
+	def as_dict(self):
+		return {
+			'snippet': {
+					'publishedAt':self.snippet_publishedAt,
+					'channelId':self.snippet_channel_id,
+					'channelTitle':self.snippet_channel_title,
+					'title':self.snippet_title,
+					'description':self.snippet_description,
+					'categoryId':self.snippet_category_id,
+					'tags':self.tags_as_dict()
+					}
+		}
 	
 class Task(db.Model):
 	__tablename__ = "background_tasks"
@@ -104,6 +126,7 @@ class QueryVideoMM(db.Model):
 	__tablename__ = "query_video_mm"
 	youtube_query_id = db.Column(db.Integer,db.ForeignKey('youtube_queries.id'),primary_key=True)
 	video_id = db.Column(db.VARCHAR(12),db.ForeignKey('video.id'),primary_key=True)
+	video = db.relationship("YoutubeVideo")
  
 class APIKey(db.Model):
 	__tablename__ = "apikeys"

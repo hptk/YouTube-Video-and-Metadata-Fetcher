@@ -216,8 +216,17 @@ def getQueries(amount):
 		return jsonify({'success': True,'queries':dict_queries})
 	except:
 		pass
+
+@app.route('/api/videos/<int:id>')	
+def getVideos(id):
+	try:
+		query = YoutubeQuery.query.filter_by(user_id=session['id'],id=id).first()
+		videos_json = [assoc.video.as_dict() for assoc in query.videos]
 	
-	
+		return jsonify({'success': True,'videos':videos_json})
+	except:
+		pass
+		
 @app.errorhandler(ConnectionError)
 def connection_error(e):
 	debug_description = "<strong>redis-server</strong> is"
