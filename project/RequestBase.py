@@ -180,7 +180,9 @@ class RequestBase(object):
             try:
                 self.handleRequestSuccess(workQueueItem,resonse)
             except SSLError,e:
-                print e
+                logger.info(e)
+                #if a SSLError raises, put the item back on the working queue
+                self.putWorkQueueItem(workQueueItem)
             
             return statusCode
         except Exception,e:
