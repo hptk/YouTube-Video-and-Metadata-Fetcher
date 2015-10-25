@@ -1,4 +1,4 @@
-from RequestAbstraction import RequestAbstraction
+from RequestBase import RequestBase
 import datetime
 import json
 import urlparse
@@ -9,7 +9,7 @@ import time
 from project import db
 import logging
 logger = logging.getLogger('tasks')
-class YouTubeIDFetcher(RequestAbstraction):
+class YouTubeIDFetcher(RequestBase):
          
     def initAdditionalStructures(self):
         self.query = json.loads(self.parameter['queryRaw'])

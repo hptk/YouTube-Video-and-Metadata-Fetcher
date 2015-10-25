@@ -1,4 +1,4 @@
-from RequestAbstraction import RequestAbstraction
+from RequestBase import RequestBase
 from itertools import islice 
 from project import db
 import logging
@@ -8,7 +8,7 @@ import json
 import dateutil.parser
 from datetime import datetime
 logger = logging.getLogger('tasks')
-class YouTubeMetaFetcher(RequestAbstraction):
+class YouTubeMetaFetcher(RequestBase):
     
     def chunkHelper(self,data,SIZE=50):
         it=iter(data)

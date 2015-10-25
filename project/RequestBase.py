@@ -10,7 +10,7 @@ import random
 monkey.patch_time()
 logger = logging.getLogger('tasks')
 
-class RequestAbstraction(object):
+class RequestBase(object):
     def __init__(self,url,parameter,HTTPClients,ClientConnectionPool,task=None):
         
         if task is not None:

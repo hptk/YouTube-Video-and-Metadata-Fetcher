@@ -18,6 +18,7 @@ if 'LOGGING' in app.config:
 
 db = SQLAlchemy(app)
 celery = make_celery(app)
+#important to import after app,db and celery is created
 from project.models import User, APIKey, YoutubeQuery
 from tasks import fetch,meta
 
