@@ -38,8 +38,8 @@ class YouTubeMetaFetcher(RequestBase):
     
     
         
-    def handleRequestSuccess(self,workQueueItem, result):
-
+    def handleRequestSuccess(self,workQueueItem, response):
+        result = json.load(response)
         if "items" in result:
             for item in result['items']:
                 #database maping

@@ -178,8 +178,8 @@ class RequestBase(object):
             self.status_codes[str(statusCode)].put(workQueueItem)
             
             try:
-                result = json.load(response)
-                self.handleRequestSuccess(workQueueItem,result)
+                #result = json.load(response)
+                self.handleRequestSuccess(workQueueItem,response)
             except SSLError,e:
                 print e
             
