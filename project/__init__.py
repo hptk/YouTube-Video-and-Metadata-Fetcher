@@ -1,15 +1,13 @@
 # project/__init__.py
 
 from flask import Flask, request, jsonify, session,flash, redirect, url_for
-from flask.ext.bcrypt import Bcrypt
 from flask.ext.sqlalchemy import SQLAlchemy
 import project.config
 import json
-import base64
 from sqlalchemy.sql.expression import desc
 import logging.config
-from redis import ConnectionError
 from celery_setup import make_celery
+
 
 # config
 app = Flask(__name__)
@@ -18,7 +16,6 @@ if 'LOGGING' in app.config:
 	logging.config.dictConfig(app.config['LOGGING'])
 	
 
-bcrypt = Bcrypt(app)
 db = SQLAlchemy(app)
 celery = make_celery(app)
 from project.models import User, APIKey, YoutubeQuery
@@ -66,7 +63,7 @@ def login():
 	firstname = None
 	lastname = None
 	user = User.query.filter_by(username=json_data['username']).first()
-	if user and bcrypt.check_password_hash(user.password, json_data['password']):
+	if user and user.comparePassword(json_data['password']):
 		session['logged_in'] = True
 		session['id'] = user.id
 		userid = user.id
@@ -123,9 +120,6 @@ def deleteAPIKey(keyid):
 @app.route('/api/queries', methods=['POST'])
 def createQuery():
 	query = YoutubeQuery(
-		#experimential, hashing should be changed
-		#queryHash=base64.urlsafe_b64encode(json.dumps(request.json)),
-		queryHash = "dummy",
 		queryRaw=json.dumps(request.json)
 	)
 
@@ -140,10 +134,9 @@ def createQuery():
 		db.session.commit()
 		status = True
 		queryId = query.id
-		
-		
 	except:
 		#some error
+		queryId = None
 		status = False
 	db.session.close()
 	return jsonify({'success':status,'id':queryId})
@@ -209,9 +202,14 @@ def getQuery(id):
 def getQueries(amount):
 	try:
 		queries = YoutubeQuery.query.filter_by(user_id=session['id']).order_by(desc(YoutubeQuery.id)).limit(amount)
-		dict_queries = [query.as_dict() for query in queries]
+		if queries.count() > 0:
+			dict_queries = [query.as_dict() for query in queries]
+			status = True
+		else:
+			status = False
+			dict_queries = None
 		
-		return jsonify({'success': True,'queries':dict_queries})
+		return jsonify({'success': status,'queries':dict_queries})
 	except:
 		pass
 
@@ -224,10 +222,4 @@ def getVideos(id):
 		return jsonify({'success': True,'videos':videos_json})
 	except:
 		pass
-		
-@app.errorhandler(ConnectionError)
-def connection_error(e):
-	debug_description = "<strong>redis-server</strong> is"
-	production_description = "both <strong>redis-server</strong> and <strong>worker.py</strong> are"
-	description = "Check to make sure that %s running." % (debug_description if app.debug else production_description)
-	return description, 500
+

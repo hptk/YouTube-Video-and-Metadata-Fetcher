@@ -1,9 +1,12 @@
 # project/models.py
 
 import datetime
-from project import db,bcrypt
+from project import db
 import json
 from sqlalchemy.orm import relationship
+import hashlib
+import base64
+from project.config import BaseConfig
 class User(db.Model):
 
 	__tablename__ = "users"
@@ -19,10 +22,16 @@ class User(db.Model):
 
 	def __init__(self,username,password,firstname,lastname):
 		self.username = username
-		self.password = bcrypt.generate_password_hash(password)
+		self.password = hashlib.sha512(password+BaseConfig.SECRET_KEY).hexdigest()
 		self.firstname = firstname
 		self.lastname = lastname
-
+	
+	def comparePassword(self,password):
+		if self.password == hashlib.sha512(password+BaseConfig.SECRET_KEY).hexdigest():
+			return True
+		else:
+			return False
+		
 class VideoRepresentation(db.Model):
     __tablename__ = "videoRepresentation"
 
@@ -170,8 +179,8 @@ class YoutubeQuery(db.Model):
 	tasks = db.relationship("Task",backref="youtube_queries")
 	videos = relationship("QueryVideoMM",backref="queries")
 
-	def __init__(self,queryHash,queryRaw):
-		self.queryHash = queryHash
+	def __init__(self,queryRaw):
+		self.queryHash = base64.urlsafe_b64encode(queryRaw)
 		self.queryRaw = queryRaw
 
 	def as_dict(self):
