@@ -38,8 +38,7 @@ class YouTubeMetaFetcher(RequestBase):
     
     
         
-    def handleRequestSuccess(self,workQueueItem, response):
-        result = json.load(response)
+    def handleRequestSuccess(self,workQueueItem, result):
 
         if "items" in result:
             for item in result['items']:

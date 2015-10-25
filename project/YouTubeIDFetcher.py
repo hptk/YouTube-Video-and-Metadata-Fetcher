@@ -42,8 +42,7 @@ class YouTubeIDFetcher(RequestBase):
         publishedBefore = workQueueItem[1] 
         return self.defaultURL+"&publishedAfter="+self.formatDate(publishedAfter)+"&publishedBefore="+self.formatDate(publishedBefore);
     
-    def handleRequestSuccess(self,workQueueItem, response):
-        result = json.load(response)
+    def handleRequestSuccess(self,workQueueItem, result):
 
         if "items" in result:
             req_results = len(result['items'])

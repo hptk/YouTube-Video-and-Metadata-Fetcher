@@ -178,11 +178,10 @@ class RequestBase(object):
             self.status_codes[str(statusCode)].put(workQueueItem)
             
             try:
-                self.handleRequestSuccess(workQueueItem,resonse)
+                result = json.load(response)
+                self.handleRequestSuccess(workQueueItem,result)
             except SSLError,e:
-                logger.info(e)
-                #if a SSLError raises, put the item back on the working queue
-                self.putWorkQueueItem(workQueueItem)
+                print e
             
             return statusCode
         except Exception,e:
