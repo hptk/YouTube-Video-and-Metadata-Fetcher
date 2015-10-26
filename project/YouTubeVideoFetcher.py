@@ -7,6 +7,7 @@ import pprint
 import time
 import json
 import os
+import sys
 from urllib2 import urlopen, unquote;
 from urlparse import parse_qs;
 import xmltodict
@@ -55,6 +56,7 @@ class YouTubeVideoFetcher(RequestBase):
         manifest_url = video_info["dashmpd"][0]
         manifest_file = urlopen(manifest_url).read()
         manifest = xmltodict.parse(manifest_file)['MPD']['Period']['AdaptationSet']
+        #print json.dumps(manifest, indent=2, separators=(',', ': '))
 
         got_video = False
         got_sound = False
@@ -72,12 +74,24 @@ class YouTubeVideoFetcher(RequestBase):
                 if not os.path.exists(os.path.dirname(filename)):
                     os.makedirs(os.path.dirname(filename))
                 with open(filename, "w") as f:
-                    url = adaptationSet['Representation']['BaseURL']['#text']
+                    if isinstance(adaptationSet['Representation'], list):
+                        url = adaptationSet['Representation'][0]['BaseURL']['#text']
+                        filesize = int(adaptationSet['Representation'][0]['BaseURL']['@yt:contentLength'])
+                    else:
+                        url = adaptationSet['Representation']['BaseURL']['#text']
+                        filesize = int(adaptationSet['Representation']['BaseURL']['@yt:contentLength'])
                     response = urllib.urlopen(url)
+                    dl = 0
+                    print 'Downloading sound! > ' + workQueueItem[0] + ' ' + mimeType[1]
                     while True:
+                        done = int(50 * dl / filesize)
+                        dl += CHUNK
+                        sys.stdout.write("\r[%s%s]" % ('=' * done, ' ' * (50-done)) )
+                        sys.stdout.flush()
                         chunk = response.read(CHUNK)
                         if not chunk: break
                         f.write(chunk)
+                    print 'DONE!'
                 got_sound = True
 
             #download video file, quality as specified or if no match, get best
@@ -97,13 +111,18 @@ class YouTubeVideoFetcher(RequestBase):
                 with open(filename, "w") as f:
                     url = last_representation['BaseURL']['#text']
                     response = urllib.urlopen(url)
-                    dled = CHUNK
+                    dl = 0
+                    filesize = int(last_representation['BaseURL']['@yt:contentLength'])
+                    print 'Downloading video! > ' + workQueueItem[0] + ' ' + last_representation['@height'] + 'p'
                     while True:
-                        print dled
-                        dled += CHUNK
+                        done = int(50 * dl / filesize)
+                        dl += CHUNK
+                        sys.stdout.write("\r[%s%s]" % ('=' * done, ' ' * (50-done)) )
+                        sys.stdout.flush()
                         chunk = response.read(CHUNK)
                         if not chunk: break
                         f.write(chunk)
+                    print 'DONE!'
                 got_video = True
 
             if got_video and (got_sound or (not self.get_sound and not got_sound)):
@@ -112,5 +131,6 @@ class YouTubeVideoFetcher(RequestBase):
     def saveResult(self):
         pass
 
-test = YouTubeVideoFetcher("http://www.youtube.com/get_video_info",'50KDpBMnADA',1,1,)
-pprint.pprint(test.work())
+#test = YouTubeVideoFetcher("http://www.youtube.com/get_video_info",'hFKacalDPjc',1,1,)
+test = YouTubeVideoFetcher("http://www.youtube.com/get_video_info",'a6iTg_FUS74',1,1,)
+test.work()
