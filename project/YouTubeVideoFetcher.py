@@ -56,7 +56,6 @@ class YouTubeVideoFetcher(RequestBase):
         manifest_url = video_info["dashmpd"][0]
         manifest_file = urlopen(manifest_url).read()
         manifest = xmltodict.parse(manifest_file)['MPD']['Period']['AdaptationSet']
-
         #print json.dumps(manifest, indent=2, separators=(',', ': '))
 
         got_video = False
@@ -67,7 +66,7 @@ class YouTubeVideoFetcher(RequestBase):
             self.get_sound = True
 
         for adaptation in manifest:
-            mimeType = adaptationSet['@mimeType'].split('/')
+            mimeType = adaptation['@mimeType'].split('/')
 
             # Downloading sound, for now first quality listed (should be mp4)
             if mimeType[0] == 'audio' and self.get_sound and not got_sound:
