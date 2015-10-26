@@ -1,6 +1,14 @@
-# Short Introduction
+# YouTube MetaData and Video Fetcher
 
-## Web server
+### Contents
+
+1. [Web Server](#web-server)
+2. [Database](#database)
+3. [Downloads](#downloads)
+4. [Easy Install](#easy-install)
+5. [Running the program](#running-the-program)
+
+## Web Server
 
 The program is based on serverside flask and client side angularjs. To use the program the following programs must be installed on your system:
 
@@ -34,7 +42,7 @@ For video files, resolution is the heigth of the media file (1080, 720, etc).
 
 The extensions will be .m4a for audio and m4v for video, if a mp4 representation of the video is available. In the case that only WebM is available, the extensions will be .webm and .webms (s for sound). Again, this information will also be in the corresponding database entry.
 
-## Easy install
+## Easy Install
 
 For a quick and easy install:
 
