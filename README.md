@@ -1,26 +1,40 @@
-# YouTubeDashAnalyser
+## Short Introduction
 
 ### Web server
 
-The program is accessible through a web interface, running on a local server. The server runs in python 2.7 using [flask](http://flask.pocoo.org/ "flask home page!").
+The program ist based on serverside flask and client side angularjs
 
-To install and run do the following:
+1. Install libs
+2. Install redis-server
 
-	$ sudo pip2.7 install flask
-	$ python2 server.py
+To install do the following:
 
-Make sure you install flask for python2.7, as this is the level of python this project currently uses. If you don't have pip2.7 you can get it thorugh your normal packet manager (brew/pacman/apt-get etc)
+		$ ./init.sh
 
-To accesss the now running server go to 
+To run:
+        $ ./start.sh
 
-	localhost:5000
+to stop:
+        $ ./stop.sh
 
-You can get comments from a video through
+To access the GUI, go to localhost:5000
 
-	localhost:5000/getComments/
+Or you can do it manually: 
 
-this gets 50 top comments from PSY's Gangnam Style. you can use
+Run Redis-Server
 
-	localhost:5000/getComments/<videoID>
+		$ redis-server
 
-to get the comments of a different video
+To run the server do:
+
+		$ python manage.py runserver
+
+Open localhost:5000 in our browser
+
+Start the Celery Worker
+		$ celery -A project.celery worker
+
+Start Celery Flower Monitor if you want and have it
+		$ celery -A project.celery flower
+
+
