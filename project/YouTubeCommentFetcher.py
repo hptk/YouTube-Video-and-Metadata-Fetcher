@@ -46,7 +46,7 @@ class YouTubeCommentFetcher(RequestBase):
         self.putWorkQueueItem(item)
 
     def handleRequestSuccess(self,workQueueItem, response):
-        result = json.loads(response)
+        result = json.load(response)
         pprint(result)
         pass
 
@@ -54,9 +54,9 @@ class YouTubeCommentFetcher(RequestBase):
         pass
 
 if __name__ == '__main__':
-    with open('dash_wallenburg_youtube_apikey_1') as f:
-        apikey = f.read().rstrip()
-
+    #with open('dash_wallenburg_youtube_apikey_1') as f:
+    #    apikey = f.read().rstrip()
+    apikey = "AIzaSyBlO0GfmL5LuRJoVlRhMVM8VjViE5BAAs8"
     test = YouTubeCommentFetcher('https://www.googleapis.com/youtube/v3/commentThreads',
                                  'YiVhFgN7I_M', 1, 1)
     #pprint(test)
