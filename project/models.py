@@ -36,7 +36,7 @@ class VideoRepresentation(db.Model):
     __tablename__ = "videoRepresentation"
 
     video_id = db.Column(db.VARCHAR(12),db.ForeignKey('video.id'),primary_key=True)
-    mimeType = db.Column(db.VARCHAR(15)
+    mimeType = db.Column(db.VARCHAR(15))
     height = db.Column(db.Integer, primary_key=True)
     width = db.Column(db.Integer)
     bitrate = db.Column(db.Integer)
@@ -69,10 +69,10 @@ class YoutubeVideo(db.Model):
     meta = db.relationship("YoutubeVideoMeta", backref="video", uselist=False)
     representations = db.relationship("VideoRepresentation", backref="video")
 
-        def __init__(self, id, meta, representation):
-            self.id = id
-            self.meta = meta
-            self.representation = representation
+    def __init__(self, id, meta, representation):
+        self.id = id
+        self.meta = meta
+        self.representation = representation
 
     def as_dict(self):
         return {
