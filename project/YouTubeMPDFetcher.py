@@ -49,7 +49,7 @@ class YouTubeMPDFetcher(RequestBase):
                 representations = [representations]
             if mimeType[0] == 'audio' and self.get_sound and not got_sound:
                 for representation in representations:
-                    updating db
+                    #updating db
                     vr = VideoRepresentation(
                             video_id,
                             adaptation['@mimeType'],
@@ -61,7 +61,7 @@ class YouTubeMPDFetcher(RequestBase):
 
             elif mimeType[0] == 'video':
                 for representation in representations:
-                    updating db
+                    #updating db
                     vr = VideoRepresentation(
                             video_id,
                             adaptation['@mimeType'],
@@ -79,7 +79,3 @@ class YouTubeMPDFetcher(RequestBase):
 
     def saveResult(self):
         pass
-
-test = YouTubeVideoFetcher("http://www.youtube.com/get_video_info",'hFKacalDPjc',1,1,)
-test = YouTubeVideoFetcher("http://www.youtube.com/get_video_info",'a6iTg_FUS74',1,1,)
-test.work()
