@@ -2,6 +2,7 @@ migrations/
 venv/
 test/
 project/dev.sqlite
+downloads/
 dump.rdb
 *.swp
 *.DS_Store
