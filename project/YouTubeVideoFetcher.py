@@ -104,7 +104,7 @@ class YouTubeVideoFetcher(RequestBase):
                     #        representation['@codecs']
                     #        )
                     #video_dbitem.representations.append(vr)                    
-                    #db.session.add(video_dbitem)
+                    #db.session.add(vr)
 
                     print 'DONE!'
                 got_sound = True
@@ -152,14 +152,14 @@ class YouTubeVideoFetcher(RequestBase):
                     #        representation['@width']
                     #        )
                     #video_dbitem.representations.append(vr)                    
-                    #db.session.add(video_dbitem)
+                    #db.session.add(vr)
 
                     print 'DONE!'
                 got_video = True
 
             if got_video and (got_sound or (not self.get_sound and not got_sound)):
                 break
-        #db.session.add(vr)
+        #db.session.add(video_dbitem)
         #db.commit()
 
     def saveResult(self):
