@@ -7,6 +7,43 @@ from sqlalchemy.orm import relationship
 import hashlib
 import base64
 from project.config import BaseConfig
+from sqlalchemy.event import listen
+from sqlalchemy.pool import Pool
+import sqlite3
+import math
+
+#http://stackoverflow.com/questions/2298339/standard-deviation-for-sqlite
+class StdevFunc:
+    """
+    For use as an aggregate function in SQLite
+    """
+    def __init__(self):
+        self.M = 0.0
+        self.S = 0.0
+        self.k = 0
+
+    def step(self, value):
+        try:
+            # automatically convert text to float, like the rest of SQLite
+            val = float(value) # if fails, skips this iteration, which also ignores nulls
+            tM = self.M
+            self.k += 1
+            self.M += ((val - tM) / self.k)
+            self.S += ((val - tM) * (val - self.M))
+        except:
+            pass
+
+    def finalize(self):
+        if self.k <= 1: # avoid division by zero
+            return none
+        else:
+            return math.sqrt(self.S / (self.k-1))
+    
+def my_on_connect(dbapi_con, connection_record):
+    dbapi_con.create_aggregate("stdev", 1, StdevFunc)
+
+listen(Pool, 'connect', my_on_connect)
+
 class User(db.Model):
 
     __tablename__ = "users"
@@ -212,22 +249,113 @@ class YoutubeQuery(db.Model):
     
     def count_video_meta(self):
         #SELECT count(*) as count FROM meta LEFT OUTER JOIN query_video_mm ON query_video_mm.video_id=meta.id WHERE query_video_mm.youtube_query_id=<query_id>
-        print "1"
-        r = YoutubeVideoMeta.query()
-        print str(r)
-        #r = r.outerjoin((query_video_mm,query_video_mm.video_id=meta.id))
-        count = 0
-            
+        #r = db.session.query(YoutubeVideoMeta, db.func.count()).outerjoin((QueryVideoMM, QueryVideoMM.video_id == YoutubeVideoMeta.id)).filter_by(youtube_query_id=self.id)#YoutubeVideoMeta.query
+        metas = YoutubeVideoMeta.query.outerjoin((QueryVideoMM, QueryVideoMM.video_id == YoutubeVideoMeta.id)).filter_by(youtube_query_id=self.id)
+        count = metas.count()
         return count
+    
+    def getDateHistogram(self):
+        dates_query = db.session.query(YoutubeVideoMeta,db.func.count().label("count"),db.func.date(YoutubeVideoMeta.snippet_publishedAt).label("date")).outerjoin((QueryVideoMM, QueryVideoMM.video_id == YoutubeVideoMeta.id)).filter_by(youtube_query_id=self.id).group_by(db.func.strftime('%Y',YoutubeVideoMeta.snippet_publishedAt),db.func.strftime('%m',YoutubeVideoMeta.snippet_publishedAt),db.func.strftime('%d',YoutubeVideoMeta.snippet_publishedAt)).order_by(YoutubeVideoMeta.snippet_publishedAt)
+        dates = dates_query.all()
+        return [{date.date:date.count} for date in dates]
+            
+    def getAggregations(self,table,field,forQuery=False):
+        if forQuery:
+            res = db.session.query(table,db.func.stdev(field).label("stdev"),db.func.max(field).label("max"),db.func.min(field).label("min"),db.func.sum(field).label("sum"),db.func.avg(field).label("avg")).filter(field!='').outerjoin((QueryVideoMM, QueryVideoMM.video_id == YoutubeVideoMeta.id)).filter_by(youtube_query_id=self.id)
+        else:
+            res = db.session.query(table,db.func.stdev(field).label("stdev"),db.func.max(field).label("max"),db.func.min(field).label("min"),db.func.sum(field).label("sum"),db.func.avg(field).label("avg")).filter(field!='')
+        #print res
+        row = res.one()
+        return row
+        
     def get_statistics(self):
+        #import logging
+        #logging.basicConfig()
+        #logging.getLogger('sqlalchemy.engine').setLevel(logging.DEBUG)
+        dates = self.getDateHistogram()
+        globalLikeStat = self.getAggregations(YoutubeVideoMeta,YoutubeVideoMeta.statistics_likeCount,forQuery=False)
+        queryLikeStat = self.getAggregations(YoutubeVideoMeta,YoutubeVideoMeta.statistics_likeCount,forQuery=True)
+        globalDislikeStat = self.getAggregations(YoutubeVideoMeta,YoutubeVideoMeta.statistics_dislikeCount,forQuery=False)
+        queryDislikeStat = self.getAggregations(YoutubeVideoMeta,YoutubeVideoMeta.statistics_dislikeCount,forQuery=True)
+        
+        globalCommentStat = self.getAggregations(YoutubeVideoMeta,YoutubeVideoMeta.statistics_commentCount,forQuery=False)
+        queryCommentStat = self.getAggregations(YoutubeVideoMeta,YoutubeVideoMeta.statistics_commentCount,forQuery=True)
+        
+        globalViewStat = self.getAggregations(YoutubeVideoMeta,YoutubeVideoMeta.statistics_viewCount,forQuery=False)
+        queryViewStat = self.getAggregations(YoutubeVideoMeta,YoutubeVideoMeta.statistics_viewCount,forQuery=True)
+        
+        #find the queries which have an intersection with this query's result(same videos)
+        backrefs = db.session.execute("select first.youtube_query_id as queryid, count(*) as count, second.youtube_query_id as backrefQuery from query_video_mm as first JOIN query_video_mm as second on second.video_id=first.video_id WHERE first.youtube_query_id="+str(self.id)+" AND backrefQuery!="+str(self.id)+" GROUP BY backrefQuery ORDER BY count DESC")
+        backrefsQueries = []
+        for row in backrefs:
+            backrefsQueries.append({'query':row.backrefQuery,'count':row.count})
         return {
+                'intersection':backrefsQueries,
                 'query': {
                           'videos':len(self.videos),
-                          'meta':self.count_video_meta()
+                          'meta':self.count_video_meta(),
+                          'day_histogram':dates,
+                          'likes': {
+                                    'max':queryLikeStat.max,
+                                    'min':queryLikeStat.min,
+                                    'sum':queryLikeStat.sum,
+                                    'avg':queryLikeStat.avg,
+                                    'stdev':queryLikeStat.stdev
+                                    },
+                            'dislikes': {
+                                    'max':queryDislikeStat.max,
+                                    'min':queryDislikeStat.min,
+                                    'sum':queryDislikeStat.sum,
+                                    'avg':queryDislikeStat.avg,
+                                    'stdev':queryDislikeStat.stdev
+                                    },
+                            'comment': {
+                                    'max':queryCommentStat.max,
+                                    'min':queryCommentStat.min,
+                                    'sum':queryCommentStat.sum,
+                                    'avg':queryCommentStat.avg,
+                                    'stdev':queryCommentStat.stdev
+                                    },
+                            'view': {
+                                    'max':queryViewStat.max,
+                                    'min':queryViewStat.min,
+                                    'sum':queryViewStat.sum,
+                                    'avg':queryViewStat.avg,
+                                    'stdev':queryViewStat.stdev
+                                    },
                           },
                 'all': {
-                        'count':0
-                        }
+                        'count':YoutubeVideo.query.count(),
+                        'meta':YoutubeVideoMeta.query.count(),
+                        'likes': {
+                                    'max':globalLikeStat.max,
+                                    'min':globalLikeStat.min,
+                                    'sum':globalLikeStat.sum,
+                                    'avg':globalLikeStat.avg,
+                                    'stdev':globalLikeStat.stdev
+                                    },
+                            'dislikes': {
+                                    'max':globalDislikeStat.max,
+                                    'min':globalDislikeStat.min,
+                                    'sum':globalDislikeStat.sum,
+                                    'avg':globalDislikeStat.avg,
+                                    'stdev':globalDislikeStat.stdev
+                                    },
+                            'comment': {
+                                    'max':globalCommentStat.max,
+                                    'min':globalCommentStat.min,
+                                    'sum':globalCommentStat.sum,
+                                    'avg':globalCommentStat.avg,
+                                    'stdev':globalCommentStat.stdev
+                                    },
+                            'view': {
+                                    'max':globalViewStat.max,
+                                    'min':globalViewStat.min,
+                                    'sum':globalViewStat.sum,
+                                    'avg':globalViewStat.avg,
+                                    'stdev':globalViewStat.stdev
+                                    },
+                          },
         }
     def as_dict(self):
         return {

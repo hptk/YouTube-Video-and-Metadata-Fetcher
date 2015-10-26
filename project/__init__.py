@@ -203,9 +203,12 @@ def getQuery(id):
 def getQueryStatistics(id):
 	try:
 		query = YoutubeQuery.query.filter_by(id=id).first()
-		return jsonify({'success': True,'statistics':query.get_statistics()})
+		if query:
+			return jsonify({'success': True,'statistics':query.get_statistics()})
+		else:
+			return jsonify({'success': False})
 	except:
-		pass
+		return jsonify({'success': False})
 		
 		
 
