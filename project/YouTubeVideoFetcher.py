@@ -15,7 +15,7 @@ import pprint
 #from project import db
 import logging
 import xml.etree.ElementTree as ET
-#from project.models import YoutubeQuery
+#from project.models import YoutubeQuery, YouTubeVideo, VideoRepresentation
 logger = logging.getLogger('tasks')
 
 # TODO:
@@ -50,6 +50,13 @@ class YouTubeVideoFetcher(RequestBase):
         self.putWorkQueueItem(item)
 
     def handleRequestSuccess(self,workQueueItem, response):
+        got_video = False
+        got_sound = False
+        video_id = workQueueItem[0]
+        CHUNK = 16 * 1024
+        path = os.path.join(self.dl_path, video_id)
+        if workQueueItem[2]:
+            self.get_sound = True
 
         #download manifest
         video_info = parse_qs(unquote(response.read().decode('utf-8')))
@@ -57,20 +64,16 @@ class YouTubeVideoFetcher(RequestBase):
         manifest_file = urlopen(manifest_url).read()
         manifest = xmltodict.parse(manifest_file)['MPD']['Period']['AdaptationSet']
         #print json.dumps(manifest, indent=2, separators=(',', ': '))
-
-        got_video = False
-        got_sound = False
-        CHUNK = 16 * 1024
-        path = os.path.join(self.dl_path, workQueueItem[0])
-        if workQueueItem[2]:
-            self.get_sound = True
+        
+        #db
+        #video_dbitem = YouTubeVideo.query.filter_by(id=video_id)
 
         for adaptation in manifest:
             mimeType = adaptation['@mimeType'].split('/')
 
             # Downloading sound, for now first quality listed (should be mp4)
             if mimeType[0] == 'audio' and self.get_sound and not got_sound:
-                filename = path+'/'+workQueueItem[0]+'.'+('m4a' if mimeType[1] == 'mp4' else mimeType[1]+'s')
+                filename = path+'/'+video_id+'.'+('m4a' if mimeType[1] == 'mp4' else mimeType[1]+'s')
                 if not os.path.exists(os.path.dirname(filename)):
                     os.makedirs(os.path.dirname(filename))
                 with open(filename, "w") as f:
@@ -83,7 +86,7 @@ class YouTubeVideoFetcher(RequestBase):
                         filesize = int(representation['BaseURL']['@yt:contentLength'])
                         response = urllib.urlopen(url)
                         dl = 0
-                        print 'Downloading sound! > ' + workQueueItem[0] + ' ' + mimeType[1]
+                        print 'Downloading sound! > ' + video_id + ' ' + mimeType[1]
                         while True:
                             done = int(50 * dl / filesize)
                             dl += CHUNK
@@ -92,13 +95,24 @@ class YouTubeVideoFetcher(RequestBase):
                             chunk = response.read(CHUNK)
                             if not chunk: break
                             f.write(chunk)
+                    
+                    #updating db
+                    #vr = VideoRepresentation(
+                    #        video_id,
+                    #        adaptation['@mimeType'],
+                    #        representation['@bandwidth'],
+                    #        representation['@codecs']
+                    #        )
+                    #video_dbitem.representations.append(vr)                    
+                    #db.session.add(video_dbitem)
+
                     print 'DONE!'
                 got_sound = True
 
             #download video file, quality as specified or if no match, get best
             #format should be mp4
             elif mimeType[0] == 'video':
-                filename = path+'/'+workQueueItem[0]
+                filename = path+'/'+video_id
                 if not os.path.exists(os.path.dirname(filename)):
                     os.makedirs(os.path.dirname(filename))
                 last_representation = {}
@@ -117,7 +131,7 @@ class YouTubeVideoFetcher(RequestBase):
                     response = urllib.urlopen(url)
                     dl = 0
                     filesize = int(last_representation['BaseURL']['@yt:contentLength'])
-                    print 'Downloading video! > ' + workQueueItem[0] + ' ' + last_representation['@height'] + 'p'
+                    print 'Downloading video! > ' + video_id + ' ' + last_representation['@height'] + 'p'
                     while True:
                         done = int(50 * dl / filesize)
                         dl += CHUNK
@@ -126,11 +140,27 @@ class YouTubeVideoFetcher(RequestBase):
                         chunk = response.read(CHUNK)
                         if not chunk: break
                         f.write(chunk)
+                    
+                    #updating db
+                    #vr = VideoRepresentation(
+                    #        video_id,
+                    #        adaptation['@mimeType'],
+                    #        representation['@bandwidth'],
+                    #        representation['@codecs'],
+                    #        representation['@frameRate'],
+                    #        representation['@height'],
+                    #        representation['@width']
+                    #        )
+                    #video_dbitem.representations.append(vr)                    
+                    #db.session.add(video_dbitem)
+
                     print 'DONE!'
                 got_video = True
 
             if got_video and (got_sound or (not self.get_sound and not got_sound)):
                 break
+        #db.session.add(vr)
+        #db.commit()
 
     def saveResult(self):
         pass
