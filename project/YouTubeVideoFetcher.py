@@ -75,10 +75,14 @@ class YouTubeVideoFetcher(RequestBase):
                     os.makedirs(os.path.dirname(filename))
                 with open(filename, "w") as f:
                     representations = adaptation['Representation']
+                    print representations
                     if not isinstance(representations, list):
-                        representations = list(representations)
+                        representations = [representations]
+                        print
+                        print representations
 
                     for representation in representations:
+                        print representation
                         url = representation['BaseURL']['#text']
                         filesize = int(representation['BaseURL']['@yt:contentLength'])
                         response = urllib.urlopen(url)
@@ -104,7 +108,7 @@ class YouTubeVideoFetcher(RequestBase):
                 last_representation = {}
                 representations = adaptation['Representation']
                 if not isinstance(representations, list):
-                    representations = list(representations)
+                    representations = [representations]
                 for representation in representations:
                     last_representation = representation
                     if not str(representation['@height']) == str(workQueueItem[1]):
