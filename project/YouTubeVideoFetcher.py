@@ -56,6 +56,7 @@ class YouTubeVideoFetcher(RequestBase):
         manifest_url = video_info["dashmpd"][0]
         manifest_file = urlopen(manifest_url).read()
         manifest = xmltodict.parse(manifest_file)['MPD']['Period']['AdaptationSet']
+
         #print json.dumps(manifest, indent=2, separators=(',', ': '))
 
         got_video = False
@@ -65,7 +66,7 @@ class YouTubeVideoFetcher(RequestBase):
         if workQueueItem[2]:
             self.get_sound = True
 
-        for adaptationSet in manifest:
+        for adaptation in manifest:
             mimeType = adaptationSet['@mimeType'].split('/')
 
             # Downloading sound, for now first quality listed (should be mp4)
@@ -74,23 +75,24 @@ class YouTubeVideoFetcher(RequestBase):
                 if not os.path.exists(os.path.dirname(filename)):
                     os.makedirs(os.path.dirname(filename))
                 with open(filename, "w") as f:
-                    if isinstance(adaptationSet['Representation'], list):
-                        url = adaptationSet['Representation'][0]['BaseURL']['#text']
-                        filesize = int(adaptationSet['Representation'][0]['BaseURL']['@yt:contentLength'])
-                    else:
-                        url = adaptationSet['Representation']['BaseURL']['#text']
-                        filesize = int(adaptationSet['Representation']['BaseURL']['@yt:contentLength'])
-                    response = urllib.urlopen(url)
-                    dl = 0
-                    print 'Downloading sound! > ' + workQueueItem[0] + ' ' + mimeType[1]
-                    while True:
-                        done = int(50 * dl / filesize)
-                        dl += CHUNK
-                        sys.stdout.write("\r[%s%s]" % ('=' * done, ' ' * (50-done)) )
-                        sys.stdout.flush()
-                        chunk = response.read(CHUNK)
-                        if not chunk: break
-                        f.write(chunk)
+                    representations = adaptation['Representation']
+                    if not isinstance(representations, list):
+                        representations = list(representations)
+
+                    for representation in representations:
+                        url = representation['BaseURL']['#text']
+                        filesize = int(representation['BaseURL']['@yt:contentLength'])
+                        response = urllib.urlopen(url)
+                        dl = 0
+                        print 'Downloading sound! > ' + workQueueItem[0] + ' ' + mimeType[1]
+                        while True:
+                            done = int(50 * dl / filesize)
+                            dl += CHUNK
+                            sys.stdout.write("\r[%s%s]" % ('=' * done, ' ' * (50-done)) )
+                            sys.stdout.flush()
+                            chunk = response.read(CHUNK)
+                            if not chunk: break
+                            f.write(chunk)
                     print 'DONE!'
                 got_sound = True
 
@@ -101,7 +103,10 @@ class YouTubeVideoFetcher(RequestBase):
                 if not os.path.exists(os.path.dirname(filename)):
                     os.makedirs(os.path.dirname(filename))
                 last_representation = {}
-                for representation in adaptationSet['Representation']:
+                representations = adaptation['Representation']
+                if not isinstance(representations, list):
+                    representations = list(representations)
+                for representation in representations:
                     last_representation = representation
                     if not str(representation['@height']) == str(workQueueItem[1]):
                         continue
