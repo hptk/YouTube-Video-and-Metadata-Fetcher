@@ -63,8 +63,10 @@ define(['app'], function (app) {
     	
         vm.loadOldQueries = loadOldQueries;
         vm.createQuery = createQuery;
-        
+        vm.changeToQuery = changeToQuery;
         vm.createTask = createTask;
+        vm.changeToTasks = changeToTasks;
+        vm.changeToResults = changeToResults;
         
         var today = new Date();
         vm.datepicker = {
@@ -86,9 +88,10 @@ define(['app'], function (app) {
         	      {value: '20', name: '20'},
         	      {value: '30', name: '30'},
         	      {value: '40', name: '40'},
-        	      {value: '50', name: '50'}
+        	      {value: '50', name: '50'},
+        	      {value: '100', name: '100'}
         	    ],
-        	    selectedOption: {value: '10', name: '10'} //This sets the default value of the select in the ui
+        	    selectedOption: {value: '20', name: '20'} //This sets the default value of the select in the ui
         	    };
         initController();
         
@@ -102,6 +105,15 @@ define(['app'], function (app) {
             }
         }
         
+        function changeToQuery(id) {
+        	$location.path("/query/"+id)
+        }
+        function changeToTasks() {
+        	$location.path("/task/"+$routeParams.id)
+        }
+        function changeToResults() {
+        	$location.path("/result/"+$routeParams.id)
+        }
        function createTask(action) {
     	   vm.createTaskClicked = true;
     	   vm.dataCheckingQuery = true;
@@ -185,9 +197,7 @@ define(['app'], function (app) {
         				vm.loadedQuery = true
         				vm.dataCheckingQuery = true
         				vm.query = data.query.queryRaw;
-        				/*
-        				 * checking the query again destroys the data handler, vm.publishedBefore+After is ISO string, no date object anymore
-        				 * */
+        				vm.selectedOldQuery = data.query
         				queryService.testQuery(vm.query)
         	    		.then(function (response) {
         	    			if(response.code)

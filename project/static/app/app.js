@@ -70,6 +70,9 @@ define(['shared/services/routeResolver'], function () {
                 .when('/manageKeys',route.resolve('manageKeys','manageKeys/', 'vm', true))
                 .when('/query',route.resolve('query','query/', 'vm', true))
                 .when('/query/:id',route.resolve('query','query/', 'vm', true))
+                .when('/task',route.resolve('task','task/', 'vm', true))
+                .when('/task/:id',route.resolve('task','task/', 'vm', true))
+                .when('/task/:id/:action',route.resolve('task','task/', 'vm', true))
                 
                 .otherwise({ redirectTo: '/' });
 

@@ -2,7 +2,6 @@
 <div class="container">
 	
 	<div class="row">
-	<div class="col-xs-4">
 		<div class="panel panel-default">
 		  <div style="width:100%;" class="panel-heading btn" uib-dropdown>
 		    
@@ -10,26 +9,63 @@
 		      <h3 class="panel-title" uib-dropdown-toggle ng-disabled="disabled">
 		        {{vm.maxOldQueries.selectedOption.value}} recent queries <span class="caret"></span>
 		      </h3>
+		      
 		      <ul class="uib-dropdown-menu" role="menu" style="width:100%;">
 		      
 		      	<li ng-repeat="option in vm.maxOldQueries.availableOptions">
 		      		<a ng-click="vm.maxOldQueries.selectedOption.value=option.value;vm.loadOldQueries()">{{option.value}} recent queries</a>
 		      	</li>
 
-		      </ul>
-		    
-		    <!-- 
-		    <select name="maxOldQueries" id="maxOldQueries"
-      			ng-options="option.name for option in vm.maxOldQueries.availableOptions track by option.value"
-      			ng-model="vm.maxOldQueries.selectedOption"
-      			ng-change="vm.loadOldQueries()"
-      			>
-      		</select>
-      		 -->
-      		 
+		      </ul> 
 		  </div>
 		  <div style="padding:0px;" class="panel-body">
-		    
+		    <ui-select ng-model="vm.selectedOldQuery" on-select="vm.changeToQuery($select.selected.id)">
+			            <ui-select-match placeholder="Select a recent query">
+			            {{$select.selected.id}}
+			            </ui-select-match>
+			            <ui-select-choices repeat="query as query in vm.oldQueries  | filter: $select.search">
+			            <div class="row">
+			            	<div class="col-xs-12 col-sm-6">
+			              <div ng-bind-html="query.id | highlight: $select.search"></div>
+			              <div ng-repeat="(key, value) in query.queryRaw" class="clearfix">
+			              	<small class="pull-left">{{key}}:</small>
+			              	<small class="pull-right" ng-bind-html="value | highlight: $select.search"></small>
+			             </div>
+			             </div>
+			             <div class="col-xs-12 col-sm-6">
+			             <span>Performed Tasks</span>
+			             <div ng-repeat="task in query.tasks track by task.id" class="clearfix">
+			             	
+			             	<div class="clearfix">
+			             	<div class="pull-left"  ng-bind-html="task.action | highlight: $select.search"></div>
+			             	<small class="pull-right" ng-bind-html="task.created_on"></small>
+			             	<!-- 
+			             	</div>
+			              	<div class="clearfix">
+			              		<small class="pull-left">ID</small>
+			              		<small class="pull-right" ng-bind-html="task.id | highlight: $select.search"></small>
+			              	</div>
+			              	<div class="clearfix">
+			              		<small class="pull-left">Date</small>
+			              		<small class="pull-right" ng-bind-html="task.created_on"></small>
+			              	</div>
+			              	<div class="clearfix">
+			              		<small class="pull-left">Status</small>
+			              		<small class="pull-right" ng-bind-html="task.state | highlight: $select.search"></small>
+			              	</div>
+			              	<div class="clearfix">
+			              		<small class="pull-left">Result</small>
+			              		<small class="pull-right" ng-bind-html="task.result.result"></small>
+			              	</div>
+			              	 -->
+			              	
+			             </div>
+			            </div>
+			            </div>
+			            </ui-select-choices>
+			            
+			          </ui-select>
+			          <!-- 
 			<div class="list-group oldQueries ">
 				<a ng-repeat="query in vm.oldQueries" href="#/query/{{query.id }}" class="list-group-item">
 					<ul>
@@ -40,13 +76,13 @@
 				</a>
 				
 			</div>
+			 -->
 		</div>
 		  </div>
-		</div>
 		
 		
-		<div class="col-xs-8">
-			<form class="row" name="form" ng-submit="vm.createQuery()" role="form">
+		<div class="col-xs-12">
+			<form class="row" name="form" role="form">
 				<div class="panel panel-default">
   					<div class="panel-heading">
     					<h3 class="panel-title">Required</h3>
@@ -113,58 +149,94 @@
 		        </div>
 		        <div class="form-group col-xs-6">
 		            <label for="channelType">Channel Type <i class="glyphicon glyphicon-info-sign" uib-popover="The channelType parameter lets you restrict a search to a particular type of channel. (string)" popover-trigger="mouseenter"></i></label>
-		            
-		            <ui-select ng-model="vm.query.channelType">
+		            <div class="input-group">
+		            <ui-select allow-clear ng-model="vm.query.channelType">
 			            <ui-select-match>{{$select.selected.type}}</ui-select-match>
 			            <ui-select-choices repeat="type.type as type in vm.channelType">
 			              <div ng-bind-html="type.type | highlight: $select.search"></div>
 			              <small ng-bind-html="type.name | highlight: $select.search"></small>
 			            </ui-select-choices>
 			          </ui-select>
+			          <span class="input-group-btn">
+              			<button ng-click="vm.query.channelType = undefined" class="btn btn-default">
+                			<span class="glyphicon glyphicon-trash"></span>
+              			</button>
+            		</span>
+			          </div>
           
 		        </div>
 		        <div class="form-group col-xs-6">
 		            <label for="eventType">Event Type <i class="glyphicon glyphicon-info-sign" uib-popover="The eventType parameter restricts a search to broadcast events. If you specify a value for this parameter, you must also set the type parameter's value to video. (string)" popover-trigger="mouseenter"></i></label>
-		            <ui-select ng-model="vm.query.eventType">
+		            <div class="input-group">
+		            <ui-select allow-clear ng-model="vm.query.eventType">
 			            <ui-select-match>{{$select.selected.type}}</ui-select-match>
 			            <ui-select-choices repeat="type.type as type in vm.eventType">
 			              <div ng-bind-html="type.type | highlight: $select.search"></div>
 			              <small ng-bind-html="type.name | highlight: $select.search"></small>
 			            </ui-select-choices>
 			          </ui-select>
+			          <span class="input-group-btn">
+              			<button ng-click="vm.query.eventType = undefined" class="btn btn-default">
+                			<span class="glyphicon glyphicon-trash"></span>
+              			</button>
+            		</span>
+            		</div>
 		        </div>
 		        
 		        <div class="form-group col-xs-6">
 		            <label for=relevanceLanguage>relevanceLanguage <i class="glyphicon glyphicon-info-sign" uib-popover="The relevanceLanguage parameter instructs the API to return search results that are most relevant to the specified language. The parameter value is typically an ISO 639-1 two-letter language code." popover-trigger="mouseenter"></i></label>
-		            <ui-select ng-model="vm.query.relevanceLanguage">
+		            <div class="input-group">
+		            <ui-select allow-clear ng-model="vm.query.relevanceLanguage">
 			            <ui-select-match>{{$select.selected.name}}</ui-select-match>
 			            <ui-select-choices repeat="code.code as code in vm.relevanceLanguage | filter: $select.search">
 			              <div ng-bind-html="code.name | highlight: $select.search"></div>
 			              <small ng-bind-html="code.code | highlight: $select.search"></small>
 			            </ui-select-choices>
 			          </ui-select>
+			          
+			          <span class="input-group-btn">
+              			<button ng-click="vm.query.relevanceLanguage = undefined" class="btn btn-default">
+                			<span class="glyphicon glyphicon-trash"></span>
+              			</button>
+              			</span>
+              		</div>
 		        </div>
 		        
 		        <div class="form-group col-xs-6">
 		            <label for=regionCode>regionCode <i class="glyphicon glyphicon-info-sign" uib-popover="The regionCode parameter instructs the API to return search results for the specified country. The parameter value is an ISO 3166-1 alpha-2 country code. (string)" popover-trigger="mouseenter"></i></label>
-		            <ui-select ng-model="vm.query.regionCode">
+		            <div class="input-group">
+		            <ui-select allow-clear ng-model="vm.query.regionCode">
 			            <ui-select-match>{{$select.selected.name}}</ui-select-match>
 			            <ui-select-choices repeat="code.code as code in vm.regionCode | filter: $select.search">
 			              <div ng-bind-html="code.name | highlight: $select.search"></div>
 			              <small ng-bind-html="code.code | highlight: $select.search"></small>
 			            </ui-select-choices>
 			          </ui-select>
+			          <span class="input-group-btn">
+              			<button ng-click="vm.query.regionCode = undefined" class="btn btn-default">
+                			<span class="glyphicon glyphicon-trash"></span>
+              			</button>
+              			</span>
+			          </div>
+			         
 		        </div>
 		        
 		        <div class="form-group col-xs-6">
 		            <label for=safeSearch>safeSearch <i class="glyphicon glyphicon-info-sign" uib-popover="The safeSearch parameter indicates whether the search results should include restricted content as well as standard content. (string)" popover-trigger="mouseenter"></i></label>
-		            <ui-select ng-model="vm.query.safeSearch">
+		            <div class="input-group">
+		            <ui-select allow-clear ng-model="vm.query.safeSearch">
 			            <ui-select-match>{{$select.selected.type}}</ui-select-match>
 			            <ui-select-choices repeat="type.type as type in vm.safeSearch">
 			              <div ng-bind-html="type.type | highlight: $select.search"></div>
 			              <small ng-bind-html="type.name | highlight: $select.search"></small>
 			            </ui-select-choices>
 			          </ui-select>
+			          <span class="input-group-btn">
+              			<button ng-click="vm.query.safeSearch = undefined" class="btn btn-default">
+                			<span class="glyphicon glyphicon-trash"></span>
+              			</button>
+              			</span>
+		        </div>
 		        </div>
 		        
 		        <div class="form-group col-xs-6">
@@ -174,46 +246,74 @@
 		        
 		        <div class="form-group col-xs-6">
 		            <label for=videoCaption>videoCaption <i class="glyphicon glyphicon-info-sign" uib-popover="The videoCaption parameter indicates whether the API should filter video search results based on whether they have captions. If you specify a value for this parameter, you must also set the type parameter's value to video. (string)" popover-trigger="mouseenter"></i></label>
-		            <ui-select ng-model="vm.query.videoCaption">
+		            <div  class="input-group">
+		            <ui-select allow-clear ng-model="vm.query.videoCaption">
 			            <ui-select-match>{{$select.selected.type}}</ui-select-match>
 			            <ui-select-choices repeat="type.type as type in vm.videoCaption">
 			              <div ng-bind-html="type.type | highlight: $select.search"></div>
 			              <small ng-bind-html="type.name | highlight: $select.search"></small>
 			            </ui-select-choices>
 			          </ui-select>
+			          <span class="input-group-btn">
+              			<button ng-click="vm.query.videoCaption = undefined" class="btn btn-default">
+                			<span class="glyphicon glyphicon-trash"></span>
+              			</button>
+              			</span>
+			       </div>
 		        </div>
 		        
 		        <div class="form-group col-xs-6">
 		            <label for=videoDefinition>videoDefinition <i class="glyphicon glyphicon-info-sign" uib-popover="The videoDefinition parameter lets you restrict a search to only include either high definition (HD) or standard definition (SD) videos. HD videos are available for playback in at least 720p, though higher resolutions, like 1080p, might also be available. If you specify a value for this parameter, you must also set the type parameter's value to video. (string)" popover-trigger="mouseenter"></i></label>
-		            <ui-select ng-model="vm.query.videoDefinition">
+		            <div  class="input-group">
+		            <ui-select allow-clear ng-model="vm.query.videoDefinition">
 			            <ui-select-match>{{$select.selected.type}}</ui-select-match>
 			            <ui-select-choices repeat="type.type as type in vm.videoDefinition">
 			              <div ng-bind-html="type.type | highlight: $select.search"></div>
 			              <small ng-bind-html="type.name | highlight: $select.search"></small>
 			            </ui-select-choices>
 			          </ui-select>
+			          <span class="input-group-btn">
+              			<button ng-click="vm.query.videoDefinition = undefined" class="btn btn-default">
+                			<span class="glyphicon glyphicon-trash"></span>
+              			</button>
+              			</span>
+			        </div>
 		        </div>
 		        
 		        <div class="form-group col-xs-6">
 		            <label for=videoDimension>videoDimension <i class="glyphicon glyphicon-info-sign" uib-popover="The videoDimension parameter lets you restrict a search to only retrieve 2D or 3D videos. If you specify a value for this parameter, you must also set the type parameter's value to video. (string)" popover-trigger="mouseenter"></i></label>
-		            <ui-select ng-model="vm.query.videoDimension">
+		            <div  class="input-group">
+		            <ui-select allow-clear ng-model="vm.query.videoDimension">
 			            <ui-select-match>{{$select.selected.type}}</ui-select-match>
 			            <ui-select-choices repeat="type.type as type in vm.videoDimension">
 			              <div ng-bind-html="type.type | highlight: $select.search"></div>
 			              <small ng-bind-html="type.name | highlight: $select.search"></small>
 			            </ui-select-choices>
 			          </ui-select>
+			          <span class="input-group-btn">
+              			<button ng-click="vm.query.videoDimension = undefined" class="btn btn-default">
+                			<span class="glyphicon glyphicon-trash"></span>
+              			</button>
+              			</span>
+			        </div>
 		        </div>
 		         
 		        <div class="form-group col-xs-6">
 		            <label for=videoDuration>videoDuration <i class="glyphicon glyphicon-info-sign" uib-popover="The videoDuration parameter filters video search results based on their duration. If you specify a value for this parameter, you must also set the type parameter's value to video. (string)" popover-trigger="mouseenter"></i></label>
-		            <ui-select ng-model="vm.query.videoDuration">
+		            <div  class="input-group">
+		            <ui-select allow-clear ng-model="vm.query.videoDuration">
 			            <ui-select-match>{{$select.selected.type}}</ui-select-match>
 			            <ui-select-choices repeat="type.type as type in vm.videoDuration">
 			              <div ng-bind-html="type.type | highlight: $select.search"></div>
 			              <small ng-bind-html="type.name | highlight: $select.search"></small>
 			            </ui-select-choices>
 			          </ui-select>
+			          <span class="input-group-btn">
+              			<button ng-click="vm.query.videoDuration = undefined" class="btn btn-default">
+                			<span class="glyphicon glyphicon-trash"></span>
+              			</button>
+              			</span>
+			        </div>
 		        </div>
 		         
 			  </div>
@@ -225,19 +325,16 @@
 		        
   				
 		        
-		        <div class="form-actions col-xs-12">
-		            <button type="submit" ng-disabled="form.$invalid || vm.dataLoading" class="btn btn-primary">Create Query</button>
-		            <img ng-if="vm.dataLoading" src="data:image/gif;base64,R0lGODlhEAAQAPIAAP///wAAAMLCwkJCQgAAAGJiYoKCgpKSkiH/C05FVFNDQVBFMi4wAwEAAAAh/hpDcmVhdGVkIHdpdGggYWpheGxvYWQuaW5mbwAh+QQJCgAAACwAAAAAEAAQAAADMwi63P4wyklrE2MIOggZnAdOmGYJRbExwroUmcG2LmDEwnHQLVsYOd2mBzkYDAdKa+dIAAAh+QQJCgAAACwAAAAAEAAQAAADNAi63P5OjCEgG4QMu7DmikRxQlFUYDEZIGBMRVsaqHwctXXf7WEYB4Ag1xjihkMZsiUkKhIAIfkECQoAAAAsAAAAABAAEAAAAzYIujIjK8pByJDMlFYvBoVjHA70GU7xSUJhmKtwHPAKzLO9HMaoKwJZ7Rf8AYPDDzKpZBqfvwQAIfkECQoAAAAsAAAAABAAEAAAAzMIumIlK8oyhpHsnFZfhYumCYUhDAQxRIdhHBGqRoKw0R8DYlJd8z0fMDgsGo/IpHI5TAAAIfkECQoAAAAsAAAAABAAEAAAAzIIunInK0rnZBTwGPNMgQwmdsNgXGJUlIWEuR5oWUIpz8pAEAMe6TwfwyYsGo/IpFKSAAAh+QQJCgAAACwAAAAAEAAQAAADMwi6IMKQORfjdOe82p4wGccc4CEuQradylesojEMBgsUc2G7sDX3lQGBMLAJibufbSlKAAAh+QQJCgAAACwAAAAAEAAQAAADMgi63P7wCRHZnFVdmgHu2nFwlWCI3WGc3TSWhUFGxTAUkGCbtgENBMJAEJsxgMLWzpEAACH5BAkKAAAALAAAAAAQABAAAAMyCLrc/jDKSatlQtScKdceCAjDII7HcQ4EMTCpyrCuUBjCYRgHVtqlAiB1YhiCnlsRkAAAOwAAAAAAAAAAAA==" />
+		        <div class="form-actions col-xs-12">		        	
+		        	<div class="btn-group">
+		            	<button ng-click="vm.createQuery()" ng-disabled="form.$invalid || vm.dataLoading" class="btn btn-primary">Create Query</button>
+		        		<button ng-click="vm.changeToTasks()" ng-disabled="vm.dataCheckingQuery || !vm.loadedQueryStatus" class="btn btn-primary">Create Task</button>
+		        		<button ng-click="vm.changeToResults()" ng-disabled="vm.dataCheckingQuery || !vm.loadedQueryStatus" class="btn btn-primary">View Results</button>
+    				</div>
+					<img ng-if="vm.dataLoading" src="data:image/gif;base64,R0lGODlhEAAQAPIAAP///wAAAMLCwkJCQgAAAGJiYoKCgpKSkiH/C05FVFNDQVBFMi4wAwEAAAAh/hpDcmVhdGVkIHdpdGggYWpheGxvYWQuaW5mbwAh+QQJCgAAACwAAAAAEAAQAAADMwi63P4wyklrE2MIOggZnAdOmGYJRbExwroUmcG2LmDEwnHQLVsYOd2mBzkYDAdKa+dIAAAh+QQJCgAAACwAAAAAEAAQAAADNAi63P5OjCEgG4QMu7DmikRxQlFUYDEZIGBMRVsaqHwctXXf7WEYB4Ag1xjihkMZsiUkKhIAIfkECQoAAAAsAAAAABAAEAAAAzYIujIjK8pByJDMlFYvBoVjHA70GU7xSUJhmKtwHPAKzLO9HMaoKwJZ7Rf8AYPDDzKpZBqfvwQAIfkECQoAAAAsAAAAABAAEAAAAzMIumIlK8oyhpHsnFZfhYumCYUhDAQxRIdhHBGqRoKw0R8DYlJd8z0fMDgsGo/IpHI5TAAAIfkECQoAAAAsAAAAABAAEAAAAzIIunInK0rnZBTwGPNMgQwmdsNgXGJUlIWEuR5oWUIpz8pAEAMe6TwfwyYsGo/IpFKSAAAh+QQJCgAAACwAAAAAEAAQAAADMwi6IMKQORfjdOe82p4wGccc4CEuQradylesojEMBgsUc2G7sDX3lQGBMLAJibufbSlKAAAh+QQJCgAAACwAAAAAEAAQAAADMgi63P7wCRHZnFVdmgHu2nFwlWCI3WGc3TSWhUFGxTAUkGCbtgENBMJAEJsxgMLWzpEAACH5BAkKAAAALAAAAAAQABAAAAMyCLrc/jDKSatlQtScKdceCAjDII7HcQ4EMTCpyrCuUBjCYRgHVtqlAiB1YhiCnlsRkAAAOwAAAAAAAAAAAA==" />
+    				
 		        </div>
-		    </form>
-		    
-		    <button ng-click="vm.createTask('fetch')" type="submit" ng-show="vm.loadedQuery" ng-disabled="vm.dataCheckingQuery || !vm.loadedQueryStatus || vm.createTaskClicked" class="btn btn-primary">Fetch VIDEO IDs</button>
-		            <img ng-if="vm.dataCheckingQuery" src="data:image/gif;base64,R0lGODlhEAAQAPIAAP///wAAAMLCwkJCQgAAAGJiYoKCgpKSkiH/C05FVFNDQVBFMi4wAwEAAAAh/hpDcmVhdGVkIHdpdGggYWpheGxvYWQuaW5mbwAh+QQJCgAAACwAAAAAEAAQAAADMwi63P4wyklrE2MIOggZnAdOmGYJRbExwroUmcG2LmDEwnHQLVsYOd2mBzkYDAdKa+dIAAAh+QQJCgAAACwAAAAAEAAQAAADNAi63P5OjCEgG4QMu7DmikRxQlFUYDEZIGBMRVsaqHwctXXf7WEYB4Ag1xjihkMZsiUkKhIAIfkECQoAAAAsAAAAABAAEAAAAzYIujIjK8pByJDMlFYvBoVjHA70GU7xSUJhmKtwHPAKzLO9HMaoKwJZ7Rf8AYPDDzKpZBqfvwQAIfkECQoAAAAsAAAAABAAEAAAAzMIumIlK8oyhpHsnFZfhYumCYUhDAQxRIdhHBGqRoKw0R8DYlJd8z0fMDgsGo/IpHI5TAAAIfkECQoAAAAsAAAAABAAEAAAAzIIunInK0rnZBTwGPNMgQwmdsNgXGJUlIWEuR5oWUIpz8pAEAMe6TwfwyYsGo/IpFKSAAAh+QQJCgAAACwAAAAAEAAQAAADMwi6IMKQORfjdOe82p4wGccc4CEuQradylesojEMBgsUc2G7sDX3lQGBMLAJibufbSlKAAAh+QQJCgAAACwAAAAAEAAQAAADMgi63P7wCRHZnFVdmgHu2nFwlWCI3WGc3TSWhUFGxTAUkGCbtgENBMJAEJsxgMLWzpEAACH5BAkKAAAALAAAAAAQABAAAAMyCLrc/jDKSatlQtScKdceCAjDII7HcQ4EMTCpyrCuUBjCYRgHVtqlAiB1YhiCnlsRkAAAOwAAAAAAAAAAAA==" />
-		     		      
-		      <div ng-show="vm.showProgress">
-		      	<uib-progressbar class="progress-striped active" max="vm.taskprogressmax" value="vm.taskprogressvalue"><span style="color:white; white-space:nowrap;">{{vm.taskprogresscurrent}}</span></uib-progressbar>
-		      </div>
-		      {{vm.task.progress}}
+		    </form>    
 		</div>
 	</div>
 	

@@ -147,9 +147,9 @@ def setTask(id):
 	json_data = request.json
 	action = json_data['action']
 	try:
-		if action == "fetch":
+		if action == "IDFetcher":
 			task = fetch.delay(id)
-		elif action == "meta":
+		elif action == "MetaFetcher":
 			task = meta.delay(id)
 		return jsonify({'success':True,'task':{'task_id':task.id, 'task_action':action,'task_action_id':id, 'progress_url':url_for('getProgress',task_action_id=id,task_action=action,task_id=task.id)}})
 	except:
@@ -188,6 +188,7 @@ def getProgress(task_action_id,task_action,task_id):
 			'queueSize':0,
 			'status': str(task.info)  # this is the exception raised
 		}
+	
 	return jsonify(response)
    
 @app.route('/api/queries/<int:id>', methods=['GET'])
