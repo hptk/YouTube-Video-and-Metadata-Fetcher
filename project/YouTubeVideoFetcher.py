@@ -45,7 +45,7 @@ class YouTubeVideoFetcher(RequestBase):
         item = {}
         item[0] = self.parameter
         item[1] = 720
-        item[2] = False
+        item[2] = True
         self.putWorkQueueItem(item)
 
     def handleRequestSuccess(self,workQueueItem, response):
@@ -59,13 +59,16 @@ class YouTubeVideoFetcher(RequestBase):
         got_video = False
         got_sound = False
         CHUNK = 16 * 1024
+        path = os.path.join(self.dl_path, workQueueItem[0])
         if workQueueItem[2]:
             self.get_sound = True
+
         for adaptationSet in manifest:
             mimeType = adaptationSet['@mimeType'].split('/')
+
             # Downloading sound, for now first quality listed (should be mp4)
-            if mimeType[0] == 'audio' and self.get_sound:
-                filename = self.dl_path+workQueueItem[0]+'.'+('m4a' if mimeType[1] == 'mp4' else mimeType[1]+'s')
+            if mimeType[0] == 'audio' and self.get_sound and not got_sound:
+                filename = path+'/'+workQueueItem[0]+'.'+('m4a' if mimeType[1] == 'mp4' else mimeType[1]+'s')
                 if not os.path.exists(os.path.dirname(filename)):
                     os.makedirs(os.path.dirname(filename))
                 with open(filename, "w") as f:
@@ -75,29 +78,34 @@ class YouTubeVideoFetcher(RequestBase):
                         chunk = response.read(CHUNK)
                         if not chunk: break
                         f.write(chunk)
-                print 'got sound!'
+                got_sound = True
 
             #download video file, quality as specified or if no match, get best
             #format should be mp4
             elif mimeType[0] == 'video':
-                filename = self.dl_path+workQueueItem[0]+'.'+('m4v' if mimeType[1] == 'mp4' else mimeType[1])
+                filename = path+'/'+workQueueItem[0]
                 if not os.path.exists(os.path.dirname(filename)):
                     os.makedirs(os.path.dirname(filename))
+                last_representation = {}
+                for representation in adaptationSet['Representation']:
+                    last_representation = representation
+                    if not str(representation['@height']) == str(workQueueItem[1]):
+                        continue
+                    else:
+                        break
+                filename += '.'+last_representation['@height']+'.'+('m4v' if mimeType[1] == 'mp4' else mimeType[1])
                 with open(filename, "w") as f:
-                    last_representation = {}
-                    for representation in adaptationSet['Representation']:
-                        last_representation = representation
-                        if not representation['@height'] == workQueueItem[1]:
-                            continue
-                        else:
-                            break
                     url = last_representation['BaseURL']['#text']
                     response = urllib.urlopen(url)
+                    dled = CHUNK
                     while True:
+                        print dled
+                        dled += CHUNK
                         chunk = response.read(CHUNK)
                         if not chunk: break
                         f.write(chunk)
                 got_video = True
+
             if got_video and (got_sound or (not self.get_sound and not got_sound)):
                 break
 
