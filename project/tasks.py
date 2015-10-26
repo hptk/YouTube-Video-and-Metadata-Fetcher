@@ -1,5 +1,6 @@
 from YouTubeIDFetcher import YouTubeIDFetcher
 from YouTubeMetaFetcher import YouTubeMetaFetcher
+from YouTubeMPDFetcher import YouTubeMPDFetcher
 from project import celery
 from project import db
 from celery.signals import task_prerun
@@ -63,7 +64,7 @@ def manifest(self,queryId):
         query.tasks.append(current_task)
         db.session.commit()
         
-        fetcher = YouTubeMetaFetcher("https://www.googleapis.com/youtube/v3/videos",queryId,50,50,self)
+        fetcher = YouTubeMPDFetcher("https://www.googleapis.com/youtube/v3/videos",queryId,50,50,self)
         result = fetcher.work()
         
         current_task.result = json.dumps(result) 
