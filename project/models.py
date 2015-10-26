@@ -68,7 +68,13 @@ class YoutubeVideo(db.Model):
     id = db.Column(db.VARCHAR(12),primary_key=True,unique=True)
     meta = db.relationship("YoutubeVideoMeta", backref="video", uselist=False)
     representations = db.relationship("VideoRepresentation", backref="video")
-
+    
+    def is_meta_available(self):
+        if self.meta != None:
+            return 1
+        else:
+            return 0
+        
     def __init__(self, id, meta, representation):
         self.id = id
         self.meta = meta
@@ -198,7 +204,31 @@ class YoutubeQuery(db.Model):
     def __init__(self,queryRaw):
         self.queryHash = base64.urlsafe_b64encode(queryRaw)
         self.queryRaw = queryRaw
-
+    def count_videos(self):
+        return len(self.videos)
+    
+    def count_tasks(self):
+        return len(self.tasks)
+    
+    def count_video_meta(self):
+        #SELECT count(*) as count FROM meta LEFT OUTER JOIN query_video_mm ON query_video_mm.video_id=meta.id WHERE query_video_mm.youtube_query_id=<query_id>
+        print "1"
+        r = YoutubeVideoMeta.query()
+        print str(r)
+        #r = r.outerjoin((query_video_mm,query_video_mm.video_id=meta.id))
+        count = 0
+            
+        return count
+    def get_statistics(self):
+        return {
+                'query': {
+                          'videos':len(self.videos),
+                          'meta':self.count_video_meta()
+                          },
+                'all': {
+                        'count':0
+                        }
+        }
     def as_dict(self):
         return {
             'id':self.id,
