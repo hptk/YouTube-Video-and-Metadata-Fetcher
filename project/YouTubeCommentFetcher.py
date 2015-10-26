@@ -56,7 +56,7 @@ class YouTubeCommentFetcher(RequestBase):
 if __name__ == '__main__':
     #with open('dash_wallenburg_youtube_apikey_1') as f:
     #    apikey = f.read().rstrip()
-    apikey = "AIzaSyBlO0GfmL5LuRJoVlRhMVM8VjViE5BAAs8"
+    apikey = 'AIzaSyA99dYY8k12G93N9SP5DzmHc95gH5-aIfI'
     test = YouTubeCommentFetcher('https://www.googleapis.com/youtube/v3/commentThreads',
                                  'YiVhFgN7I_M', 1, 1)
     #pprint(test)
