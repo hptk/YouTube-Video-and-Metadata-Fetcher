@@ -51,3 +51,22 @@ def meta(self,queryId):
         current_task.state = result['state']
         db.session.commit()
         return result
+    
+    
+@celery.task(bind=True)
+def manifest(self,queryId):
+    with celery.app.app_context():
+        from project.models import YoutubeQuery, Task
+        query = YoutubeQuery.query.filter_by(id=queryId).first()
+        #create the ORM Task Model for the database
+        current_task = Task(self.request.id,"ManifestFetcher")
+        query.tasks.append(current_task)
+        db.session.commit()
+        
+        fetcher = YouTubeMetaFetcher("https://www.googleapis.com/youtube/v3/videos",queryId,50,50,self)
+        result = fetcher.work()
+        
+        current_task.result = json.dumps(result) 
+        current_task.state = result['state']
+        db.session.commit()
+        return result

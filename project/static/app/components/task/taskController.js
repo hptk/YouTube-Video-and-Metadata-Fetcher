@@ -28,6 +28,7 @@ define(['app'], function (app) {
         vm.taskOptions = [
 							{ name: 'Fetches only the Video IDs for the selected query' , type:'IDFetcher'},
 							{ name: 'Fetches the meta data for the videos which are associated with the selected query' , type:'MetaFetcher'},
+							{ name: 'Fetches the video informations from the DASH manifest to the database' , type:'ManifestFetcher'},
 							{ name: 'Download the videos which are associated with the selected query' , type:'VideoFetcher'}
                       ];
         
