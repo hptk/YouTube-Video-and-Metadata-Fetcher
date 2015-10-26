@@ -47,28 +47,22 @@ class YouTubeVideoFetcher(RequestBase):
         item[1] = 720
         item[2] = False
         self.putWorkQueueItem(item)
-        
-    def handleRequestSuccess(self,workQueueItem, response): 
-        
-        #get the video_info file
-        video_info = parse_qs(unquote(response.read().decode('utf-8')))
-        
-        #extract the manifest_url
-        manifest_url = video_info["dashmpd"][0]
 
-        manifest_file = urlopen(manifest_url).read() 
-        #load the manifest
-        #manifest = xmltodict.parse(manifest_file)['MPD']['Period']
-        manifest = ET.fromstring(manifest_file)
+    def handleRequestSuccess(self,workQueueItem, response):
+
+        #download manifest
+        video_info = parse_qs(unquote(response.read().decode('utf-8')))
+        manifest_url = video_info["dashmpd"][0]
+        manifest_file = urlopen(manifest_url).read()
+        manifest = xmltodict.parse(manifest_file)['MPD']['Period']['AdaptationSet']
+
         got_video = False
         got_sound = False
         CHUNK = 16 * 1024
         if workQueueItem[2]:
             self.get_sound = True
-        for adaptationSet in manifest[0]:
-            
-            mimeType = adaptationSet.attrib.get('mimeType').split("/")
-            print mimeType
+        for adaptationSet in manifest:
+            mimeType = adaptationSet['@mimeType'].split('/')
             # Downloading sound, for now first quality listed (should be mp4)
             if mimeType[0] == 'audio' and self.get_sound:
                 filename = self.dl_path+workQueueItem[0]+'.'+('m4a' if mimeType[1] == 'mp4' else mimeType[1]+'s')
@@ -81,7 +75,7 @@ class YouTubeVideoFetcher(RequestBase):
                         chunk = response.read(CHUNK)
                         if not chunk: break
                         f.write(chunk)
-                got_sound = True
+                print 'got sound!'
 
             #download video file, quality as specified or if no match, get best
             #format should be mp4
@@ -91,9 +85,9 @@ class YouTubeVideoFetcher(RequestBase):
                     os.makedirs(os.path.dirname(filename))
                 with open(filename, "w") as f:
                     last_representation = {}
-                    for representation in adaptationSet:
+                    for representation in adaptationSet['Representation']:
+                        last_representation = representation
                         if not representation['@height'] == workQueueItem[1]:
-                            last_representation = representation
                             continue
                         else:
                             break
@@ -104,7 +98,7 @@ class YouTubeVideoFetcher(RequestBase):
                         if not chunk: break
                         f.write(chunk)
                 got_video = True
-            if got_video and got_sound:
+            if got_video and (got_sound or (not self.get_sound and not got_sound)):
                 break
 
     def saveResult(self):
