@@ -2,11 +2,11 @@
 
 ### Contents
 
-1. [Web Server](https://github.com/hptk/YouTubeDashAnalyser#web-server)
-2. [Database](https://github.com/hptk/YouTubeDashAnalyser#database)
-3. [Downloads](https://github.com/hptk/YouTubeDashAnalyser#downloads)
-4. [Easy Install](https://github.com/hptk/YouTubeDashAnalyser#easy-install)
-5. [Running the program](https://github.com/hptk/YouTubeDashAnalyser#running-the-program)
+1. [Web Server](#web-server)
+2. [Database](#database)
+3. [Downloads](#downloads)
+4. [Easy Install](#easy-install)
+5. [Running the program](#running-the-program)
 
 ## Web Server
 
