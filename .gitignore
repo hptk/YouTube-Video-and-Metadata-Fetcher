@@ -5,6 +5,7 @@ project/dev.sqlite
 downloads/
 dump.rdb
 *.swp
+*.swo
 *.DS_Store
 *.pyc
 *apikey*
