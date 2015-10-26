@@ -1,15 +1,22 @@
-## Short Introduction
+# Short Introduction
 
-### Web server
+## Web server
 
-The program ist based on serverside flask and client side angularjs
+The program is based on serverside flask and client side angularjs. To use the program the following programs must be installed on your system:
 
-1. Install libs
-2. Install redis-server
+1. python 2.7
+2. pip 2.7
+3. redis-server
 
-To install do the following:
+After following the install and run steps below you can access the interface at http://localhost:5000
+
+## Easy install
+
+For a quick and easy install:
 
 		$ ./init.sh
+
+## Running the program
 
 To run:
         $ ./start.sh
@@ -19,22 +26,21 @@ to stop:
 
 To access the GUI, go to localhost:5000
 
-Or you can do it manually: 
+### Manually running
 
-Run Redis-Server
+Run Redis-Server:
 
-		$ redis-server
+		$ redis-server &
 
-To run the server do:
+Run the server:
 
-		$ python manage.py runserver
-
-Open localhost:5000 in our browser
+		$ python manage.py runserver &
 
 Start the Celery Worker
-		$ celery -A project.celery worker
 
-Start Celery Flower Monitor if you want and have it
+		$ celery -A project.celery worker &
+
+If oyu want to monitor the worker processes you can use Celery Flower (additional install required):
 		$ celery -A project.celery flower
 
 
