@@ -11,7 +11,7 @@ logger = logging.getLogger('tasks')
 def celery_prerun(*args, **kwargs):
     with celery.app.app_context():
         pass
-        
+
 @celery.task(bind=True)
 def fetch(self,queryId):
     with celery.app.app_context():
@@ -25,16 +25,16 @@ def fetch(self,queryId):
         parameter['queryId'] = queryId
         parameter['queryRaw'] = query.queryRaw
         logger.info("Start fetching ids for query id :"+str(parameter['queryId'])+" with parameter: "+parameter['queryRaw'])
-        fetcher = YouTubeIDFetcher("https://www.googleapis.com/youtube/v3/search",parameter,50,50,self)
-    
+        fetcher = YouTubeIDFetcher("https://www.googleapis.com/youtube/v3/videos",parameter,50,50,self)
+
         result = fetcher.work()
-        current_task.result = json.dumps(result) 
+        current_task.result = json.dumps(result)
         current_task.state = result['state']
         db.session.commit()
         return result
-    
-    
-    
+
+
+
 @celery.task(bind=True)
 def meta(self,queryId):
     with celery.app.app_context():
@@ -44,16 +44,16 @@ def meta(self,queryId):
         current_task = Task(self.request.id,"MetaFetcher")
         query.tasks.append(current_task)
         db.session.commit()
-        
+
         fetcher = YouTubeMetaFetcher("https://www.googleapis.com/youtube/v3/videos",queryId,50,50,self)
         result = fetcher.work()
-        
-        current_task.result = json.dumps(result) 
+
+        current_task.result = json.dumps(result)
         current_task.state = result['state']
         db.session.commit()
         return result
-    
-    
+
+
 @celery.task(bind=True)
 def manifest(self,queryId):
     with celery.app.app_context():
@@ -63,11 +63,11 @@ def manifest(self,queryId):
         current_task = Task(self.request.id,"ManifestFetcher")
         query.tasks.append(current_task)
         db.session.commit()
-        
-        fetcher = YouTubeMPDFetcher("https://www.googleapis.com/youtube/v3/videos",queryId,50,50,self)
+
+        fetcher = YouTubeMPDFetcher("https://www.youtube.com/get_video_info",queryId,50,50,self)
         result = fetcher.work()
-        
-        current_task.result = json.dumps(result) 
+
+        current_task.result = json.dumps(result)
         current_task.state = result['state']
         db.session.commit()
-        return result 
+        return result
