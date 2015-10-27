@@ -45,6 +45,18 @@ def my_on_connect(dbapi_con, connection_record):
 
 listen(Pool, 'connect', my_on_connect)
 
+class VideoCategory(db.Model):
+
+    __tablename__ = "categories"
+    id = db.Column(db.Integer,primary_key=True)
+    title = db.Column(db.VARCHAR(255))
+    channel_id = db.Column(db.VARCHAR(15))
+    
+    def __init__(self,id,title,channel_id):
+        self.id = id
+        self.title = title 
+        self.channel_id = channel_id
+
 class User(db.Model):
 
     __tablename__ = "users"
