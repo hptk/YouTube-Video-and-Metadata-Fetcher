@@ -70,4 +70,4 @@ def manifest(self,queryId):
         current_task.result = json.dumps(result) 
         current_task.state = result['state']
         db.session.commit()
-        return result
+        return result 
