@@ -39,21 +39,7 @@ define(['app'], function (app) {
     
     app.register.controller('resultController', ['queryService','resultService','$scope', '$rootScope','$routeParams','$location','$timeout','$filter',
      function (queryService,resultService, $scope, $rootScope, $routeParams, $location, $timeout,$filter,charting) {
-
-    	//pie chart data - scope
-        $scope.pieChartData = [[['Chris', 12], ['Manuel', 9], ['Dustin', 14], ['Anu', 16], ['Vijay', 7], ['El Luchadore', 9]]];
-
-        //donut chart data - scope
-        $scope.donutChartData = [[['Hawaii', 6], ['Boston', 8], ['Japan', 14], ['Russia', 20]], [['Hawaii', 8], ['Boston', 12], ['Japan', 6], ['Russia', 9]]];
-
-        //stacked barchart data - scope
-        
-        $scope.publishedAt = [[['2008-10-10',4], ['2008-10-11',6.5], ['2008-10-12',5.7], ['2008-10-13',9], ['2008-10-14',8.2]]];
-        
-        $scope.bubbleChartData = [[11, 123, 1236, "Acura"], [45, 92, 1067, "Alfa Romeo"],[24, 104, 1176, "AM General"], [50, 23, 610, "Aston Martin Lagonda"],[18, 17, 539, "Audi"], [7, 89, 864, "BMW"], [2, 13, 1026, "Bugatti"]];
-
-        // pie chart options - scope
-        $scope.pieChartOptions = {
+        $scope.categoriesChartOptions = {
             seriesDefaults : {
                 // use the pie chart renderer
                 renderer : jQuery.jqplot.PieRenderer,
@@ -63,31 +49,15 @@ define(['app'], function (app) {
                     showDataLabels : true
                 }
             },
-            legend : {
-                show : true,
-                location : 'e'
+            legend: {
+                show: true,
+                rendererOptions: {
+                    
+                },
+                location: 'w'
             }
         };
 
-        // donut chart options - scope
-        $scope.donutChartOptions = {
-            seriesDefaults : {
-                // use the donut chart renderer
-                renderer : jQuery.jqplot.DonutRenderer,
-                rendererOptions : {
-                    sliceMargin : 3,
-                    // Pies and donuts can start at any arbitrary angle.
-                    startAngle : -90,
-                    showDataLabels : true
-                }
-            },
-            legend : {
-                show : true,
-                location : 'e'
-            }
-        };
-
-        // bar chart options - scope
         $scope.publishedAtChartOptions = {
         		seriesDefaults : {
                     // use the bar chart renderer
@@ -108,29 +78,22 @@ define(['app'], function (app) {
                 
         };
         
-        $scope.bubbleChartOptions = {
-            seriesDefaults : {
-                // use the donut chart renderer
-                renderer : jQuery.jqplot.BubbleRenderer,
-                rendererOptions : {
-                    bubbleAlpha: 0.7,
-                    varyBubbleColors: false
-                }
-            },
-            shadow: true
-        };
-        
         var vm = this;
         vm.sortType = 'intersection'
         vm.loadOldQueries = loadOldQueries;
-        vm.createTask = createTask;
         vm.changeToResult = changeToResult;
+        vm.loadAdditionalData = loadAdditionalData;
         vm.oldTasks = [];
         vm.oldQueries = [];
-        
-    
+        vm.result = [];
+        vm.result.viewCount = null;
+        vm.result.commentCount = null;
+		vm.result.likeCount = null;
+		vm.result.dislikeCount = null;
+
         $scope.plot = [];
         $scope.plot.publishedAt = [];
+        $scope.plot.category = [];
         vm.maxOldQueries = {
         	    availableOptions: [
         	      {value: '10', name: '10'},
@@ -149,39 +112,65 @@ define(['app'], function (app) {
         	
             loadOldQueries();
             if(typeof $routeParams.id !== 'undefined') {
-            	loadResults();
+            	loadResults("summary");
+            	loadResults("intersection");
+            	loadResults("category");
+            	
             	vm.loadedResult =  $routeParams.id;
             }
         }
-        
-    
-      
-        vm.someData = [[
-                            ['Heavy Industry', 12],['Retail', 9], ['Light Industry', 14],
-                            ['Out of home', 16],['Commuting', 7], ['Orientation', 9]
-                          ]];
-
-                         
         
         function changeToResult(id) {
         	$location.path("/result/"+id)
         }
         
-        function loadResults() {
+        function loadResults(section) {
         	vm.loadedResult = false
-        	resultService.getResults($routeParams.id,false)
+        	resultService.getResults($routeParams.id,section)
         		.then(function (data) {
         			if(data.success===true)
         			{
-        				vm.result = data.statistics;
-        				vm.loadedResult = $routeParams.id;
-        				vm.temp = [];
-        				angular.forEach(vm.result.data.day_histogram,function(day){
-        					vm.temp.push([day.date,day.count]);
-        				});
         				
-        				$scope.plot.publishedAt.push(vm.temp);
-
+        				vm.loadedResult = $routeParams.id;
+        				if(section=="intersection") {
+        					vm.result.intersection = data.statistics
+        				}
+        
+        				if(section=="publishedAt" && !vm.result.publishedAt) {
+        					vm.result.publishedAt = data.statistics
+        					vm.temp = [];
+            				angular.forEach(vm.result.publishedAt,function(day){
+            					vm.temp.push([day.date,day.count]);
+            				});
+            				
+            				$scope.plot.publishedAt.push(vm.temp);
+        				}
+        				
+        				if(section=="statistics_viewCount" && !vm.result.viewCount) {
+        					vm.result.viewCount = data.statistics.statistics_viewCount
+        				}
+        				if(section=="statistics_commentCount" && !vm.result.commentCount) {
+        					vm.result.commentCount = data.statistics.statistics_commentCount
+        				}
+        				if(section=="statistics_likeCount" && !vm.result.likeCount) {
+        					vm.result.likeCount = data.statistics.statistics_likeCount
+        				}
+        				if(section=="statistics_dislikeCount" && !vm.result.dislikeCount) {
+        					vm.result.dislikeCount = data.statistics.statistics_dislikeCount
+        				}
+        				if(section=="summary") {
+        					vm.result.summary = data.statistics
+        				}
+        				if(section=="category") {
+        					vm.result.category = data.statistics
+        					vm.temp = [];
+            				angular.forEach(vm.result.category,function(category){
+            					vm.temp.push([category.id+" "+category.name,category.count]);
+            				});
+            				
+            				$scope.plot.category.push(vm.temp);
+        				}
+        				
         			} else {
         				vm.loadedResult = false
         				vm.result.error = "could not fetch result from server";
@@ -189,27 +178,26 @@ define(['app'], function (app) {
         		});
         }
         
-       function createTask(id,action) {
-    	   vm.createTaskClicked = true;
-    	   vm.dataCheckingQuery = true;
-    	   taskService.createTask(id,action)
-   			.then(function (data) {
-   				if(data.success===true)
-   				{
-   					//vm.task = data.task;
-   					var taskCopy = angular.copy(data.task)
-   					vm.dataCheckingQuery = false;
-   					addTaskToList(taskCopy);
-   					updateProgress(taskCopy)
-   				}
-   				else
-   				{
-   					alert("some serverside error");
-   					vm.createTaskClicked = false;
-   					vm.dataCheckingQuery = false;
-   				}
-   			});
-       }
+        function loadAdditionalData(section) {
+        	
+        	if(section=="publishedAt" && !vm.result.publishedAt) {
+				loadResults(section);
+			}
+        	
+        	if(section=="statistics_viewCount" && !vm.result.viewCount) {
+				loadResults(section);
+			}
+        	if(section=="statistics_commentCount" && !vm.result.commentCount) {
+				loadResults(section);
+			}
+        	if(section=="statistics_likeCount" && !vm.result.likeCount) {
+				loadResults(section);
+			}
+        	if(section=="statistics_dislikeCount" && !vm.result.dislikeCount) {
+				loadResults(section);
+			}
+        }
+        
         
         function loadOldQueries() {
         	

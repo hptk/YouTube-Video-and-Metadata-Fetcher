@@ -13,10 +13,8 @@ define(['app'], function (app) {
         
         function getResults(id,section) {
             var deferred = $q.defer();
-            if(section!=false) {
-            	id = id+"/"+section
-            }
-            $http.get('/api/statistics/'+id)
+        
+            $http.get('/api/statistics/'+id+"/"+section)
                 .success(function(data, status){
                     if(data.success===true) {
                         deferred.resolve(data);
