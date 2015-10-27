@@ -25,7 +25,7 @@ def fetch(self,queryId):
         parameter['queryId'] = queryId
         parameter['queryRaw'] = query.queryRaw
         logger.info("Start fetching ids for query id :"+str(parameter['queryId'])+" with parameter: "+parameter['queryRaw'])
-        fetcher = YouTubeIDFetcher("https://www.googleapis.com/youtube/v3/videos",parameter,50,50,self)
+        fetcher = YouTubeIDFetcher("https://www.googleapis.com/youtube/v3/search",parameter,50,50,self)
 
         result = fetcher.work()
         current_task.result = json.dumps(result)
