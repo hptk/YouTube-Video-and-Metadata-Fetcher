@@ -47,6 +47,7 @@ For a quick and easy installation:
 
 		$ ./init.sh
 
+This installs dependencies and initiates the database. Running in a python virtualenv is recommended but not required. If you don't run in a virtualenv you might experience conflicts with different versions of pacakges and thus bugs and/or crashes.
 
 ## Manual Install
 
@@ -57,8 +58,6 @@ Run these command to set up the database, the worker and import static data
 		python manage.py db init
 		python manage.py db migrate
 		python manage.py create_categories
-
-This installs dependencies and initiates the database. Running in a python virtualenv is recommended but not required. If you don't run in a virtualenv you might experience conflicts with different versions of pacakges and thus bugs and/or crashes.
 
 ## Running the program
 
