@@ -10,18 +10,11 @@
 
 ## Web Server
 
-The program is based on serverside flask and client side angularjs. To use the program the following programs must be installed on your system:
-
-1. python 2.7
-2. pip 2.7
-3. redis-server
-
-After following the install and run steps below you can access the interface at 
-[localhost:5000](http://localhost:5000).
+The program is based on serverside flask and client side angularjs. After following the installation and running instructions below you can access the interface at [localhost:5000](http://localhost:5000).
 
 ### Database
 
-The program stores all the results of queries in an sql database. The database is in /project/dev.sqlit
+The program stores all the results of queries in an sql database. The database is in /project/dev.sqlit. You can view this database with SQLite or another compatible SQL program.
 
 ### Downloads
 
@@ -44,9 +37,17 @@ The extensions will be .m4a for audio and m4v for video, if a mp4 representation
 
 ## Easy Install
 
-For a quick and easy install:
+The following programs must be installed on your system. Install them through your packet manager, or if you run Windows, download the programs form their respective sources.
+
+1. python 2.7
+2. pip 2.7
+3. redis-server
+
+For a quick and easy installation:
 
 		$ ./init.sh
+
+This installs dependencies and initiates the database. Running in a python virtualenv is recommended but not required. If you don't run in a virtualenv you might experience conflicts with different versions of pacakges and thus bugs and/or crashes.
 
 ## Running the program
 
