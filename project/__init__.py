@@ -20,7 +20,7 @@ db = SQLAlchemy(app)
 celery = make_celery(app)
 #important to import after app,db and celery is created
 from project.models import User, APIKey, YoutubeQuery
-from tasks import fetch,meta
+from tasks import fetch,meta,manifest
 
 
 @app.route('/')
@@ -151,6 +151,9 @@ def setTask(id):
 			task = fetch.delay(id)
 		elif action == "MetaFetcher":
 			task = meta.delay(id)
+		elif action == "ManifestFetcher":
+			task = manifest.delay(id)
+			
 		return jsonify({'success':True,'task':{'task_id':task.id, 'task_action':action,'task_action_id':id, 'progress_url':url_for('getProgress',task_action_id=id,task_action=action,task_id=task.id)}})
 	except:
 		pass
@@ -198,6 +201,18 @@ def getQuery(id):
 		return jsonify({'success': True,'query':query.as_dict()})
 	except:
 		pass
+
+@app.route('/api/statistics/<int:id>', methods=['GET'])
+def getQueryStatistics(id):
+	try:
+		query = YoutubeQuery.query.filter_by(id=id).first()
+		if query:
+			return jsonify({'success': True,'statistics':query.get_statistics()})
+		else:
+			return jsonify({'success': False})
+	except:
+		return jsonify({'success': False})
+		
 		
 
 @app.route('/api/queries/list/<int:amount>', methods=['GET'])

@@ -2,7 +2,7 @@
 
 define(['shared/services/routeResolver'], function () {
 
-    var app = angular.module('youtubeApp', ['ngRoute', 'routeResolverServices', 'ngCookies', 'ui.bootstrap','ngSanitize','ui.select']);
+    var app = angular.module('youtubeApp', ['ngRoute', 'routeResolverServices', 'ngCookies', 'ui.bootstrap','ngSanitize','ui.select','ui.chart']);
 
     app.config(['$routeProvider', 'routeResolverProvider', '$controllerProvider',
                 '$compileProvider', '$filterProvider', '$provide', '$httpProvider',
@@ -73,6 +73,8 @@ define(['shared/services/routeResolver'], function () {
                 .when('/task',route.resolve('task','task/', 'vm', true))
                 .when('/task/:id',route.resolve('task','task/', 'vm', true))
                 .when('/task/:id/:action',route.resolve('task','task/', 'vm', true))
+                .when('/result/:id',route.resolve('result','result/', 'vm', true))
+                .when('/result',route.resolve('result','result/', 'vm', true))
                 
                 .otherwise({ redirectTo: '/' });
 

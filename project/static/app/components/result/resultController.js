@@ -3,8 +3,8 @@
 define(['app'], function (app) {
 
     
-    app.register.controller('taskController', ['APIKeyService','queryService','taskService', '$rootScope','$routeParams','$location','$timeout','$filter',
-     function (APIKeyService,queryService,taskService, $rootScope, $routeParams, $location, $timeout,$filter) {
+    app.register.controller('resultController', ['APIKeyService','queryService','taskService', '$rootScope','$routeParams','$location','$timeout','$filter',
+     function (APIKeyService,queryService,taskService, $rootScope, $routeParams, $location, $timeout,$filter,charting) {
 
         var vm = this;
         
@@ -28,7 +28,6 @@ define(['app'], function (app) {
         vm.taskOptions = [
 							{ name: 'Fetches only the Video IDs for the selected query' , type:'IDFetcher'},
 							{ name: 'Fetches the meta data for the videos which are associated with the selected query' , type:'MetaFetcher'},
-							{ name: 'Fetches the video informations from the DASH manifest to the database' , type:'ManifestFetcher'},
 							{ name: 'Download the videos which are associated with the selected query' , type:'VideoFetcher'}
                       ];
         
@@ -43,6 +42,15 @@ define(['app'], function (app) {
             	loadHashQuery();
             }
         }
+        
+        
+        vm.someData = [[
+                            ['Heavy Industry', 12],['Retail', 9], ['Light Industry', 14],
+                            ['Out of home', 16],['Commuting', 7], ['Orientation', 9]
+                          ]];
+
+                          //vm.myChartOpts = charting.pieChartOptions
+        
         
         function changeToQuery(id) {
         	$location.path("/query/"+id)
