@@ -11,7 +11,7 @@ from urlparse import parse_qs;
 from project import db
 from project.models import QueryVideoMM
 logger = logging.getLogger('tasks')
-
+import pprint
 
 class YouTubeMPDFetcher(RequestBase):
 
@@ -27,7 +27,6 @@ class YouTubeMPDFetcher(RequestBase):
             self.putWorkQueueItem(video.video_id)
 
     def handleRequestSuccess(self,workQueueItem, response):
-        got_sound = False
         video_id = workQueueItem
 
         #download manifest
@@ -37,7 +36,7 @@ class YouTubeMPDFetcher(RequestBase):
             manifest_file = urlopen(manifest_url).read()
             manifest = xmltodict.parse(manifest_file)['MPD']['Period']['AdaptationSet']
         except:
-            logger.info(str(video_id)+" has no dashmpd")
+            logger.info(str(video_id)+" has no dashmpd or is not accessible")
             return
 
         for adaptation in manifest:
@@ -45,34 +44,36 @@ class YouTubeMPDFetcher(RequestBase):
             representations = adaptation['Representation']
             if not isinstance(representations, list):
                 representations = [representations]
-            if mimeType[0] == 'audio' and not got_sound:
+            if mimeType[0] == 'audio':
                 for representation in representations:
-                    self.resultList[str(video_id)]= {}
-                    self.resultList[str(video_id)]['video_id'] = video_id
-                    self.resultList[str(video_id)]['mimeType'] = adaptation['@mimeType']
-                    self.resultList[str(video_id)]['bandwidth'] = representation['@bandwidth']
-                    self.resultList[str(video_id)]['codecs'] = representation['@codecs']
-                    self.resultList[str(video_id)]['frameRate'] = ''
-                    self.resultList[str(video_id)]['width'] = ''
-                    self.resultList[str(video_id)]['height'] = ''
+                    uniqueKey = str(video_id)+str(representation['@id'])
+                    self.resultList[uniqueKey]= {}
+                    self.resultList[uniqueKey]['video_id'] = video_id 
+                    self.resultList[uniqueKey]['mimeType'] = adaptation['@mimeType'] if '@mimeType' in adaptation else ''
+                    self.resultList[uniqueKey]['bandwidth'] = representation['@bandwidth'] if '@bandwidth' in adaptation else ''
+                    self.resultList[uniqueKey]['codecs'] = representation['@codecs'] if '@codecs' in adaptation else ''
+                    self.resultList[uniqueKey]['frameRate'] = ''
+                    self.resultList[uniqueKey]['width'] = ''
+                    self.resultList[uniqueKey]['height'] = ''
+
                 got_sound = True
 
             elif mimeType[0] == 'video':
                 for representation in representations:
-                    self.resultList[str(video_id)]= {}
-                    self.resultList[str(video_id)]['video_id'] = video_id
-                    self.resultList[str(video_id)]['mimeType'] = adaptation['@mimeType']
-                    self.resultList[str(video_id)]['bandwidth'] = representation['@bandwidth']
-                    self.resultList[str(video_id)]['codecs'] = representation['@codecs']
-                    self.resultList[str(video_id)]['frameRate'] = representation['@frameRate']
-                    self.resultList[str(video_id)]['width'] = representation['@height']
-                    self.resultList[str(video_id)]['height'] = representation['@width']
+                    uniqueKey = str(video_id)+str(representation['@id'])
+                    self.resultList[uniqueKey]= {}
+                    self.resultList[uniqueKey]['video_id'] = video_id
+                    self.resultList[uniqueKey]['mimeType'] = adaptation['@mimeType'] if '@mimeType' in adaptation  else ''
+                    self.resultList[uniqueKey]['bandwidth'] = representation['@bandwidth'] if '@bandwidth' in representation else ''
+                    self.resultList[uniqueKey]['codecs'] = representation['@codecs'] if '@codecs' in representation else ''
+                    self.resultList[uniqueKey]['frameRate'] = representation['@frameRate'] if '@frameRate' in representation else ''
+                    self.resultList[uniqueKey]['width'] = representation['@height'] if '@height' in representation  else ''
+                    self.resultList[uniqueKey]['height'] = representation['@width'] if '@width' in representation else ''
 
     def saveResult(self):
-
         if len(self.resultList) > 0:
             self.updateProgress('SAVING')
-            from project.models import YoutubeVideoMeta
+            from project.models import VideoRepresentation
             from sqlalchemy.ext.compiler import compiles
             from sqlalchemy.sql.expression import Insert
             @compiles(Insert)
@@ -85,7 +86,7 @@ class YouTubeMPDFetcher(RequestBase):
             t0 = time.time()
             logger.info("save video MPD")
             #http://docs.sqlalchemy.org/en/rel_0_9/core/connections.html?highlight=engine#sqlalchemy.engine.Connection.execute
-            db.session.execute(YoutubeVideoMeta.__table__.insert(replace_string = 'INSERT OR REPLACE'),
+            db.session.execute(VideoRepresentation.__table__.insert(replace_string = 'INSERT OR REPLACE'),
                    [value for key,value in self.resultList.iteritems()]
                    )
             logger.info("Total time for " + str(len(self.resultList)) +" records " + str(time.time() - t0) + " secs")
