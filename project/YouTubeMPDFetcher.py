@@ -71,7 +71,7 @@ class YouTubeMPDFetcher(RequestBase):
                     self.resultList[str(video_id)]['width'] = representation['@height']
                     self.resultList[str(video_id)]['height'] = representation['@width']
                     
-    def saveResult(self):
+    def saveResult(self): 
         
         if len(self.resultList) > 0:
             self.updateProgress('SAVING')
