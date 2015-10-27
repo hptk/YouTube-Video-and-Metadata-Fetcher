@@ -241,95 +241,133 @@ class YoutubeQuery(db.Model):
     def __init__(self,queryRaw):
         self.queryHash = base64.urlsafe_b64encode(queryRaw)
         self.queryRaw = queryRaw
+        
     def count_videos(self):
+        """Returns the amount of videos fetched by this query"""
         return len(self.videos)
     
     def count_tasks(self):
+        """Returns of many tasks where performed for this query"""
         return len(self.tasks)
     
     def count_video_meta(self):
-        #SELECT count(*) as count FROM meta LEFT OUTER JOIN query_video_mm ON query_video_mm.video_id=meta.id WHERE query_video_mm.youtube_query_id=<query_id>
-        #r = db.session.query(YoutubeVideoMeta, db.func.count()).outerjoin((QueryVideoMM, QueryVideoMM.video_id == YoutubeVideoMeta.id)).filter_by(youtube_query_id=self.id)#YoutubeVideoMeta.query
+        """Returns the amount of meta data associated to this query"""
         metas = YoutubeVideoMeta.query.outerjoin((QueryVideoMM, QueryVideoMM.video_id == YoutubeVideoMeta.id)).filter_by(youtube_query_id=self.id)
         count = metas.count()
         return count
     
-    def getDateHistogram(self):
+    def get_statistics_dayHistogram(self):
+        """Returns a dictonary which contains an aggregation of day=>amount"""
         dates_query = db.session.query(YoutubeVideoMeta,db.func.count().label("count"),db.func.date(YoutubeVideoMeta.snippet_publishedAt).label("date")).outerjoin((QueryVideoMM, QueryVideoMM.video_id == YoutubeVideoMeta.id)).filter_by(youtube_query_id=self.id).group_by(db.func.strftime('%Y',YoutubeVideoMeta.snippet_publishedAt),db.func.strftime('%m',YoutubeVideoMeta.snippet_publishedAt),db.func.strftime('%d',YoutubeVideoMeta.snippet_publishedAt)).order_by(YoutubeVideoMeta.snippet_publishedAt)
         dates = dates_query.all()
-        return [{date.date:date.count} for date in dates]
+        return [{"date":date.date,"count":date.count} for date in dates]
             
     def getAggregations(self,table,field,forQuery=False):
+        """Gets an aggregation of the table.field max,min,avg,sum,stdev
+        forQuery: parameter to select the current query, or global
+        """
         if forQuery:
             res = db.session.query(table,db.func.stdev(field).label("stdev"),db.func.max(field).label("max"),db.func.min(field).label("min"),db.func.sum(field).label("sum"),db.func.avg(field).label("avg")).filter(field!='').outerjoin((QueryVideoMM, QueryVideoMM.video_id == YoutubeVideoMeta.id)).filter_by(youtube_query_id=self.id)
+            print res
         else:
             res = db.session.query(table,db.func.stdev(field).label("stdev"),db.func.max(field).label("max"),db.func.min(field).label("min"),db.func.sum(field).label("sum"),db.func.avg(field).label("avg")).filter(field!='')
-        #print res
         row = res.one()
         return row
+    
     def getPercentile(self,table,field):
+        """Gets the 0.1-1.0 percentile of table.field"""
         dict = {}
         for x in xrange(1,11):
             dict[x] = db.session.execute("select statistics_viewCount as percentile from meta order by percentile asc limit 1 OFFSET 19346*"+str(x)+"/10-1").first().percentile
         print dict
+    
+    def get_statistics_assocQuery(self):
+        """Performs a backward search to find all queries which have an intersection with the videos, this query has fetched"""
+        backrefs = db.session.execute("select first.youtube_query_id as queryid, count(*) as count, second.youtube_query_id as backrefQuery from query_video_mm as first JOIN query_video_mm as second on second.video_id=first.video_id WHERE first.youtube_query_id="+str(self.id)+" AND backrefQuery!="+str(self.id)+" GROUP BY backrefQuery ORDER BY count DESC")
+        backrefsQueries = []
+        print "12"
+        for row in backrefs:
+            backrefsQueries.append({'query':YoutubeQuery.query.filter_by(id=row.backrefQuery).first().as_dict(),'count':row.count})
+        return backrefsQueries
+    
+    def get_statistic_section(self,section):
+        """Returns only a section of the complete statistics"""
+        if section=="dayHistogram":
+            return self.get_statistics_dayHistogram()
         
+        if section=="intersection":
+            return self.get_statistics_assocQuery()
+        
+        if secion=="statistics_likeCount" or secion=="statistics_dislikeCount" or section=="statistics_commentCount" or section=="statistics_viewCount":
+            globalLikeStat = self.getAggregations(YoutubeVideoMeta,YoutubeVideoMeta.statistics_likeCount,forQuery=False)
+            queryLikeStat = self.getAggregations(YoutubeVideoMeta,YoutubeVideoMeta.statistics_likeCount,forQuery=True)
         
     def get_statistics(self):
         #import logging
         #logging.basicConfig()
         #logging.getLogger('sqlalchemy.engine').setLevel(logging.DEBUG)
-        dates = self.getDateHistogram()
+        #print "1"
+        dates = self.get_statistics_dayHistogram()
+        print "2"
         globalLikeStat = self.getAggregations(YoutubeVideoMeta,YoutubeVideoMeta.statistics_likeCount,forQuery=False)
+        print "3"
         queryLikeStat = self.getAggregations(YoutubeVideoMeta,YoutubeVideoMeta.statistics_likeCount,forQuery=True)
+        print "4"
         globalDislikeStat = self.getAggregations(YoutubeVideoMeta,YoutubeVideoMeta.statistics_dislikeCount,forQuery=False)
+        print "5"
         queryDislikeStat = self.getAggregations(YoutubeVideoMeta,YoutubeVideoMeta.statistics_dislikeCount,forQuery=True)
-        
+        print "6"
         globalCommentStat = self.getAggregations(YoutubeVideoMeta,YoutubeVideoMeta.statistics_commentCount,forQuery=False)
+        print "7"
         queryCommentStat = self.getAggregations(YoutubeVideoMeta,YoutubeVideoMeta.statistics_commentCount,forQuery=True)
-        
+        print "8"
         globalViewStat = self.getAggregations(YoutubeVideoMeta,YoutubeVideoMeta.statistics_viewCount,forQuery=False)
+        print "9"
         queryViewStat = self.getAggregations(YoutubeVideoMeta,YoutubeVideoMeta.statistics_viewCount,forQuery=True)
-        
+        print "10"
         #0.9 percentile all
-        self.getPercentile("test", "test")
+        #self.getPercentile("test", "test")
+        print "11"
         #find the queries which have an intersection with this query's result(same videos)
         backrefs = db.session.execute("select first.youtube_query_id as queryid, count(*) as count, second.youtube_query_id as backrefQuery from query_video_mm as first JOIN query_video_mm as second on second.video_id=first.video_id WHERE first.youtube_query_id="+str(self.id)+" AND backrefQuery!="+str(self.id)+" GROUP BY backrefQuery ORDER BY count DESC")
         backrefsQueries = []
+        print "12"
         for row in backrefs:
-            backrefsQueries.append({'query':row.backrefQuery,'count':row.count})
+            backrefsQueries.append({'query':YoutubeQuery.query.filter_by(id=row.backrefQuery).first().as_dict(),'count':row.count})
+        print "13"
         return {
                 'intersection':backrefsQueries,
-                'query': {
+                'data': {
                           'videos':len(self.videos),
                           'meta':self.count_video_meta(),
-                          'day_histogram':dates,
+                          #'day_histogram':dates,
                           'likes': {
                                     'max':queryLikeStat.max,
                                     'min':queryLikeStat.min,
                                     'sum':queryLikeStat.sum,
                                     'avg':queryLikeStat.avg,
-                                    'stdev':queryLikeStat.stdev
+                                    #'stdev':queryLikeStat.stdev
                                     },
                             'dislikes': {
                                     'max':queryDislikeStat.max,
                                     'min':queryDislikeStat.min,
                                     'sum':queryDislikeStat.sum,
                                     'avg':queryDislikeStat.avg,
-                                    'stdev':queryDislikeStat.stdev
+                                    #'stdev':queryDislikeStat.stdev
                                     },
                             'comment': {
                                     'max':queryCommentStat.max,
                                     'min':queryCommentStat.min,
                                     'sum':queryCommentStat.sum,
                                     'avg':queryCommentStat.avg,
-                                    'stdev':queryCommentStat.stdev
+                                    #'stdev':queryCommentStat.stdev
                                     },
                             'view': {
                                     'max':queryViewStat.max,
                                     'min':queryViewStat.min,
                                     'sum':queryViewStat.sum,
                                     'avg':queryViewStat.avg,
-                                    'stdev':queryViewStat.stdev
+                                    #'stdev':queryViewStat.stdev
                                     },
                           },
                 'all': {
@@ -340,28 +378,28 @@ class YoutubeQuery(db.Model):
                                     'min':globalLikeStat.min,
                                     'sum':globalLikeStat.sum,
                                     'avg':globalLikeStat.avg,
-                                    'stdev':globalLikeStat.stdev
+                                    #'stdev':globalLikeStat.stdev
                                     },
                             'dislikes': {
                                     'max':globalDislikeStat.max,
                                     'min':globalDislikeStat.min,
                                     'sum':globalDislikeStat.sum,
                                     'avg':globalDislikeStat.avg,
-                                    'stdev':globalDislikeStat.stdev
+                                    #'stdev':globalDislikeStat.stdev
                                     },
                             'comment': {
                                     'max':globalCommentStat.max,
                                     'min':globalCommentStat.min,
                                     'sum':globalCommentStat.sum,
                                     'avg':globalCommentStat.avg,
-                                    'stdev':globalCommentStat.stdev
+                                    #'stdev':globalCommentStat.stdev
                                     },
                             'view': {
                                     'max':globalViewStat.max,
                                     'min':globalViewStat.min,
                                     'sum':globalViewStat.sum,
                                     'avg':globalViewStat.avg,
-                                    'stdev':globalViewStat.stdev
+                                    #'stdev':globalViewStat.stdev
                                     },
                           },
         }
