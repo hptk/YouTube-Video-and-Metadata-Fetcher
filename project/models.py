@@ -52,7 +52,7 @@ class VideoCategory(db.Model):
     title = db.Column(db.VARCHAR(255))
     channel_id = db.Column(db.VARCHAR(15))
     
-    def __init__(self,id,title,channel_id):
+    def __init__(self,id,channel_id,title):
         self.id = id
         self.title = title 
         self.channel_id = channel_id
@@ -306,7 +306,7 @@ class YoutubeQuery(db.Model):
 
     def get_statistic_categories(self):
         categories = db.session.execute("SELECT  count(*) AS total, meta.snippet_category_id AS category_id FROM meta LEFT OUTER JOIN query_video_mm ON query_video_mm.video_id = meta.id WHERE query_video_mm.youtube_query_id ="+str(self.id)+" GROUP BY meta.snippet_category_id ORDER BY total DESC LIMIT 10")
-        return [{"id":row.category_id,"count":row.total} for row in categories] 
+        return [{"id":row.category_id,"count":row.total,"name":VideoCategory.query.filter_by(id=row.category_id).first().title} for row in categories] 
     
     def get_statistic_section(self,section):
         """Returns only a section of the complete statistics"""
