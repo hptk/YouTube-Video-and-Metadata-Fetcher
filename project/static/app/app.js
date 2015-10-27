@@ -61,9 +61,7 @@ define(['shared/services/routeResolver'], function () {
                 //The controllers for orders live in controllers/orders and the views are in views/orders
                 //The second parameter allows for putting related controllers/views into subfolders to better organize large projects
                 //Thanks to Ton Yeung for the idea and contribution
-                .when('/',{
-                    templateUrl: 'static/app/components/home/homeView.html'
-                })
+                .when('/',route.resolve('query','query/', 'vm', true))
                 
                 .when('/login',route.resolve('login','login/', 'vm'))
                 .when('/register',route.resolve('register','register/', 'vm'))
@@ -76,7 +74,7 @@ define(['shared/services/routeResolver'], function () {
                 .when('/result/:id',route.resolve('result','result/', 'vm', true))
                 .when('/result',route.resolve('result','result/', 'vm', true))
                 
-                .otherwise({ redirectTo: '/' });
+                .otherwise({ redirectTo: '/login' });
 
     }]);
 
