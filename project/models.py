@@ -267,6 +267,12 @@ class YoutubeQuery(db.Model):
         #print res
         row = res.one()
         return row
+    def getPercentile(self,table,field):
+        dict = {}
+        for x in xrange(1,11):
+            dict[x] = db.session.execute("select statistics_viewCount as percentile from meta order by percentile asc limit 1 OFFSET 19346*"+str(x)+"/10-1").first().percentile
+        print dict
+        
         
     def get_statistics(self):
         #import logging
@@ -284,6 +290,8 @@ class YoutubeQuery(db.Model):
         globalViewStat = self.getAggregations(YoutubeVideoMeta,YoutubeVideoMeta.statistics_viewCount,forQuery=False)
         queryViewStat = self.getAggregations(YoutubeVideoMeta,YoutubeVideoMeta.statistics_viewCount,forQuery=True)
         
+        #0.9 percentile all
+        self.getPercentile("test", "test")
         #find the queries which have an intersection with this query's result(same videos)
         backrefs = db.session.execute("select first.youtube_query_id as queryid, count(*) as count, second.youtube_query_id as backrefQuery from query_video_mm as first JOIN query_video_mm as second on second.video_id=first.video_id WHERE first.youtube_query_id="+str(self.id)+" AND backrefQuery!="+str(self.id)+" GROUP BY backrefQuery ORDER BY count DESC")
         backrefsQueries = []
