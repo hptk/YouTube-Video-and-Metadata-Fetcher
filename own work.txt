@@ -1,0 +1,3 @@
+The Frontend
+
+The tool's frontend is written with AngularJS
