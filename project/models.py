@@ -38,7 +38,7 @@ class StdevFunc:
             return none
         else:
             return math.sqrt(self.S / (self.k-1))
-    
+
 def my_on_connect(dbapi_con, connection_record):
     dbapi_con.create_aggregate("stdev", 1, StdevFunc)
 
@@ -62,13 +62,13 @@ class User(db.Model):
         self.password = hashlib.sha512(password+BaseConfig.SECRET_KEY).hexdigest()
         self.firstname = firstname
         self.lastname = lastname
-    
+
     def comparePassword(self,password):
         if self.password == hashlib.sha512(password+BaseConfig.SECRET_KEY).hexdigest():
             return True
         else:
             return False
-        
+
 class VideoRepresentation(db.Model):
     __tablename__ = "videoRepresentation"
 
@@ -88,7 +88,7 @@ class VideoRepresentation(db.Model):
         self.framerate = framerate
         self.height = height
         self.width = width
-        
+
     def as_dict(self):
         return {
                 'mimeType':self.mimeType,
@@ -99,19 +99,31 @@ class VideoRepresentation(db.Model):
                 'codec':self.codec
                 }
 
+class YoutubeCommmentThread(db.Model):
+    __tablename__ = 'commentThread'
+
+    video_id            = db.Column(db.VARCHAR(12), db.ForeignKey('video.id'))
+    comment_thread_id   = db.Column(db.VARCHAR(43), primary_key=True, unique=True);
+    comment_html        = db.Column((db.VARCHAR(1000))
+    comment_publishedAt = db.Column(db.DateTime(timezone=True))
+
+
+class YoutubeComment(db.Model):
+    __tablename__ = 'comment'
+
 class YoutubeVideo(db.Model):
     __tablename__ = "video"
 
     id = db.Column(db.VARCHAR(12),primary_key=True,unique=True)
     meta = db.relationship("YoutubeVideoMeta", backref="video", uselist=False)
     representations = db.relationship("VideoRepresentation", backref="video")
-    
+
     def is_meta_available(self):
         if self.meta != None:
             return 1
         else:
             return 0
-        
+
     def __init__(self, id, meta, representation):
         self.id = id
         self.meta = meta
@@ -136,7 +148,7 @@ class YoutubeVideoMeta(db.Model):
     snippet_category_id = db.Column(db.Integer)
     snippet_tags = db.Column(db.Text())
     snippet_liveBroadcastContent = db.Column(db.VARCHAR(10))
-    
+
     statistics_viewCount = db.Column(db.Integer)
     statistics_likeCount = db.Column(db.Integer)
     statistics_dislikeCount = db.Column(db.Integer)
@@ -156,12 +168,12 @@ class YoutubeVideoMeta(db.Model):
     #based on google documentation this field is a string, containing 'true' or 'false', if you want to use boolean instead, you have to manually convert the string into bool
     contentDetails_caption = db.Column(db.String(4))
     contentDetails_licensedContent = db.Column(db.BOOLEAN)
-    
+
     recordingDetails_location_latitude = db.Column(db.Float(precision='10,6'))
     recordingDetails_location_longitude = db.Column(db.Float(precision='10,6'))
     recordingDetails_location_altitude = db.Column(db.Float(precision='10,6'))
     recordingDetails_recordingDate = db.Column(db.DateTime(timezone=True))
-    
+
     def as_dict(self):
         return {
             'snippet': {
@@ -190,7 +202,7 @@ class Task(db.Model):
         self.action=action
         self.created_on = datetime.datetime.now()
 
-    def as_dict(self):        
+    def as_dict(self):
         return {
             'id': self.id,
             'created_on':self.created_on,
@@ -243,22 +255,22 @@ class YoutubeQuery(db.Model):
         self.queryRaw = queryRaw
     def count_videos(self):
         return len(self.videos)
-    
+
     def count_tasks(self):
         return len(self.tasks)
-    
+
     def count_video_meta(self):
         #SELECT count(*) as count FROM meta LEFT OUTER JOIN query_video_mm ON query_video_mm.video_id=meta.id WHERE query_video_mm.youtube_query_id=<query_id>
         #r = db.session.query(YoutubeVideoMeta, db.func.count()).outerjoin((QueryVideoMM, QueryVideoMM.video_id == YoutubeVideoMeta.id)).filter_by(youtube_query_id=self.id)#YoutubeVideoMeta.query
         metas = YoutubeVideoMeta.query.outerjoin((QueryVideoMM, QueryVideoMM.video_id == YoutubeVideoMeta.id)).filter_by(youtube_query_id=self.id)
         count = metas.count()
         return count
-    
+
     def getDateHistogram(self):
         dates_query = db.session.query(YoutubeVideoMeta,db.func.count().label("count"),db.func.date(YoutubeVideoMeta.snippet_publishedAt).label("date")).outerjoin((QueryVideoMM, QueryVideoMM.video_id == YoutubeVideoMeta.id)).filter_by(youtube_query_id=self.id).group_by(db.func.strftime('%Y',YoutubeVideoMeta.snippet_publishedAt),db.func.strftime('%m',YoutubeVideoMeta.snippet_publishedAt),db.func.strftime('%d',YoutubeVideoMeta.snippet_publishedAt)).order_by(YoutubeVideoMeta.snippet_publishedAt)
         dates = dates_query.all()
         return [{date.date:date.count} for date in dates]
-            
+
     def getAggregations(self,table,field,forQuery=False):
         if forQuery:
             res = db.session.query(table,db.func.stdev(field).label("stdev"),db.func.max(field).label("max"),db.func.min(field).label("min"),db.func.sum(field).label("sum"),db.func.avg(field).label("avg")).filter(field!='').outerjoin((QueryVideoMM, QueryVideoMM.video_id == YoutubeVideoMeta.id)).filter_by(youtube_query_id=self.id)
@@ -267,7 +279,7 @@ class YoutubeQuery(db.Model):
         #print res
         row = res.one()
         return row
-        
+
     def get_statistics(self):
         #import logging
         #logging.basicConfig()
@@ -277,13 +289,13 @@ class YoutubeQuery(db.Model):
         queryLikeStat = self.getAggregations(YoutubeVideoMeta,YoutubeVideoMeta.statistics_likeCount,forQuery=True)
         globalDislikeStat = self.getAggregations(YoutubeVideoMeta,YoutubeVideoMeta.statistics_dislikeCount,forQuery=False)
         queryDislikeStat = self.getAggregations(YoutubeVideoMeta,YoutubeVideoMeta.statistics_dislikeCount,forQuery=True)
-        
+
         globalCommentStat = self.getAggregations(YoutubeVideoMeta,YoutubeVideoMeta.statistics_commentCount,forQuery=False)
         queryCommentStat = self.getAggregations(YoutubeVideoMeta,YoutubeVideoMeta.statistics_commentCount,forQuery=True)
-        
+
         globalViewStat = self.getAggregations(YoutubeVideoMeta,YoutubeVideoMeta.statistics_viewCount,forQuery=False)
         queryViewStat = self.getAggregations(YoutubeVideoMeta,YoutubeVideoMeta.statistics_viewCount,forQuery=True)
-        
+
         #find the queries which have an intersection with this query's result(same videos)
         backrefs = db.session.execute("select first.youtube_query_id as queryid, count(*) as count, second.youtube_query_id as backrefQuery from query_video_mm as first JOIN query_video_mm as second on second.video_id=first.video_id WHERE first.youtube_query_id="+str(self.id)+" AND backrefQuery!="+str(self.id)+" GROUP BY backrefQuery ORDER BY count DESC")
         backrefsQueries = []

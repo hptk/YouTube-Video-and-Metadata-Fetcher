@@ -25,30 +25,48 @@ logger = logging.getLogger('tasks')
 #   this file requires: (not yet tested or fixed)
 #       'id', the id of the query to fetch the videos of,
 #       workQueueItem should be as follows:
-#           0: commentThread id
-#           1: get replies? (boolean)
+#           0: video id
+#           1: pageNextToken
+#           2: getReplies (boolean)
 
-_COMMENTHREAD_MAXRESULTS = 100
+_COMMENTHREADS_MAXRESULTS = 100
+_COMMENTS_MAXRESULTS = 100
 apikey=''
 
 class YouTubeCommentFetcher(RequestBase):
 
     def buildRequestURL(self, workQueueItem):
         request = self.url + '?videoId=' + workQueueItem[0] +\
-                            '&part=snippet' +\
-                            '&maxResults=' + str(_COMMENTHREAD_MAXRESULTS) +\
-                            '&key=' + apikey
-        pprint(request)
+                             '&part=snippet' +\
+                             '&maxResults=' + str(_COMMENTHREADS_MAXRESULTS) +\
+                             '&key=' + apikey
+        if workQueueItem[1] != '':
+            request += '&pageNextToken=' + workQueueItem[1]
         return request
 
     def initWorkQueue(self):
-        item = [self.parameter, False]
+        item = [self.parameter, '', False]
         self.putWorkQueueItem(item)
 
     def handleRequestSuccess(self,workQueueItem, response):
         result = json.load(response)
+
+        # No commentThreads were returned
+        if not result['items']:
+            return
+
+        # If we fetched the maximum number of results per page and the
+        # pageNextToken value is set, we can expect there to be more
+        # CommentThreads. Spawn a new task to get them.
+        if result['pageInfo']['totalResults'] ==\
+                result['pageInfo']['resultsPerPage'] and\
+                result.get('nextPageToken'):
+            self.putWorkQueueItem([workQueueItem[0],
+                                   result['nextPageToken'],
+                                   workQueueItem[2]])
+
         pprint(result)
-        pass
+        #print 'Got %d results for videoId:%s, PNT:%s' % (result['pageInfo']['totalResults'], workQueueItem[0], workQueueItem[1])
 
     def saveResult(self):
         pass
