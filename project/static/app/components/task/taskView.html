@@ -179,7 +179,7 @@
         <td>{{ task.created_on }}</td>
         <td>{{task.state}}</td>
         <td>{{task.result.result}}</td>  		
-        <td><button class="btn btn-primary" ng-click="vm.createTask(task.queryId,task.action)">Again</button></td>
+        <td><button class="btn btn-primary" ng-click="vm.createTask(task.queryId,task.action)">Again</button> <a href="#/result/{{task.queryId}}" class="btn btn-primary">View Results</a></td>
       </tr>
     </tbody>
     
