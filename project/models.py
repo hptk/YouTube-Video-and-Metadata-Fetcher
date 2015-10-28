@@ -102,14 +102,31 @@ class VideoRepresentation(db.Model):
 class YoutubeCommmentThread(db.Model):
     __tablename__ = 'commentThread'
 
-    video_id            = db.Column(db.VARCHAR(12), db.ForeignKey('video.id'))
-    comment_thread_id   = db.Column(db.VARCHAR(43), primary_key=True, unique=True);
-    comment_html        = db.Column((db.VARCHAR(1000))
-    comment_publishedAt = db.Column(db.DateTime(timezone=True))
+    video_id = db.Column(db.VARCHAR(12), db.ForeignKey('video.id'))
 
+    # Thread_id is either the ID of the commmentThread object, or
+    # the parentId of the commment snippet.
+    # In the case that these two values are the same,
+    # the item is a top-level comment.
+    thread_id = db.Column(db.VARCHAR(43));
+    id = db.Column(db.VARCHAR(43), primary_key=True);
 
-class YoutubeComment(db.Model):
-    __tablename__ = 'comment'
+    # Snippet data
+    # There is a field 'textOriginal', but one is only guaranteed
+    # access to this if one is the original author (we never are)
+    textDisplay = db.Column(db.VARCHAR(1000))
+    # Only valid for top-level comments
+    totalReplyCount = db.Column(db.Integer)
+    authorDisplayName = db.Column(db.VARCHAR(100))
+    authorProfileImageUrl = db.Column(db.VARCHAR(100))
+    authorChannelUrl = db.Column(db.VARCHAR(100))
+    authorChannelId = db.Column(db.VARCHAR(50))
+    authorGooglePlusProfileUrl = db.Column(dv.VARCHAR(100))
+    likeCount = db.Column(db.Integer)
+
+    publishedAt = db.Column(db.DateTime(timezone=True))
+    updatedAt = db.Column(db.DateTime(timezone=True))
+
 
 class YoutubeVideo(db.Model):
     __tablename__ = "video"
