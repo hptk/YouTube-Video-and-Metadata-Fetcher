@@ -30,7 +30,10 @@ define(['shared/services/routeResolver'], function () {
 	    	        if (typeof value === "string" && (match = value.match(regexIso8601))) {
 	    	            var milliseconds = Date.parse(match[0])
 	    	            if (!isNaN(milliseconds)) {
-	    	                input[key] = new Date(milliseconds);
+	    	            	dt = new Date(milliseconds);
+	    	            	//adjust the timezone again
+	    	            	dt.setMinutes(dt.getMinutes() + dt.getTimezoneOffset());
+	    	                input[key] = dt;
 	    	            }
 	    	        } else if (typeof value === "object") {
 	    	            // Recurse into object

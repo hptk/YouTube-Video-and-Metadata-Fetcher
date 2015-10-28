@@ -234,7 +234,23 @@ define(['app'], function (app) {
         function createQuery() {
             vm.dataLoading = true;
             
-        	
+            //change publishedAfter to first second of the day
+            vm.query.publishedAfter.setHours(0);
+            vm.query.publishedAfter.setSeconds(1);
+            
+            //change publishedBefore to the end of the day
+            vm.query.publishedBefore.setHours(23);
+            vm.query.publishedBefore.setMinutes(59);
+            vm.query.publishedBefore.setSeconds(59);
+            
+        	//modify timezones to exclude them from the requests
+            var publishedAfter = vm.query.publishedAfter.setMinutes(vm.query.publishedAfter.getMinutes() - vm.query.publishedAfter.getTimezoneOffset());
+            vm.query.publishedAfter = new Date(publishedAfter);
+            
+            var publishedBefore = vm.query.publishedBefore.setMinutes(vm.query.publishedBefore.getMinutes() - vm.query.publishedBefore.getTimezoneOffset());
+            vm.query.publishedBefore = new Date(publishedBefore)
+            
+            
             queryService.testQuery(vm.query)
     		.then(function (response) {
     			if(response.code)

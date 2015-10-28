@@ -109,7 +109,7 @@
 		        		<div class="col-xs-6"  ng-class="{ 'has-error': form.publishedAfter.$dirty && form.publishedAfter.$error.required }">
 		        			<label for="publishedAfter">publishedAfter <i class="glyphicon glyphicon-info-sign" uib-popover="The publishedAfter parameter indicates that the API response should only contain resources created after the specified time." popover-trigger="mouseenter"></i></label>
 				            <div class="input-group">
-				              <input type="text" name="publishedAfter" id="publishedAfter" class="form-control" uib-datepicker-popup="{{vm.datepicker.format}}" ng-model="vm.query.publishedAfter" is-open="vm.datepicker.publishedAfter.open" min-date="vm.datepicker.publishedAfter.minDate" max-date="vm.datepicker.publishedAfter.maxDate" datepicker-options="vm.datepicker.dateOptions" date-disabled="disabled(date, mode)"  close-text="Close" required/>
+				              <input type="text" name="publishedAfter" id="publishedAfter" class="form-control" uib-datepicker-popup="{{vm.datepicker.format}}"  ng-model="vm.query.publishedAfter" is-open="vm.datepicker.publishedAfter.open" min-date="vm.datepicker.publishedAfter.minDate" max-date="vm.datepicker.publishedAfter.maxDate" datepicker-options="vm.datepicker.dateOptions" date-disabled="disabled(date, mode)"  close-text="Close" required/>
 				              <span class="input-group-btn">
 				                <button type="button" class="btn btn-default" ng-click="vm.datepicker.publishedAfter.open=true"><i class="glyphicon glyphicon-calendar"></i></button>
 				              </span>
@@ -120,7 +120,7 @@
 				        <div class="col-xs-6"  ng-class="{ 'has-error': form.publishedBefore.$dirty && form.publishedBefore.$error.required }">
 		        			<label for="publishedBefore">publishedBefore <i class="glyphicon glyphicon-info-sign" uib-popover="The publishedBefore parameter indicates that the API response should only contain resources created before the specified time." popover-trigger="mouseenter"></i></label>
 				            <div class="input-group">
-				              <input type="text" name="publishedBefore" id="publishedBefore" class="form-control" uib-datepicker-popup="{{vm.datepicker.format}}" ng-model="vm.query.publishedBefore" is-open="vm.datepicker.publishedBefore.open" min-date="vm.datepicker.publishedBefore.minDate" max-date="vm.datepicker.publishedBefore.maxDate" datepicker-options="vm.datepicker.dateOptions" date-disabled="disabled(date, mode)"  close-text="Close" required/>
+				              <input type="text" name="publishedBefore" id="publishedBefore" class="form-control" uib-datepicker-popup="{{vm.datepicker.format}}"  ng-model="vm.query.publishedBefore" is-open="vm.datepicker.publishedBefore.open" min-date="vm.datepicker.publishedBefore.minDate" max-date="vm.datepicker.publishedBefore.maxDate" datepicker-options="vm.datepicker.dateOptions" date-disabled="disabled(date, mode)"  close-text="Close" required/>
 				              <span class="input-group-btn">
 				                <button type="button" class="btn btn-default" ng-click="vm.datepicker.publishedBefore.open=true"><i class="glyphicon glyphicon-calendar"></i></button>
 				              </span>
