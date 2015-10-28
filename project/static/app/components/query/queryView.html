@@ -138,7 +138,7 @@
 			    <h3 class="panel-title" ng-click="vm.optionalIsCollapsed = !vm.optionalIsCollapsed">Optional</h3>
 			  </div>
 			  <div class="panel-body">
-			  <div class="row" uib-collapse="vm.optionalIsCollapsed">
+			  <div class="row" ng-show="!vm.optionalIsCollapsed">
 			    <div class="form-group col-xs-12">
 		            <label for="q">Search Query <i class="glyphicon glyphicon-info-sign" uib-popover="The q parameter specifies the query term to search for. Your request can also use the Boolean NOT (-) and OR (|) operators to exclude videos or to find videos that are associated with one of several search terms. For example, to search for videos matching either 'boating' or 'sailing', set the q parameter value to boating|sailing. Similarly, to search for videos matching either 'boating' or 'sailing' but not 'fishing', set the q parameter value to boating|sailing -fishing." popover-trigger="mouseenter"></i></label>
 		            <input type="text" name="q" id="q" class="form-control" ng-model="vm.query.q" />
