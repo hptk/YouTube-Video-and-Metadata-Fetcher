@@ -163,7 +163,11 @@ class YoutubeVideoMeta(db.Model):
     status_embeddable = db.Column(db.BOOLEAN)
     status_publicStatsViewable = db.Column(db.BOOLEAN)
 
-    contentDetails_duration = db.Column(db.Integer)
+    #the duration of the video is given as a ISO 8601 time interval
+    contentDetails_duration = db.Column(db.VARCHAR(20))
+    #the ISO 8601 time interval calculated into seconds
+    contentDetails_durationAsSeconds = db.Column(db.Integer)
+    
     contentDetails_dimension = db.Column(db.VARCHAR(2))
     contentDetails_definition = db.Column(db.VARCHAR(2))
     #based on google documentation this field is a string, containing 'true' or 'false', if you want to use boolean instead, you have to manually convert the string into bool
