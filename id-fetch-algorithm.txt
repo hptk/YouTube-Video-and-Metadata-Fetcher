@@ -20,6 +20,10 @@ Our approach of receiving an unbiased sample of videos from the API was to have 
 variable parameter which allows us in theory to get all videos from YouTube. The user then has the possibility to select a subsample of all the
 videos available on the YouTube API for further research. After all videos are fetched, the user has a lot of metadata
 
+For the next section we have to define some words.
+A "static parameter set" is meant to be a global search request, like "All videos which are related to the word 'fun', are 2D and have a high video quality"
+A "variable parameter" is a parameter which can be changed for every single request, without changing the meaning of the "static parameter set", but gives us 
+the ability to create many different variations of the "static parameter set" in order to exceed the 500 videos maximum.
  
 There are only four real variable
 parameters in the search.list API endpoint available. All other parameters are in some kind static and would result to a maximum of 500 videos.
@@ -57,9 +61,11 @@ therefore they allow us to modify them without affecting the other parameters an
 In our tool, we provide the full list of all search.list parameters which can optional be set in a static way.
 
 
-After identifying publishedBefore/After as the most suitable variable parameters for out intend and to exceed the 500 video maximum limit for
-a static request, we had to think about how to utilize them in an algorithm.
+After identifying publishedBefore/After as the most suitable variable parameters for our intend and to exceed the 500 video maximum limit for
+a "static parameter set", we had to think about how to utilize them in an algorithm.
 
+The first thought was to let the user define a "static parameter set" and a period of time in which the search should be performed.
+The fir
 
 We have experienced that the API in some situations tells there are multiple pages even if there are less then 50 videos and each page
 contains the exactly same videos.
@@ -67,3 +73,8 @@ So iterating over the pages a single static parameter set has, became a bad idea
 on the next page or Google just wants us to reduce the total results we get and maximize the quota unit costs spent.
 While creating the tool, there were 2305 open issues associated to the YouTube API and some of them were related to
 the behaviors we have experienced.
+
+
+
+The IDFetch and other YouTube API related algorithm are utilizing HTTP persistent connections, which allows to use a single TCP connection to
+send and receive multiple HTTP requests and responses.
