@@ -113,7 +113,7 @@ class VideoRepresentation(db.Model):
                 }
 
 class YoutubeComment(db.Model):
-    __tablename__ = 'commentThread'
+    __tablename__ = 'comment'
 
     video_id = db.Column(db.VARCHAR(12), db.ForeignKey('video.id'))
 
