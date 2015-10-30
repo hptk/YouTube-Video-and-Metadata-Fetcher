@@ -20,7 +20,7 @@ db = SQLAlchemy(app)
 celery = make_celery(app)
 #important to import after app,db and celery is created
 from project.models import User, APIKey, YoutubeQuery
-from tasks import fetch,meta,manifest
+from tasks import fetch,meta,manifest,comments
 
 
 @app.route('/')
@@ -151,6 +151,8 @@ def setTask(id):
 			task = fetch.delay(id)
 		elif action == "MetaFetcher":
 			task = meta.delay(id)
+		elif action == "CommentFetcher":
+			task = comments.delay(id,json_data)
 		elif action == "ManifestFetcher":
 			task = manifest.delay(id)
 			
