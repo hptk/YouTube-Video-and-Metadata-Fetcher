@@ -112,7 +112,7 @@ class VideoRepresentation(db.Model):
                 'codec':self.codec
                 }
 
-class YoutubeCommentThread(db.Model):
+class YoutubeComment(db.Model):
     __tablename__ = 'commentThread'
 
     video_id = db.Column(db.VARCHAR(12), db.ForeignKey('video.id'))
@@ -128,7 +128,7 @@ class YoutubeCommentThread(db.Model):
     # There is a field 'textOriginal', but one is only guaranteed
     # access to this if one is the original author (we never are)
     textDisplay = db.Column(db.VARCHAR(1000))
-    # Only valid for top-level comments
+    # Only valid for top-level comments. -1 for replies
     totalReplyCount = db.Column(db.Integer)
     authorDisplayName = db.Column(db.VARCHAR(100))
     authorProfileImageUrl = db.Column(db.VARCHAR(100))
