@@ -1,16 +1,35 @@
+SECTION "Considerations for YouTube Data API v3"
+
+The YouTube Data API allows
+
+In order to use the API, some requirements have to be met. Every request must either contain an API key, which can
+be generated in the Developers Console[reference] or provide an OAuth 2.0 token.
+
+Resource types
+
+Supported operations
+
+Partial resources
 
 There are different operations supported by the API, such 
 
 
-The YouTube Data API v3 uses a quota in order to limit the maximum number of requests created by a single developer.
+Subsection Quota Usage
+The YouTube Data API v3 utilize a quota in order to limit the maximum number of requests created by a single developer.
+For every request, YouTube calculates the quota by assining costs to it. These 
 All API requests, including invalid requests, are associated with a specific number of quota costs, so called units.
 These units are not for every request the same, it varies depending on the actual request created and also on how
-much data should be responded by the API. For every request, Google calculates the quota by assining costs to it.
+much data should be responded by the API. 
+
 There are two primary factors mentioned by Google which influence a request's quota cost.
 Different types of requests
 
 Our tool uses different API requests to fetch the data from youtube.
 
 One main aspect of your tool is to provide as much data as possible from the YouTube Data API V3 and to reduce
-the quota costs for for the huge amount of requests.
+the quota costs for the huge amount of requests.
 The costs of a request can be defined by
+
+
+References for this section:
+https://developers.google.com/youtube/v3/

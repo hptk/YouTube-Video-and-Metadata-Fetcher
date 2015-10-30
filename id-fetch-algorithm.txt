@@ -34,18 +34,18 @@ q | specifies a query term to search for
 publishedAfter/publishedBefore
 
 
-location+locationRadius
+\subsubsection{location and locationRadius}
 The problem with this parameter is, that not every video on YouTube has specified the location in the metadata.
 Evaluating some hundred thousands of video's metadata has shown that only 5-10% of the videos has specified a location in their metadata.
 We can not verify that this is the average on all videos uploaded on YouTube, but the existens of non-location related videos indicates that
 this parameter is not a good choice to receive an unbiased sample of videos.
 
-channelId
+\subsubsection{channelId}
 In order to use this parameter, we would need to have a list of all channels available on YouTube. This is as much difficult as
 getting all videos of YouTube and therefore this parameter does not suit our needs. Some channels also have some thousands videos uploaded
 and with a static parameter set and only the variable channelId, the API response would have a maximum of 500 videos for these channels.
 
-q
+\subsubsection{q - search term}
 Using this parameter as variable would lead to not having this parameter in a static set and therefore it becomes impossible to receive
 all videos for a single search term. We wanted to have this parameter in a static way in order to provide results
 for search queries like "All videos which are related to the search team 'fun'"
@@ -53,7 +53,7 @@ Although if you try to iterate over this parameter, a huge list of keywords woul
 to be done for every single API search. A search like "All videos which are 3D" with a keyword list containing 100.000 words, would result to
 perform 100.000 requests and costs 1 million units whereas there are only a few 3D videos on YouTube.
 
-publishedAfter/publishedBefore
+\subsubsection{publishedAfter and publishedBefore}
 Those parameters suit most to receive an unbiased sample of YouTube videos. They are completely independent from the other parameters and
 therefore they allow us to modify them without affecting the other parameters and the result of the request.
 
@@ -71,8 +71,7 @@ We have experienced that the API in some situations tells there are multiple pag
 contains the exactly same videos.
 So iterating over the pages a single static parameter set has, became a bad idea because we did not know if there are indeed new videos
 on the next page or Google just wants us to reduce the total results we get and maximize the quota unit costs spent.
-While creating the tool, there were 2305 open issues associated to the YouTube API and some of them were related to
-the behaviors we have experienced.
+
 
 
 
