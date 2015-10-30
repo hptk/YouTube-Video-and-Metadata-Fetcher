@@ -125,8 +125,8 @@ class YouTubeCommentFetcher(RequestBase):
             db_comment['authorChannelId'] = snippet['authorChannelId']['value']
         db_comment['authorGooglePlusProfileUrl'] = comment.get('authorGoogleplusProfileUrl') or ''
         db_comment['likeCount'] = snippet['likeCount']
-        db_comment['publishedAt'] = comment['publishedAt']
-        db_comment['updatedAt'] = comment['updatedAt']
+        db_comment['publishedAt'] = snippet['publishedAt']
+        db_comment['updatedAt'] = snippet['updatedAt']
 
         self.resultList[comment['id']] = db_comment
 
