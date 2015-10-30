@@ -108,8 +108,8 @@ class YoutubeCommmentThread(db.Model):
     # the parentId of the commment snippet.
     # In the case that these two values are the same,
     # the item is a top-level comment.
-    thread_id = db.Column(db.VARCHAR(43));
-    id = db.Column(db.VARCHAR(43), primary_key=True);
+    thread_id = db.Column(db.VARCHAR(100));
+    id = db.Column(db.VARCHAR(100), primary_key=True);
 
     # Snippet data
     # There is a field 'textOriginal', but one is only guaranteed
