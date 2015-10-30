@@ -1,0 +1,4 @@
+\begin{thebibliography}{1}
+\bibitem{conclusion:gdataissue}
+https://code.google.com/p/gdata-issues/issues/list?q=label:API-YouTube
+\end{thebibliography}
