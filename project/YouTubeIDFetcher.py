@@ -25,6 +25,8 @@ class YouTubeIDFetcher(RequestBase):
         del self.query['publishedBefore']
         del self.query['publishedAfter']
         
+        #considering that the URL is only once build at the beginning with all parameter provided by the client, 
+        #so that in "buildRequestURL" only the variable parameter has to be added. Saves computation costs
         url_parts = list(urlparse.urlparse(self.url))
         parameter = dict(urlparse.parse_qsl(url_parts[4]))
         parameter.update(self.query)
@@ -32,12 +34,15 @@ class YouTubeIDFetcher(RequestBase):
         self.defaultURL = urlparse.urlunparse(url_parts)
            
     def calculateTimeframe(self,publishedBefore,frame):
+        """Substracts frame=seconds from a given date and returns the new date"""
         return publishedBefore - datetime.timedelta(seconds=frame)
     
     def formatDate(self,date):
+        """Format the date object into a ISO 8601 string used in the YouTube API"""
         return date.strftime('%FT%TZ')
     
     def buildRequestURL(self, workQueueItem):
+        """Returns the URL for the request with all parameters added"""
         publishedAfter = workQueueItem[0]
         publishedBefore = workQueueItem[1] 
         return self.defaultURL+"&publishedAfter="+self.formatDate(publishedAfter)+"&publishedBefore="+self.formatDate(publishedBefore);
@@ -46,21 +51,25 @@ class YouTubeIDFetcher(RequestBase):
         result = json.load(response)
         if "items" in result:
             req_results = len(result['items'])
-            #do something with the data
+            #add each video ID to the global resultList dictionary as a key
             for item in result['items']:
                 self.resultList[str(item['id']['videoId'])]=None
                 
             publishedAfter = workQueueItem[0]
             publishedBefore = workQueueItem[1]
             secondsTimeSpan = int((publishedBefore-publishedAfter).total_seconds())
-            #slice the timeframe if has more pages and more results than 50 and the timespan is bigger than 1 (maybe there are more than 50 videos per second and it will result in a loop)
+            #slice the timeframe if the response has more pages, 50 items and the timespan is bigger than 1 (maybe there are more than 50 videos per second and it will result in a loop)
             if "nextPageToken" in result and req_results==50 and secondsTimeSpan > 1:
                 midDate = publishedAfter+(publishedBefore-publishedAfter)/2
-                #add new timeframes to queue
+                #add new timeframes to the end of the workQueue
                 self.putWorkQueueItem((publishedAfter,midDate-datetime.timedelta(seconds=1)))
                 self.putWorkQueueItem((midDate,publishedBefore)) 
     
     def initWorkQueue(self):
+        """Initializes the workQueue at the start.
+            The global period of time selected by the user is divided into n same size disjunct smaller time frames.
+            Whereby n is the amount of concurrent HTTPclients in order to parallelize the requests from the very beginning
+        """
         self.totalFrame = int((self.publishedBefore-self.publishedAfter).total_seconds())
         self.secondsPerFrame = int(self.totalFrame/(self.numberHTTPClients))
         self.initFrames = int(self.totalFrame/self.secondsPerFrame)
