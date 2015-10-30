@@ -1,0 +1,105 @@
+\section{Architecture}
+A client-server model with a REST API was chosen as the tool architecture. The
+proposed solution allows the tool to be used by multiple users simultaneously,
+as well as enabling deployment to distributed systems with distinct roles,
+responsibilities, and hardware resources.
+The frontend is a simple thin client whose sole job is relaying commands to a
+server and showing the returned results. The server is tasked with obtaining
+and processing the available YouTube data, and otherwise interacting with the
+API.
+Local deployment is a viable option, given sufficient storage and networking
+capabilities.
+
+
+\subsection{Client}
+The user interface of the tool is written in AngularJS, an open-source framework
+that facilitates easy setup and management of single-page web applications using
+the model-view-controller (MVC) pattern.~\cite{architecture:angularjs}
+
+The frontend is separated into four main pages that each have a specific
+function: Management of API keys, creation of API queries, creation of celery
+tasks, and results presentation.
+
+
+\subsubsection{User management}
+
+
+\subsubsection{API key management}
+
+The API key management page lets the user register API keys to his account.
+API keys are instantly validated and, if valid, added to the dropdown list of
+available keys on the query builder page.
+While only a single key is required per API request (in the absence of OAuth
+2.0), having access to multiple keys makes for quick and easy testing and the
+ability to generate keys for a specific purpose or dataset. The latter is
+shown in action on the results page, where the user can view statistics filtered
+by a given API key.
+
+
+\subsubsection{Query Builder}
+On this page the user has the possibility to define his search query. Based on our algorithm and the YouTube API requirements, there are
+three required fields.The API key, publishedAfter and publishedBefore parameter.
+In a hidden collapsed section we have integrated almost any parameters provided by the YouTube API search.list endpoint as optional fields, 
+such as video dimension, video duration, relevance language and much more. Every field has a popover displaying the description from the YouTube
+API documentation.
+Having such a big set of parameters, the user is able to build complex and highly variable search queries.
+Actually some parameters provided by the API are omitted because they are only usable to search own audio visual content uploaded on YouTube.
+
+Before a query is send to the server and stored in the database, it will be validated by creating a request to the YouTube API whereby
+the user gets a real time error description if the current composition of parameters is invalid. This client side validation is useful 
+to not only prevent invalid search queries to be stored in the databse but also to give the user a feeling for the YouTube API without having
+a long introduction on how to use the query builder.
+
+\subsubsection{Task Page}
+After a user has defined his search query, he can run several tasks on the query.
+
+
+\subsubsection{Result page}
+On the result page we have aggregated some statistics about the videos which are received by a selected query. 
+Because the aggregation can take a lot of time for a big dataset, every section on this pages does asynchronously load the result by 
+requesting the server only if it is necessary. Per default there are three sections loaded on the initilization of the page. 
+First, a summary of the current selected query, containing informations about how many videos were found, how many
+metadata, comments and video representations from the DASH mdp file are related to the found videos and stored in the database. 
+Second, a pie chart and table showing the top 10 categories. Third, a table showing 
+associated queries which were created in the past but share some videos within the group of the current query's videos.
+In the table there is a visualisation of the videos percentage intersection, which allows
+the user to quickly identify related search queries. It might be relevant to see how multiple queries are connected to each other after
+manipulating only one search parameter as we will see in the experimential results section.
+
+For some numeric values such as the views, comments, likes, dislikes and duration we also provide statistical aggregations of the minimum,
+maximum, average and standard deviation for the selected query compared to all videos saved in the database.
+
+
+\subsection{Server}
+The server is written in python
+
+\subsubsection{Background tasks}
+Since we already have a centralized server which processes all tasks created by the clients, such as searching for 
+video IDs and extracting the metadata, we had to think about how to run these tasks in a non-blocking way.
+This is important
+because the users might want to create multiple tasks at once and the frontend should not be blocked until one long running task
+is finished. In order to solve this problem, we had to utilize a task queue system and select a message broker to feed the task queue.
+We have evaluated Celery as our task queue and Redis as a message broker as the most suitable packages available for python.
+
+Celery is an asynchronous task queue based on distributed messages~\cite{architecture:celery}
+Redis itself is an open-source, networked, in-memory key-value data structure server.~\cite{architecture:redis} For our
+purpose we do not utilize the full capabilities of Celery and Redis, since we have one centralized server, but using
+this architecture from the very beginning makes it easy to distribute our tool on multiple servers which process the individual tasks and only
+have some light weight clients which request our API.
+This might be important for performance improvements and further developments.
+
+After the user has scheduled a task from the client user interface, the task is pushed to Redis and is in a pending state until a Celery worker is available to run the task in
+the background. While running the tasks in the background, celery provides an interface to update the current task's state. At this point it is important to have a different 
+result backend than the normal database where we want to store the received data from the YouTube API. Because each task updates his own state after every request to the YouTube API 
+in order to provide the client real time informations about the current state of a task. This results in multiple updates every second for a single task where there 
+might be multiple tasks running in concurrency. Using the database on the disk as the result backend would lead to a high
+disk I/O only for sharing the task's state with the client and block the saving of the data received by the YouTube API which would dramatically slow down the complete process.
+Since we already have Redis as our broker system with an in-memory data structure, we use it as the result backend for our tasks and only store the tasks informations 
+in the database persistently after the task has finished.
+
+
+
+
+
+
+
