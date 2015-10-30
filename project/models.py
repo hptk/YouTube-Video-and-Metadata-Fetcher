@@ -112,7 +112,7 @@ class VideoRepresentation(db.Model):
                 'codec':self.codec
                 }
 
-class YoutubeCommmentThread(db.Model):
+class YoutubeCommentThread(db.Model):
     __tablename__ = 'commentThread'
 
     video_id = db.Column(db.VARCHAR(12), db.ForeignKey('video.id'))
