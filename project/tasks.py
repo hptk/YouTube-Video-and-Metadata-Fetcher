@@ -82,10 +82,8 @@ def comments(self,queryId):
         query.tasks.append(current_task)
         db.session.commit()
 
-        fetcher = YouTubeCommentFetcher('https://www.googleapis.com/youtube/v3/commentThreads', 50, 50, self)
-        result  fetcher.work()
-        #fetcher = YouTubeMetaFetcher("https://www.googleapis.com/youtube/v3/videos",queryId,50,50,self)
-        #result = fetcher.work()
+        fetcher = YouTubeCommentFetcher('https://www.googleapis.com/youtube/v3', 50, 50, self)
+        result = fetcher.work()
 
         current_task.result = json.dumps(result)
         current_task.state = result['state']
