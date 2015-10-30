@@ -11,7 +11,6 @@ from urlparse import parse_qs;
 from project import db
 from project.models import QueryVideoMM
 logger = logging.getLogger('tasks')
-import pprint
 
 class YouTubeMPDFetcher(RequestBase):
 
@@ -59,9 +58,9 @@ class YouTubeMPDFetcher(RequestBase):
                     self.resultList[uniqueKey]= {}
                     self.resultList[uniqueKey]['video_id'] = video_id
                     self.resultList[uniqueKey]['mimeType'] = adaptation['@mimeType'] if '@mimeType' in adaptation else ''
-                    self.resultList[uniqueKey]['bandwidth'] = representation['@bandwidth'] if '@bandwidth' in adaptation else ''
-                    self.resultList[uniqueKey]['codecs'] = representation['@codecs'] if '@codecs' in adaptation else ''
-                    self.resultList[uniqueKey]['frameRate'] = ''
+                    self.resultList[uniqueKey]['bitrate'] = representation['@bandwidth'] if '@bandwidth' in adaptation else ''
+                    self.resultList[uniqueKey]['codec'] = representation['@codecs'] if '@codecs' in adaptation else ''
+                    self.resultList[uniqueKey]['framerate'] = ''
                     self.resultList[uniqueKey]['width'] = ''
                     self.resultList[uniqueKey]['height'] = ''
 
@@ -73,9 +72,9 @@ class YouTubeMPDFetcher(RequestBase):
                     self.resultList[uniqueKey]= {}
                     self.resultList[uniqueKey]['video_id'] = video_id
                     self.resultList[uniqueKey]['mimeType'] = adaptation['@mimeType'] if '@mimeType' in adaptation  else ''
-                    self.resultList[uniqueKey]['bandwidth'] = representation['@bandwidth'] if '@bandwidth' in representation else ''
-                    self.resultList[uniqueKey]['codecs'] = representation['@codecs'] if '@codecs' in representation else ''
-                    self.resultList[uniqueKey]['frameRate'] = representation['@frameRate'] if '@frameRate' in representation else ''
+                    self.resultList[uniqueKey]['bitrate'] = representation['@bandwidth'] if '@bandwidth' in representation else ''
+                    self.resultList[uniqueKey]['codec'] = representation['@codecs'] if '@codecs' in representation else ''
+                    self.resultList[uniqueKey]['framerate'] = representation['@frameRate'] if '@frameRate' in representation else ''
                     self.resultList[uniqueKey]['width'] = representation['@height'] if '@height' in representation  else ''
                     self.resultList[uniqueKey]['height'] = representation['@width'] if '@width' in representation else ''
 
