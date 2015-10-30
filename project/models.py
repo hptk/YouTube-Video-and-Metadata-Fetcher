@@ -134,7 +134,7 @@ class YoutubeComment(db.Model):
     authorProfileImageUrl = db.Column(db.VARCHAR(100))
     authorChannelUrl = db.Column(db.VARCHAR(100))
     authorChannelId = db.Column(db.VARCHAR(100))
-    authorGooglePlusProfileUrl = db.Column(dv.VARCHAR(100))
+    authorGooglePlusProfileUrl = db.Column(db.VARCHAR(100))
     likeCount = db.Column(db.Integer)
 
     publishedAt = db.Column(db.DateTime(timezone=True))

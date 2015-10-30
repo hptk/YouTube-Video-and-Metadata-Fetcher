@@ -2,22 +2,16 @@
 
 from RequestBase import RequestBase
 import datetime
-import urlparse
 import urllib
 import dateutil.parser
 import pprint
 import time
 import json
-import os
-import sys
-from urllib2 import urlopen, unquote;
-from urlparse import parse_qs;
-import xmltodict
 from pprint import pprint
-#from project import db
+from project import db
 import logging
-import xml.etree.ElementTree as ET
-#from project.models import YoutubeQuery
+
+from project.models import QueryVideoMM
 logger = logging.getLogger('tasks')
 
 # This class handles both commentThreads and replies.
@@ -36,11 +30,9 @@ logger = logging.getLogger('tasks')
 
 _COMMENTHREADS_MAXRESULTS = 100
 _COMMENTS_MAXRESULTS = 100
-apikey=''
+apikey='AIzaSyA99dYY8k12G93N9SP5DzmHc95gH5-aIfI'
 
 class YouTubeCommentFetcher(RequestBase):
-
-    result_list = {}
 
     def buildRequestURL(self, workQueueItem):
         request = self.url
@@ -59,10 +51,10 @@ class YouTubeCommentFetcher(RequestBase):
         return request
 
     def initWorkQueue(self):
-        video_ids = db.session.query(QueryVideoMM).filter_by(QueryVideoMM.youtube_query_id == self.parameter['video_id'])
-        for video_id in video_ids:
+        video_ids = db.session.query(QueryVideoMM).filter_by(youtube_query_id=self.parameter['queryId'])
+        for video in video_ids:
             self.putWorkQueueItem([True,
-                                   video_id,
+                                   video.video_id,
                                    '',
                                    self.parameter['get_replies']])
 
@@ -97,7 +89,7 @@ class YouTubeCommentFetcher(RequestBase):
                                            comment_thread['id']])
 
         for comment_thread in result['items']:
-            saveTemporary(workQueueItem, comment_thread)
+            self.saveTemporary(workQueueItem, comment_thread)
         print 'Got %d comments for videoId:%s, PNT:%s' % (result['pageInfo']['totalResults'], workQueueItem[1], workQueueItem[2])
 
     def handleRequestSuccessReplies(self, workQueueItem, result):
@@ -127,15 +119,15 @@ class YouTubeCommentFetcher(RequestBase):
         db_comment['authorProfileImageUrl'] = comment['snippet']['authorProfileImageUrl']
         db_comment['authorChannelUrl'] = comment['snippet']['authorChannelUrl']
         db_comment['authorChannelId'] = comment['snippet']['authorChannelId']['value']
-        db_comment['authorGooglePlusProfileUrl'] = comment['authorGooglePlusProfileUrl']
+        db_comment['authorGooglePlusProfileUrl'] = comment['authorGoogleplusProfileUrl']
         db_comment['likeCount'] = comment['likeCount']
         db_comment['publishedAt'] = comment['publishedAt']
         db_comment['updatedAt'] = comment['updatedAt']
 
-        self.result_list[comment['id']] = db_comment
+        self.resultList[comment['id']] = db_comment
 
     def saveResult(self):
-        if len(self.result_list) == 0:
+        if len(self.resultList) == 0:
             return
 
         self.updateProgress('SAVING')
@@ -152,7 +144,7 @@ class YouTubeCommentFetcher(RequestBase):
         logger.info('saving comments')
         db.engine.execute(YoutubeComment.__table__
                                         .insert(replace_string='INSERT OR REPLACE'),
-                          self.result_list.values())
+                          self.resultList.values())
 
 if __name__ == '__main__':
     apikey = 'AIzaSyA99dYY8k12G93N9SP5DzmHc95gH5-aIfI'

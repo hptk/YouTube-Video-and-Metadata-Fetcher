@@ -1,6 +1,7 @@
 from YouTubeIDFetcher import YouTubeIDFetcher
 from YouTubeMetaFetcher import YouTubeMetaFetcher
 from YouTubeMPDFetcher import YouTubeMPDFetcher
+from YouTubeCommentFetcher import YouTubeCommentFetcher
 from project import celery
 from project import db
 from celery.signals import task_prerun
@@ -73,7 +74,7 @@ def manifest(self,queryId):
 
 
 @celery.task(bind=True)
-def comments(self,queryId):
+def comments(self,queryId,parameters):
     with celery.app.app_context():
         from project.models import YoutubeQuery, Task
         query = YoutubeQuery.query.filter_by(id=queryId).first()
@@ -81,8 +82,10 @@ def comments(self,queryId):
         current_task = Task(self.request.id,"CommentFetcher")
         query.tasks.append(current_task)
         db.session.commit()
-
-        fetcher = YouTubeCommentFetcher('https://www.googleapis.com/youtube/v3', 50, 50, self)
+        parameter = {}
+        parameter['queryId'] = queryId
+        parameter['get_replies'] = False
+        fetcher = YouTubeCommentFetcher('https://www.googleapis.com/youtube/v3',parameter, 50, 50, self)
         result = fetcher.work()
 
         current_task.result = json.dumps(result)
