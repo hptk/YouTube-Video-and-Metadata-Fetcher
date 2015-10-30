@@ -11,7 +11,6 @@ from urlparse import parse_qs;
 from project import db
 from project.models import QueryVideoMM
 logger = logging.getLogger('tasks')
-import pprint
 
 class YouTubeMPDFetcher(RequestBase):
 
@@ -32,11 +31,20 @@ class YouTubeMPDFetcher(RequestBase):
         #download manifest
         video_info = parse_qs(unquote(response.read().decode('utf-8')))
         try:
-            manifest_url = video_info["dashmpd"][0]
+            manifest_url = video_info['dashmpd'][0]
             manifest_file = urlopen(manifest_url).read()
             manifest = xmltodict.parse(manifest_file)['MPD']['Period']['AdaptationSet']
         except:
-            logger.info(str(video_id)+" has no dashmpd or is not accessible")
+            if 'reason' in video_info:
+                logger.info('MPD fething failed for '+str(video_id)+' : '+video_info['reason'][0])
+            elif 'errorcode' in video_info:
+                logger.info('MPD fething failed for '+str(video_id)+' : errorcode '+video_info['errorcode'][0])
+            elif 'errordetail' in video_info:
+                logger.info('MPD fething failed for '+str(video_id)+' : errordetail '+video_info['errordetail'][0])
+            elif 'status' in video_info:
+                logger.info('MPD fething failed for '+str(video_id)+' : status '+video_info['status'][0]+' (possibly live stream)')
+            else:
+                logger.info('MPD fething failed for '+str(video_id)+' : unknown error')
             return
 
         for adaptation in manifest:
@@ -48,11 +56,11 @@ class YouTubeMPDFetcher(RequestBase):
                 for representation in representations:
                     uniqueKey = str(video_id)+str(representation['@id'])
                     self.resultList[uniqueKey]= {}
-                    self.resultList[uniqueKey]['video_id'] = video_id 
+                    self.resultList[uniqueKey]['video_id'] = video_id
                     self.resultList[uniqueKey]['mimeType'] = adaptation['@mimeType'] if '@mimeType' in adaptation else ''
-                    self.resultList[uniqueKey]['bandwidth'] = representation['@bandwidth'] if '@bandwidth' in adaptation else ''
-                    self.resultList[uniqueKey]['codecs'] = representation['@codecs'] if '@codecs' in adaptation else ''
-                    self.resultList[uniqueKey]['frameRate'] = ''
+                    self.resultList[uniqueKey]['bitrate'] = representation['@bandwidth'] if '@bandwidth' in adaptation else ''
+                    self.resultList[uniqueKey]['codec'] = representation['@codecs'] if '@codecs' in adaptation else ''
+                    self.resultList[uniqueKey]['framerate'] = ''
                     self.resultList[uniqueKey]['width'] = ''
                     self.resultList[uniqueKey]['height'] = ''
 
@@ -64,9 +72,9 @@ class YouTubeMPDFetcher(RequestBase):
                     self.resultList[uniqueKey]= {}
                     self.resultList[uniqueKey]['video_id'] = video_id
                     self.resultList[uniqueKey]['mimeType'] = adaptation['@mimeType'] if '@mimeType' in adaptation  else ''
-                    self.resultList[uniqueKey]['bandwidth'] = representation['@bandwidth'] if '@bandwidth' in representation else ''
-                    self.resultList[uniqueKey]['codecs'] = representation['@codecs'] if '@codecs' in representation else ''
-                    self.resultList[uniqueKey]['frameRate'] = representation['@frameRate'] if '@frameRate' in representation else ''
+                    self.resultList[uniqueKey]['bitrate'] = representation['@bandwidth'] if '@bandwidth' in representation else ''
+                    self.resultList[uniqueKey]['codec'] = representation['@codecs'] if '@codecs' in representation else ''
+                    self.resultList[uniqueKey]['framerate'] = representation['@frameRate'] if '@frameRate' in representation else ''
                     self.resultList[uniqueKey]['width'] = representation['@height'] if '@height' in representation  else ''
                     self.resultList[uniqueKey]['height'] = representation['@width'] if '@width' in representation else ''
 
