@@ -63,7 +63,7 @@ def manifest(self,queryId):
         query.tasks.append(current_task)
         db.session.commit()
 
-        fetcher = YouTubeMPDFetcher("https://www.googleapis.com/youtube/v3/videos",queryId,50,50,self)
+        fetcher = YouTubeMPDFetcher("https://www.youtube.com/get_video_info",queryId,50,50,self)
         result = fetcher.work()
 
         current_task.result = json.dumps(result)

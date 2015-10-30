@@ -1,18 +1,99 @@
 'use strict';
+angular.module('ui.chart', []).directive('uiChart', function() {
+    return {
+        restrict : 'EACM',
+        template : '<div></div>',
+        replace : true,
+        link : function(scope, elem, attrs) {
+            var renderChart = function() {
+                var data = scope.$eval(attrs.uiChart);
+                elem.html('');
+                if (!angular.isArray(data)) {
+                    return;
+                }
 
+                var opts = {};
+                if (!angular.isUndefined(attrs.chartOptions)) {
+                    opts = scope.$eval(attrs.chartOptions);
+                    if (!angular.isObject(opts)) {
+                        throw 'Invalid ui.chart options attribute';
+                    }
+                }
+
+                elem.jqplot(data, opts);
+            };
+
+            scope.$watch(attrs.uiChart, function() {
+                renderChart();
+            }, true);
+
+            scope.$watch(attrs.chartOptions, function() {
+                renderChart();
+            });
+        }
+    };
+});
 define(['app'], function (app) {
 
-    
-    app.register.controller('resultController', ['APIKeyService','queryService','taskService', '$rootScope','$routeParams','$location','$timeout','$filter',
-     function (APIKeyService,queryService,taskService, $rootScope, $routeParams, $location, $timeout,$filter,charting) {
 
-        var vm = this;
+    
+    app.register.controller('resultController', ['queryService','resultService','$scope', '$rootScope','$routeParams','$location','$timeout','$filter',
+     function (queryService,resultService, $scope, $rootScope, $routeParams, $location, $timeout,$filter,charting) {
+        $scope.categoriesChartOptions = {
+            seriesDefaults : {
+                // use the pie chart renderer
+                renderer : jQuery.jqplot.PieRenderer,
+                rendererOptions : {
+                    // Put data labels on the pie slices.
+                    // By default, labels show the percentage of the slice.
+                    showDataLabels : true
+                }
+            },
+            legend: {
+                show: true,
+                rendererOptions: {
+                    
+                },
+                location: 'w'
+            }
+        };
+
+        $scope.publishedAtChartOptions = {
+        		seriesDefaults : {
+                    // use the bar chart renderer
+                    renderer : $.jqplot.LineRenderer,
+                    rendererOptions : {
+                       
+                    },
+                    
+                    
+                },
+                axes: {
+                    xaxis: {
+                        renderer: $.jqplot.DateAxisRenderer,
+                        tickOptions:{formatString:'%b %#d'},
+                        tickInterval:'2 days'
+                    }
+                }
+                
+        };
         
+        var vm = this;
+        vm.sortType = 'intersection'
         vm.loadOldQueries = loadOldQueries;
-        vm.createTask = createTask;
+        vm.changeToResult = changeToResult;
+        vm.loadAdditionalData = loadAdditionalData;
         vm.oldTasks = [];
         vm.oldQueries = [];
-        vm.runningTasks = [];
+        vm.result = [];
+        vm.result.viewCount = null;
+        vm.result.commentCount = null;
+		vm.result.likeCount = null;
+		vm.result.dislikeCount = null;
+
+        $scope.plot = [];
+        $scope.plot.publishedAt = [];
+        $scope.plot.category = [];
         vm.maxOldQueries = {
         	    availableOptions: [
         	      {value: '10', name: '10'},
@@ -22,149 +103,101 @@ define(['app'], function (app) {
         	      {value: '50', name: '50'},
         	      {value: '100', name: '100'}
         	    ],
-        	    selectedOption: {value: '100', name: '100'} //This sets the default value of the select in the ui
+        	    selectedOption: {value: '20', name: '20'} //This sets the default value of the select in the ui
         	    };
-        
-        vm.taskOptions = [
-							{ name: 'Fetches only the Video IDs for the selected query' , type:'IDFetcher'},
-							{ name: 'Fetches the meta data for the videos which are associated with the selected query' , type:'MetaFetcher'},
-							{ name: 'Download the videos which are associated with the selected query' , type:'VideoFetcher'}
-                      ];
         
         
         initController();
-        
-        
         function initController() {
         	
             loadOldQueries();
             if(typeof $routeParams.id !== 'undefined') {
-            	loadHashQuery();
+            	loadResults("summary");
+            	loadResults("intersection");
+            	loadResults("category");
+            	
+            	vm.loadedResult =  $routeParams.id;
             }
         }
         
-        
-        vm.someData = [[
-                            ['Heavy Industry', 12],['Retail', 9], ['Light Industry', 14],
-                            ['Out of home', 16],['Commuting', 7], ['Orientation', 9]
-                          ]];
-
-                          //vm.myChartOpts = charting.pieChartOptions
-        
-        
-        function changeToQuery(id) {
-        	$location.path("/query/"+id)
+        function changeToResult(id) {
+        	$location.path("/result/"+id)
         }
         
-        function loadHashQuery() {
-        	queryService.getQuery($routeParams.id)
+        function loadResults(section) {
+        	vm.loadedResult = false
+        	resultService.getResults($routeParams.id,section)
         		.then(function (data) {
         			if(data.success===true)
         			{
-        				vm.loadedQuery = true
-        				vm.dataCheckingQuery = true
-        				vm.query = data.query.queryRaw;
-        				vm.selectedOldQuery = data.query
         				
-        				queryService.testQuery(vm.query)
-        	    		.then(function (response) {
-        	    			if(response.code)
-        	    			{
-        	    				alert(response.message)
-        	        			vm.dataCheckingQuery = false;
-        	    			}
-        	    			else {
-        	    				vm.loadedQueryStatus = true
-        	    				vm.dataCheckingQuery = false;
-        	    	    	}
-        	    	    			
-        	    	    	});
-        				vm.dataCheckingQuery = false;
+        				vm.loadedResult = $routeParams.id;
+        				if(section=="intersection") {
+        					vm.result.intersection = data.statistics
+        				}
+        
+        				if(section=="publishedAt" && !vm.result.publishedAt) {
+        					vm.result.publishedAt = data.statistics
+        					vm.temp = [];
+            				angular.forEach(vm.result.publishedAt,function(day){
+            					vm.temp.push([day.date,day.count]);
+            				});
+            				
+            				$scope.plot.publishedAt.push(vm.temp);
+        				}
+        				
+        				if(section=="statistics_viewCount" && !vm.result.viewCount) {
+        					vm.result.viewCount = data.statistics.statistics_viewCount
+        				}
+        				if(section=="statistics_commentCount" && !vm.result.commentCount) {
+        					vm.result.commentCount = data.statistics.statistics_commentCount
+        				}
+        				if(section=="statistics_likeCount" && !vm.result.likeCount) {
+        					vm.result.likeCount = data.statistics.statistics_likeCount
+        				}
+        				if(section=="statistics_dislikeCount" && !vm.result.dislikeCount) {
+        					vm.result.dislikeCount = data.statistics.statistics_dislikeCount
+        				}
+        				if(section=="summary") {
+        					vm.result.summary = data.statistics
+        				}
+        				if(section=="category") {
+        					vm.result.category = data.statistics
+        					vm.temp = [];
+            				angular.forEach(vm.result.category,function(category){
+            					vm.temp.push([category.id+" "+category.name,category.count]);
+            				});
+            				
+            				$scope.plot.category.push(vm.temp);
+        				}
+        				
         			} else {
-        				vm.loadedQuery = false
-        				alert("could not fetch query from server");
+        				vm.loadedResult = false
+        				vm.result.error = "could not fetch result from server";
         			}
         		});
         }
         
-       function createTask(id,action) {
-    	   vm.createTaskClicked = true;
-    	   vm.dataCheckingQuery = true;
-    	   taskService.createTask(id,action)
-   			.then(function (data) {
-   				if(data.success===true)
-   				{
-   					//vm.task = data.task;
-   					var taskCopy = angular.copy(data.task)
-   					vm.dataCheckingQuery = false;
-   					addTaskToList(taskCopy);
-   					updateProgress(taskCopy)
-   				}
-   				else
-   				{
-   					alert("some serverside error");
-   					vm.createTaskClicked = false;
-   					vm.dataCheckingQuery = false;
-   				}
-   			});
-       }
-       function addTaskToList(task)
-       {
-    	   vm.runningTasks.push(task)
-       }
-       function removeTaskFromList(task)
-       {
-    	   
-       }
-       function getTaskFromList(task_id)
-       {
-    	   return $filter("filter")(vm.runningTasks,{task_id:task_id});
-       }
-       function updateProgress(task)
-       {
-    	   
-    	   vm.showProgress=true;
-    	   taskService.getProgress(task.progress_url)
-    	   .then(function (data) {
-  				if(data.success!==false)
-  				{
-  					if(data.state=='PENDING') {
-  						
-  					} else {
-  						
-  						task.progress = []
-  						task.progress = data
-  						task.progress.max = data.workQueueDone+data.workQueue;
-  	  					//vm.taskprogressmax = data.workQueueDone+data.workQueue;
-  	  					//vm.taskprogressvalue = data.workQueueDone;
-  	  					//vm.taskprogresscurrent = data.current;
-  					}
-  						
-  					
-  					if (data.state != 'PENDING' && data.state != 'PROGRESS' && data.state!='SAVING') {
-  		                if ('result' in data) {
-  		                    // show result
-  		                	task.result = data.result;
-  		                	task.current = data.current;
-  		                	//vm.taskprogresscurrent = data.result
-  		                	vm.loadOldQueries()
-  		                }
-  		                else {
-  		                    // something unexpected happened
-  		                	task.error = data.state;
-  		                }
-  		            }
-  		            else {
-  		                // rerun in 1 seconds
-  		                $timeout(function(){updateProgress(task)},1000);
-  		            }
-  					//vm.task.progress = angular.toJson(data);
-  					
-  				}
-  				
-  			});
-    	   vm.dataCheckingQuery = false;
-       }
+        function loadAdditionalData(section) {
+        	
+        	if(section=="publishedAt" && !vm.result.publishedAt) {
+				loadResults(section);
+			}
+        	
+        	if(section=="statistics_viewCount" && !vm.result.viewCount) {
+				loadResults(section);
+			}
+        	if(section=="statistics_commentCount" && !vm.result.commentCount) {
+				loadResults(section);
+			}
+        	if(section=="statistics_likeCount" && !vm.result.likeCount) {
+				loadResults(section);
+			}
+        	if(section=="statistics_dislikeCount" && !vm.result.dislikeCount) {
+				loadResults(section);
+			}
+        }
+        
         
         function loadOldQueries() {
         	

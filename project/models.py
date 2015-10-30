@@ -11,6 +11,7 @@ from sqlalchemy.event import listen
 from sqlalchemy.pool import Pool
 import sqlite3
 import math
+from sqlalchemy.sql.expression import desc
 
 #http://stackoverflow.com/questions/2298339/standard-deviation-for-sqlite
 class StdevFunc:
@@ -43,6 +44,18 @@ def my_on_connect(dbapi_con, connection_record):
     dbapi_con.create_aggregate("stdev", 1, StdevFunc)
 
 listen(Pool, 'connect', my_on_connect)
+
+class VideoCategory(db.Model):
+
+    __tablename__ = "categories"
+    id = db.Column(db.Integer,primary_key=True)
+    title = db.Column(db.VARCHAR(255))
+    channel_id = db.Column(db.VARCHAR(15))
+
+    def __init__(self,id,channel_id,title):
+        self.id = id
+        self.title = title
+        self.channel_id = channel_id
 
 class User(db.Model):
 
@@ -179,7 +192,11 @@ class YoutubeVideoMeta(db.Model):
     status_embeddable = db.Column(db.BOOLEAN)
     status_publicStatsViewable = db.Column(db.BOOLEAN)
 
-    contentDetails_duration = db.Column(db.Integer)
+    #the duration of the video is given as a ISO 8601 time interval
+    contentDetails_duration = db.Column(db.VARCHAR(20))
+    #the ISO 8601 time interval calculated into seconds
+    contentDetails_durationAsSeconds = db.Column(db.Integer)
+
     contentDetails_dimension = db.Column(db.VARCHAR(2))
     contentDetails_definition = db.Column(db.VARCHAR(2))
     #based on google documentation this field is a string, containing 'true' or 'false', if you want to use boolean instead, you have to manually convert the string into bool
@@ -190,6 +207,9 @@ class YoutubeVideoMeta(db.Model):
     recordingDetails_location_longitude = db.Column(db.Float(precision='10,6'))
     recordingDetails_location_altitude = db.Column(db.Float(precision='10,6'))
     recordingDetails_recordingDate = db.Column(db.DateTime(timezone=True))
+
+    def getCategoryId(self):
+        return self.snippet_category_id
 
     def as_dict(self):
         return {
@@ -270,122 +290,121 @@ class YoutubeQuery(db.Model):
     def __init__(self,queryRaw):
         self.queryHash = base64.urlsafe_b64encode(queryRaw)
         self.queryRaw = queryRaw
+
     def count_videos(self):
+        """Returns the amount of videos fetched by this query"""
         return len(self.videos)
 
     def count_tasks(self):
+        """Returns of many tasks where performed for this query"""
         return len(self.tasks)
 
     def count_video_meta(self):
-        #SELECT count(*) as count FROM meta LEFT OUTER JOIN query_video_mm ON query_video_mm.video_id=meta.id WHERE query_video_mm.youtube_query_id=<query_id>
-        #r = db.session.query(YoutubeVideoMeta, db.func.count()).outerjoin((QueryVideoMM, QueryVideoMM.video_id == YoutubeVideoMeta.id)).filter_by(youtube_query_id=self.id)#YoutubeVideoMeta.query
+        """Returns the amount of meta data associated to this query"""
         metas = YoutubeVideoMeta.query.outerjoin((QueryVideoMM, QueryVideoMM.video_id == YoutubeVideoMeta.id)).filter_by(youtube_query_id=self.id)
         count = metas.count()
         return count
 
-    def getDateHistogram(self):
+    def count_dash(self):
+        """Returns the amount of dash representations associated to this query"""
+        dashs = VideoRepresentation.query.outerjoin((QueryVideoMM, QueryVideoMM.video_id == VideoRepresentation.video_id)).filter_by(youtube_query_id=self.id)
+        count = dashs.count()
+        return count
+
+    def get_statistics_dayHistogram(self):
+        """Returns a dictonary which contains an aggregation of day=>amount"""
         dates_query = db.session.query(YoutubeVideoMeta,db.func.count().label("count"),db.func.date(YoutubeVideoMeta.snippet_publishedAt).label("date")).outerjoin((QueryVideoMM, QueryVideoMM.video_id == YoutubeVideoMeta.id)).filter_by(youtube_query_id=self.id).group_by(db.func.strftime('%Y',YoutubeVideoMeta.snippet_publishedAt),db.func.strftime('%m',YoutubeVideoMeta.snippet_publishedAt),db.func.strftime('%d',YoutubeVideoMeta.snippet_publishedAt)).order_by(YoutubeVideoMeta.snippet_publishedAt)
         dates = dates_query.all()
-        return [{date.date:date.count} for date in dates]
+        return [{"date":date.date,"count":date.count} for date in dates]
 
     def getAggregations(self,table,field,forQuery=False):
+        """Gets an aggregation of the table.field max,min,avg,sum,stdev
+        forQuery: parameter to select the current query, or global
+        """
         if forQuery:
             res = db.session.query(table,db.func.stdev(field).label("stdev"),db.func.max(field).label("max"),db.func.min(field).label("min"),db.func.sum(field).label("sum"),db.func.avg(field).label("avg")).filter(field!='').outerjoin((QueryVideoMM, QueryVideoMM.video_id == YoutubeVideoMeta.id)).filter_by(youtube_query_id=self.id)
         else:
             res = db.session.query(table,db.func.stdev(field).label("stdev"),db.func.max(field).label("max"),db.func.min(field).label("min"),db.func.sum(field).label("sum"),db.func.avg(field).label("avg")).filter(field!='')
-        #print res
         row = res.one()
         return row
 
-    def get_statistics(self):
-        #import logging
-        #logging.basicConfig()
-        #logging.getLogger('sqlalchemy.engine').setLevel(logging.DEBUG)
-        dates = self.getDateHistogram()
-        globalLikeStat = self.getAggregations(YoutubeVideoMeta,YoutubeVideoMeta.statistics_likeCount,forQuery=False)
-        queryLikeStat = self.getAggregations(YoutubeVideoMeta,YoutubeVideoMeta.statistics_likeCount,forQuery=True)
-        globalDislikeStat = self.getAggregations(YoutubeVideoMeta,YoutubeVideoMeta.statistics_dislikeCount,forQuery=False)
-        queryDislikeStat = self.getAggregations(YoutubeVideoMeta,YoutubeVideoMeta.statistics_dislikeCount,forQuery=True)
+    def get_statistics_percentile(self,table,field):
+        """Gets the 0.1-1.0 percentile of table.field"""
+        dict = {}
+        for x in xrange(1,11):
+            dict[x] = db.session.execute("select statistics_viewCount as percentile from meta order by percentile asc limit 1 OFFSET 19346*"+str(x)+"/10-1").first().percentile
 
-        globalCommentStat = self.getAggregations(YoutubeVideoMeta,YoutubeVideoMeta.statistics_commentCount,forQuery=False)
-        queryCommentStat = self.getAggregations(YoutubeVideoMeta,YoutubeVideoMeta.statistics_commentCount,forQuery=True)
 
-        globalViewStat = self.getAggregations(YoutubeVideoMeta,YoutubeVideoMeta.statistics_viewCount,forQuery=False)
-        queryViewStat = self.getAggregations(YoutubeVideoMeta,YoutubeVideoMeta.statistics_viewCount,forQuery=True)
-
-        #find the queries which have an intersection with this query's result(same videos)
+    def get_statistics_assocQuery(self):
+        """Performs a backward search to find all queries which have an intersection with the videos, this query has fetched"""
         backrefs = db.session.execute("select first.youtube_query_id as queryid, count(*) as count, second.youtube_query_id as backrefQuery from query_video_mm as first JOIN query_video_mm as second on second.video_id=first.video_id WHERE first.youtube_query_id="+str(self.id)+" AND backrefQuery!="+str(self.id)+" GROUP BY backrefQuery ORDER BY count DESC")
         backrefsQueries = []
         for row in backrefs:
-            backrefsQueries.append({'query':row.backrefQuery,'count':row.count})
-        return {
-                'intersection':backrefsQueries,
-                'query': {
-                          'videos':len(self.videos),
-                          'meta':self.count_video_meta(),
-                          'day_histogram':dates,
-                          'likes': {
-                                    'max':queryLikeStat.max,
-                                    'min':queryLikeStat.min,
-                                    'sum':queryLikeStat.sum,
-                                    'avg':queryLikeStat.avg,
-                                    'stdev':queryLikeStat.stdev
-                                    },
-                            'dislikes': {
-                                    'max':queryDislikeStat.max,
-                                    'min':queryDislikeStat.min,
-                                    'sum':queryDislikeStat.sum,
-                                    'avg':queryDislikeStat.avg,
-                                    'stdev':queryDislikeStat.stdev
-                                    },
-                            'comment': {
-                                    'max':queryCommentStat.max,
-                                    'min':queryCommentStat.min,
-                                    'sum':queryCommentStat.sum,
-                                    'avg':queryCommentStat.avg,
-                                    'stdev':queryCommentStat.stdev
-                                    },
-                            'view': {
-                                    'max':queryViewStat.max,
-                                    'min':queryViewStat.min,
-                                    'sum':queryViewStat.sum,
-                                    'avg':queryViewStat.avg,
-                                    'stdev':queryViewStat.stdev
-                                    },
-                          },
-                'all': {
-                        'count':YoutubeVideo.query.count(),
+            backrefsQueries.append({'query':YoutubeQuery.query.filter_by(id=row.backrefQuery).first().as_dict(),'count':row.count,'reference':len(self.videos)})
+        return backrefsQueries
+
+    def get_statistic_categories(self):
+        categories = db.session.execute("SELECT  count(*) AS total, meta.snippet_category_id AS category_id FROM meta LEFT OUTER JOIN query_video_mm ON query_video_mm.video_id = meta.id WHERE query_video_mm.youtube_query_id ="+str(self.id)+" GROUP BY meta.snippet_category_id ORDER BY total DESC LIMIT 10")
+        return [{"id":row.category_id,"count":row.total,"name":VideoCategory.query.filter_by(id=row.category_id).first().title} for row in categories]
+
+    def get_statistic_section(self,section):
+        """Returns only a section of the complete statistics"""
+
+        if section=="summary":
+            return {
+                    'data': {
+                        'videos':len(self.videos),
+                        'meta':self.count_video_meta(),
+                        'dash':self.count_dash(),
+                    },
+                    'global': {
+                        'videos':YoutubeVideo.query.count(),
                         'meta':YoutubeVideoMeta.query.count(),
-                        'likes': {
-                                    'max':globalLikeStat.max,
-                                    'min':globalLikeStat.min,
-                                    'sum':globalLikeStat.sum,
-                                    'avg':globalLikeStat.avg,
-                                    'stdev':globalLikeStat.stdev
-                                    },
-                            'dislikes': {
-                                    'max':globalDislikeStat.max,
-                                    'min':globalDislikeStat.min,
-                                    'sum':globalDislikeStat.sum,
-                                    'avg':globalDislikeStat.avg,
-                                    'stdev':globalDislikeStat.stdev
-                                    },
-                            'comment': {
-                                    'max':globalCommentStat.max,
-                                    'min':globalCommentStat.min,
-                                    'sum':globalCommentStat.sum,
-                                    'avg':globalCommentStat.avg,
-                                    'stdev':globalCommentStat.stdev
-                                    },
-                            'view': {
-                                    'max':globalViewStat.max,
-                                    'min':globalViewStat.min,
-                                    'sum':globalViewStat.sum,
-                                    'avg':globalViewStat.avg,
-                                    'stdev':globalViewStat.stdev
-                                    },
-                          },
-        }
+                        }
+                    }
+        elif section=="publishedAt":
+            return self.get_statistics_dayHistogram()
+
+        elif section=="intersection":
+            return self.get_statistics_assocQuery()
+
+        elif section=="statistics_likeCount" or section=="statistics_dislikeCount" or section=="statistics_commentCount" or section=="statistics_viewCount":
+            table = YoutubeVideoMeta
+            if section=="statistics_likeCount":
+                field = YoutubeVideoMeta.statistics_likeCount
+            elif section=="statistics_dislikeCount":
+                field = YoutubeVideoMeta.statistics_dislikeCount
+            elif section=="statistics_commentCount":
+                field = YoutubeVideoMeta.statistics_commentCount
+            elif section=="statistics_viewCount":
+                field = YoutubeVideoMeta.statistics_viewCount
+
+            globalStat = self.getAggregations(table,field,forQuery=False)
+            queryStat = self.getAggregations(table,field,forQuery=True)
+            #queryPercentile = self.get_statistics_percentile(table,field)
+            return {
+                    section:{
+                             'data':{
+                                      'max':queryStat.max,
+                                      'min':queryStat.min,
+                                      'sum':queryStat.sum,
+                                      'avg':queryStat.avg,
+                                      'stdev':queryStat.stdev
+                                      },
+                             #'percentile': queryPercentile,
+                             'global':{
+                                       'max':globalStat.max,
+                                       'min':globalStat.min,
+                                       'sum':globalStat.sum,
+                                       'avg':globalStat.avg,
+                                       'stdev':globalStat.stdev
+                              }
+                             }
+            }
+        elif section=="category":
+            categories = self.get_statistic_categories()
+            return categories
+
     def as_dict(self):
         return {
             'id':self.id,

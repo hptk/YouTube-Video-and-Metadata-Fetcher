@@ -11,9 +11,9 @@ require(
         'shared/services/APIKeyService',
         'shared/services/queryService',
         'shared/services/taskService',
+        'shared/services/resultService',
         'shared/services/authenticationService',
-        'shared/services/flashService',
-        
+        'shared/services/flashService',        
     ],
     function () {
         angular.bootstrap(document, ['youtubeApp']);

@@ -5,16 +5,33 @@ import logging
 import time
 import pprint
 import json
+import re
 import dateutil.parser
 from datetime import datetime
 logger = logging.getLogger('tasks')
 class YouTubeMetaFetcher(RequestBase):
     
     def chunkHelper(self,data,SIZE=50):
+        """Chunks a given dictonary in smaller dictionaries of the size SIZE"""
         it=iter(data)
         for i in xrange(0,len(data),SIZE):
             yield {k for k in islice(it, SIZE)}
-       
+            
+    def ISO8601durationToSeconds(self,duration):
+        """Converts a ISO 8601 interval like PT15M33S into seconds"""
+        match = re.match('P(?:(?:([0-9,.]*)Y)?(?:([0-9,.]*)M)?(?:([0-9,.]*)D)?(?:T(?:([0-9,.]*)H)?(?:([0-9,.]*)M)?(?:([0-9,.]*)S)?)?|([0-9,.]*)W)', duration).groups()
+        years = self.parseInt(match[0]) if match[0] else 0
+        months = self.parseInt(match[1]) if match[1] else 0
+        days = self.parseInt(match[2]) if match[2] else 0
+        hours = self.parseInt(match[3]) if match[3] else 0
+        minutes = self.parseInt(match[4]) if match[4] else 0
+        seconds = self.parseInt(match[5]) if match[5] else 0
+        return years *31536000 + months * 2628000 + days*86400 + hours * 3600 + minutes * 60 + seconds
+
+    def parseInt(self,string):
+        """Converts a string into integer"""
+        return int(string)
+   
     def initWorkQueue(self):
         """initialize the working queue, selecting all video ids for the given query id"""
         #nice to have: only select which do not have meta data yet in order 
@@ -42,7 +59,9 @@ class YouTubeMetaFetcher(RequestBase):
         result = json.load(response)
         if "items" in result:
             for item in result['items']:
+                #
                 #database maping
+                #
                 self.resultList[item['id']]= {}
                 self.resultList[item['id']]["id"] = item['id']
                         
@@ -61,6 +80,7 @@ class YouTubeMetaFetcher(RequestBase):
                     
                 #contentDetails
                 self.resultList[item['id']]["contentDetails_duration"] = item['contentDetails']['duration']
+                self.resultList[item['id']]["contentDetails_durationAsSeconds"] = self.ISO8601durationToSeconds(item['contentDetails']['duration'])
                 self.resultList[item['id']]["contentDetails_dimension"] = item['contentDetails']['dimension']
                 self.resultList[item['id']]["contentDetails_definition"] = item['contentDetails']['definition']
                 self.resultList[item['id']]["contentDetails_caption"] = item['contentDetails']['caption']

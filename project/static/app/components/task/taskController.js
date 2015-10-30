@@ -133,7 +133,7 @@ define(['app'], function (app) {
   					}
   						
   					
-  					if (data.state != 'PENDING' && data.state != 'PROGRESS' && data.state!='SAVING') {
+  					if (data.state != 'PENDING' && data.state != 'PROGRESS' && data.state!='SAVING' && data.state!='DONE') {
   		                if ('result' in data) {
   		                    // show result
   		                	task.result = data.result;

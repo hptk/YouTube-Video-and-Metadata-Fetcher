@@ -31,9 +31,9 @@ define(['app'], function (app) {
             return deferred.promise;
         }
         
-        function getQuery(hash) {
+        function getQuery(id) {
         	var deferred = $q.defer();
-        	$http.get('/api/queries/'+hash)
+        	$http.get('/api/queries/'+id)
                 .success(function(data, status){
                     if(data.success===true) {
                         deferred.resolve(data);

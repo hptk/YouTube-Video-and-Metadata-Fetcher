@@ -201,18 +201,17 @@ def getQuery(id):
 		return jsonify({'success': True,'query':query.as_dict()})
 	except:
 		pass
-
-@app.route('/api/statistics/<int:id>', methods=['GET'])
-def getQueryStatistics(id):
+	
+@app.route('/api/statistics/<int:id>/<section>', methods=['GET'])
+def getQueryStatisticSection(id,section):
 	try:
 		query = YoutubeQuery.query.filter_by(id=id).first()
 		if query:
-			return jsonify({'success': True,'statistics':query.get_statistics()})
+			return jsonify({'success': True,'statistics':query.get_statistic_section(section)})
 		else:
 			return jsonify({'success': False})
 	except:
-		return jsonify({'success': False})
-		
+		return jsonify({'success': False})		
 		
 
 @app.route('/api/queries/list/<int:amount>', methods=['GET'])

@@ -1,6 +1,385 @@
 <div ng-include src="'static/app/shared/topnavigation/navigationView.html'"></div>
 <div class="container">
 
-<div ui-chart="vm.someData" chart-options="vm.myChartOpts" ></div>
+<div class="panel panel-default">
+		  <div style="width:100%;" class="panel-heading btn" uib-dropdown>
+		    
+		    
+		      <h3 class="panel-title" uib-dropdown-toggle ng-disabled="disabled">
+		        {{vm.maxOldQueries.selectedOption.value}} recent queries <span class="caret"></span>
+		      </h3>
+		      
+		      <ul class="uib-dropdown-menu" role="menu" style="width:100%;">
+		      
+		      	<li ng-repeat="option in vm.maxOldQueries.availableOptions">
+		      		<a ng-click="vm.maxOldQueries.selectedOption.value=option.value;vm.loadOldQueries()">{{option.value}} recent queries</a>
+		      	</li>
 
+		      </ul> 
+		  </div>
+		  <div style="padding:0px;" class="panel-body">
+		    <ui-select ng-model="vm.selectedOldQuery" on-select="vm.changeToResult($select.selected.id)">
+			            <ui-select-match placeholder="Select a recent query">
+			            {{$select.selected.id}}
+			            </ui-select-match>
+			            <ui-select-choices repeat="query as query in vm.oldQueries  | filter: $select.search">
+			            <div class="row">
+			            	<div class="col-xs-12 col-sm-6">
+			              <div ng-bind-html="query.id | highlight: $select.search"></div>
+			              <div ng-repeat="(key, value) in query.queryRaw" class="clearfix">
+			              	<small class="pull-left">{{key}}:</small>
+			              	<small class="pull-right" ng-bind-html="value | highlight: $select.search"></small>
+			             </div>
+			             </div>
+			             <div class="col-xs-12 col-sm-6">
+			             <span>Performed Tasks</span>
+			             <div ng-repeat="task in query.tasks track by task.id" class="clearfix">
+			             	
+			             	<div class="clearfix">
+			             	<div class="pull-left"  ng-bind-html="task.action | highlight: $select.search"></div>
+			             	<small class="pull-right" ng-bind-html="task.created_on"></small>
+			             	
+			             	</div>
+			             	<div class="clearfix">
+			              		<small class="pull-left">Result</small>
+			              		<small class="pull-right" ng-bind-html="task.result.result"></small>
+			              	</div>
+			             </div>
+			            </div>
+			            </div>
+			            </ui-select-choices>
+			            
+			          </ui-select>
+		</div>
+		  </div>
+
+
+<div class="row">
+<div class="col-xs-4">
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h3 class="panel-title">Saved Informations</h3>
+  </div>
+  <div class="panel-body">
+	  <ul>
+	  	<li><b class="pull-left">Videos:</b><span class="pull-right">{{vm.result.summary.data.videos}}</span></li>
+	  	<li><b class="pull-left">Metadata:</b><span class="pull-right">{{vm.result.summary.data.meta}}</span></li>
+	  	<li><b class="pull-left">DASH Representations:</b><span class="pull-right">{{vm.result.summary.data.dash}}</span></li>
+	  	<li><b class="pull-left">Comments:</b><span class="pull-right"></span>{{vm.result.summary.data.comments}}</li>
+	  </ul>
+
+  </div>
+</div>
+</div>
+<div class="col-xs-8">
+<div class="panel panel-default">
+			  <div class="panel-heading btn" style="width:100%;"">
+			    <h3 class="panel-title" ng-click="vm.publishedAtIsCollapsed = !vm.publishedAtCollapsed; vm.loadAdditionalData('publishedAt')">publishedAt <i class="glyphicon glyphicon-info-sign" uib-popover="Click on it to load the data, it can take some time" popover-trigger="mouseenter"></i></h3>
+			  </div>
+			  <div class="panel-body">
+				<div class="row" ng-show="vm.publishedAtIsCollapsed">
+					<div class="loading" ng-show="!vm.result.publishedAt">Loading data...</div>
+					
+    					<div ng-if="plot.publishedAt.length" ui-chart="plot.publishedAt" chart-options="publishedAtChartOptions"></div>
+  					
+				</div>
+</div>
+</div>
+</div>
+</div>
+<div class="row">
+
+<div class="col-xs-12">
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h3 class="panel-title">Associated Queries <i class="glyphicon glyphicon-info-sign" uib-popover="Associated queries are queries which have also received some of the videos fetched by the current selected query" popover-trigger="mouseenter"></i></h3>
+  </div>
+  <div class="panel-body">
+  <div class="form-group">
+      <div class="input-group">
+        <div class="input-group-addon"><i class="fa fa-search"></i></div>
+        <input type="text" class="form-control" placeholder="Search Query" ng-model="searchKey">
+      </div>      
+    </div>
+    <table class="table table-bordered table-striped">
+    
+    <thead>
+      <tr>
+        <td>
+          <a  ng-click="sortType = 'id'; sortReverse = !sortReverse">
+            ID
+            <span ng-show="sortType == 'id' && !sortReverse" class="fa fa-caret-down"></span>
+            <span ng-show="sortType == 'id' && sortReverse" class="fa fa-caret-up"></span>
+          </a>
+        </td>
+        <td>
+          <a  ng-click="sortType = 'parameter'; sortReverse = !sortReverse">
+          Parameters
+            <span ng-show="sortType == 'parameter' && !sortReverse" class="fa fa-caret-down"></span>
+            <span ng-show="sortType == 'parameter' && sortReverse" class="fa fa-caret-up"></span>
+          </a>
+        </td>
+        <td>
+          <a ng-click="sortType = 'intersection'; sortReverse = !sortReverse">
+          Intersection <i class="glyphicon glyphicon-info-sign" uib-popover="How many of the current query's videos are also fetched by other queries" popover-trigger="mouseenter"></i>
+            <span ng-show="sortType == 'intersection' && !sortReverse" class="fa fa-caret-down"></span>
+            <span ng-show="sortType == 'intersection' && sortReverse" class="fa fa-caret-up"></span>
+          </a>
+        </td>
+        
+        <td>
+        Action
+        </td>
+      </tr>
+    </thead>
+    
+    <tbody>
+      <tr  ng-repeat="assoc in vm.result.intersection | orderBy:sortType:sortReverse | filter:searchKey">
+        <td >{{ assoc.query.id }}</td>
+        <td>
+        	<ul>
+				<li ng-repeat="(key, value) in assoc.query.queryRaw " >
+					<b class="pull-left">{{ key }}:</b> <span class="pull-right">{{ value }}</span>
+				</li>
+			</ul>
+        </td>
+        <td>
+        	<span class="pull-right">{{assoc.count}} / {{assoc.reference}}</span>
+        	<uib-progressbar style="display:block;width:100%;" max="assoc.reference" value="assoc.count"><span style="color:white; white-space:nowrap;">{{((assoc.count/assoc.reference)*100|number:0)}} %</span></uib-progressbar>
+        	
+        </td>
+  		
+        <td>
+        	<a class="btn btn-primary" href="#/result/{{ assoc.query.id }}">Load result for {{ assoc.query.id }}</a><br>
+        	<a class="btn btn-primary" href="#/query/{{ assoc.query.id }}">Open Query Builder for {{ assoc.query.id }}</a>
+        </td>
+      </tr>
+    </tbody>
+    
+  </table>
+  </div>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+			  <div class="panel-heading btn" style="width:100%;"">
+			    <h3 class="panel-title" ng-click="vm.viewIsCollapsed = !vm.viewIsCollapsed; vm.loadAdditionalData('statistics_viewCount')">Views <i class="glyphicon glyphicon-info-sign" uib-popover="Click on it to load the data, it can take some time" popover-trigger="mouseenter"></i></h3>
+			  </div>
+			  <div class="panel-body">
+				<div class="row" ng-show="vm.viewIsCollapsed;">
+					<div class="loading" ng-show="!vm.result.viewCount">Loading data...</div>
+					<div ng-show="vm.result.viewCount">
+						<table class="table table-bordered table-striped">
+    					<thead>
+      						<tr>
+        						<td><b>Scope</b> <i class="glyphicon glyphicon-info-sign" uib-popover="'Global'=based on all data in the database. 'This Query'=only based on the data related to this query" popover-trigger="mouseenter"></i></td>
+        						<td>Min</td>
+        						<td>Max</td>
+        						<td>Sum</td>
+        						<td>Avg</td>
+        						<td>Stdev</td>
+      						</tr>
+    					</thead>
+    					<tbody>
+    					<tr>
+    						<td><b>Global</b></td>
+    						<td><span class="pull-right">{{vm.result.viewCount.global.min}}</span></td>
+    						<td><span class="pull-right">{{vm.result.viewCount.global.max}}</span></td>
+    						<td><span class="pull-right">{{vm.result.viewCount.global.sum}}</span></td>
+    						<td><span class="pull-right">{{vm.result.viewCount.global.avg|number:2}}</span></td>
+    						<td><span class="pull-right">{{vm.result.viewCount.global.stdev|number:2}}</span></td>
+    					<tr>
+    					<tr>
+    						<td><b>This Query (ID:{{vm.loadedResult}})</b></td>
+    						<td><span class="pull-right">{{vm.result.viewCount.data.min}}</span></td>
+    						<td><span class="pull-right">{{vm.result.viewCount.data.max}}</span></td>
+    						<td><span class="pull-right">{{vm.result.viewCount.data.sum}}</span></td>
+    						<td><span class="pull-right">{{vm.result.viewCount.data.avg|number:2}}</span></td>
+    						<td><span class="pull-right">{{vm.result.viewCount.data.stdev|number:2}}</span></td>
+    					<tr>
+    					</tbody>
+    				</table>
+					</div>
+				</div>
+			</div>
+			</div>
+			
+<div class="panel panel-default">
+			  <div class="panel-heading btn" style="width:100%;"">
+			    <h3 class="panel-title" ng-click="vm.commentIsCollapsed = !vm.commentIsCollapsed; vm.loadAdditionalData('statistics_commentCount')">Comments <i class="glyphicon glyphicon-info-sign" uib-popover="Click on it to load the data, it can take some time" popover-trigger="mouseenter"></i></h3>
+			  </div>
+			  <div class="panel-body">
+				<div class="row" ng-show="vm.commentIsCollapsed">
+					<div class="loading" ng-show="!vm.result.commentCount">Loading data...</div>
+					<div ng-show="vm.result.commentCount">
+						<table class="table table-bordered table-striped">
+    					<thead>
+      						<tr>
+        						<td><b>Scope</b> <i class="glyphicon glyphicon-info-sign" uib-popover="'Global'=based on all data in the database. 'This Query'=only based on the data related to this query" popover-trigger="mouseenter"></i></td>
+        						<td>Min</td>
+        						<td>Max</td>
+        						<td>Sum</td>
+        						<td>Avg</td>
+        						<td>Stdev</td>
+      						</tr>
+    					</thead>
+    					<tbody>
+    					<tr>
+    						<td><b>Global</b></td>
+    						<td><span class="pull-right">{{vm.result.commentCount.global.min}}</span></td>
+    						<td><span class="pull-right">{{vm.result.commentCount.global.max}}</span></td>
+    						<td><span class="pull-right">{{vm.result.commentCount.global.sum}}</span></td>
+    						<td><span class="pull-right">{{vm.result.commentCount.global.avg|number:2}}</span></td>
+    						<td><span class="pull-right">{{vm.result.commentCount.global.stdev|number:2}}</span></td>
+    					<tr>
+    					<tr>
+    						<td><b>This Query (ID:{{vm.loadedResult}})</b></td>
+    						<td><span class="pull-right">{{vm.result.commentCount.data.min}}</span></td>
+    						<td><span class="pull-right">{{vm.result.commentCount.data.max}}</span></td>
+    						<td><span class="pull-right">{{vm.result.commentCount.data.sum}}</span></td>
+    						<td><span class="pull-right">{{vm.result.commentCount.data.avg|number:2}}</span></td>
+    						<td><span class="pull-right">{{vm.result.commentCount.data.stdev|number:2}}</span></td>
+    					<tr>
+    					</tbody>
+    				</table>
+					</div>
+				</div>
+			</div>
+			</div>
+
+<div class="panel panel-default">
+			  <div class="panel-heading btn" style="width:100%;"">
+			    <h3 class="panel-title" ng-click="vm.likesIsCollapsed = !vm.likesIsCollapsed; vm.loadAdditionalData('statistics_likeCount')">Likes <i class="glyphicon glyphicon-info-sign" uib-popover="Click on it to load the data, it can take some time" popover-trigger="mouseenter"></i></h3>
+			  </div>
+			  <div class="panel-body">
+				<div class="row" ng-show="vm.likesIsCollapsed">
+					<div class="loading" ng-show="!vm.result.likeCount">Loading data...</div>
+					<div ng-show="vm.result.likeCount">
+						<table class="table table-bordered table-striped">
+    					<thead>
+      						<tr>
+        						<td><b>Scope</b> <i class="glyphicon glyphicon-info-sign" uib-popover="'Global'=based on all data in the database. 'This Query'=only based on the data related to this query" popover-trigger="mouseenter"></i></td>
+        						<td>Min</td>
+        						<td>Max</td>
+        						<td>Sum</td>
+        						<td>Avg</td>
+        						<td>Stdev</td>
+      						</tr>
+    					</thead>
+    					<tbody>
+    					<tr>
+    						<td><b>Global</b></td>
+    						<td><span class="pull-right">{{vm.result.likeCount.global.min}}</span></td>
+    						<td><span class="pull-right">{{vm.result.likeCount.global.max}}</span></td>
+    						<td><span class="pull-right">{{vm.result.likeCount.global.sum}}</span></td>
+    						<td><span class="pull-right">{{vm.result.likeCount.global.avg|number:2}}</span></td>
+    						<td><span class="pull-right">{{vm.result.likeCount.global.stdev|number:2}}</span></td>
+    					<tr>
+    					<tr>
+    						<td><b>This Query (ID:{{vm.loadedResult}})</b></td>
+    						<td><span class="pull-right">{{vm.result.likeCount.data.min}}</span></td>
+    						<td><span class="pull-right">{{vm.result.likeCount.data.max}}</span></td>
+    						<td><span class="pull-right">{{vm.result.likeCount.data.sum}}</span></td>
+    						<td><span class="pull-right">{{vm.result.likeCount.data.avg|number:2}}</span></td>
+    						<td><span class="pull-right">{{vm.result.likeCount.data.stdev|number:2}}</span></td>
+    					<tr>
+    					</tbody>
+    				</table>
+					</div>
+				</div>
+			</div>
+			</div>
+
+<div class="panel panel-default">
+			  <div class="panel-heading btn" style="width:100%;"">
+			    <h3 class="panel-title" ng-click="vm.dislikeIsCollapsed = !vm.dislikeIsCollapsed; vm.loadAdditionalData('statistics_dislikeCount')">Dislikes <i class="glyphicon glyphicon-info-sign" uib-popover="Click on it to load the data, it can take some time" popover-trigger="mouseenter"></i></h3>
+			  </div>
+			  <div class="panel-body">
+				<div class="row" ng-show="vm.dislikeIsCollapsed">
+					<div class="loading" ng-show="!vm.result.dislikeCount">Loading data...</div>
+					<div ng-show="vm.result.dislikeCount">
+						<table class="table table-bordered table-striped">
+    					<thead>
+      						<tr>
+        						<td><b>Scope</b> <i class="glyphicon glyphicon-info-sign" uib-popover="'Global'=based on all data in the database. 'This Query'=only based on the data related to this query" popover-trigger="mouseenter"></i></td>
+        						<td>Min</td>
+        						<td>Max</td>
+        						<td>Sum</td>
+        						<td>Avg</td>
+        						<td>Stdev</td>
+      						</tr>
+    					</thead>
+    					<tbody>
+    					<tr>
+    						<td><b>Global</b></td>
+    						<td><span class="pull-right">{{vm.result.dislikeCount.global.min}}</span></td>
+    						<td><span class="pull-right">{{vm.result.dislikeCount.global.max}}</span></td>
+    						<td><span class="pull-right">{{vm.result.dislikeCount.global.sum}}</span></td>
+    						<td><span class="pull-right">{{vm.result.dislikeCount.global.avg|number:2}}</span></td>
+    						<td><span class="pull-right">{{vm.result.dislikeCount.global.stdev|number:2}}</span></td>
+    					<tr>
+    					<tr>
+    						<td><b>This Query (ID:{{vm.loadedResult}})</b></td>
+    						<td><span class="pull-right">{{vm.result.dislikeCount.data.min}}</span></td>
+    						<td><span class="pull-right">{{vm.result.dislikeCount.data.max}}</span></td>
+    						<td><span class="pull-right">{{vm.result.dislikeCount.data.sum}}</span></td>
+    						<td><span class="pull-right">{{vm.result.dislikeCount.data.avg|number:2}}</span></td>
+    						<td><span class="pull-right">{{vm.result.dislikeCount.data.stdev|number:2}}</span></td>
+    					<tr>
+    					</tbody>
+    				</table>
+					</div>
+				</div>
+			</div>
+			</div>
+			
+			
+						
+
+<div class="row">
+<div class="col-xs-6 col-sm-6">
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h3 class="panel-title">Top 10 Categories</h3>
+  </div>
+  <div class="panel-body">
+    <div ng-if="plot.category.length" ui-chart="plot.category" chart-options="categoriesChartOptions"></div>
+  </div>
+</div>
+</div>
+
+<div class="col-xs-6 col-sm-6">
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h3 class="panel-title">Top 10 Categories</h3>
+  </div>
+  <div class="panel-body">
+    <table class="table table-bordered table-striped">
+    
+    <thead>
+      <tr>
+        <td>Category ID</td>
+        <td>Category Name</td>
+        <td>Count</td>
+
+      </tr>
+    </thead>
+    
+    <tbody>
+      <tr  ng-repeat="cat in vm.result.category | orderBy:sortTypeCategory:sortReverse">
+        <td >{{ cat.id }}</td>
+        <td> {{ cat.name }}</td>
+        <td> {{ cat.count }}</td>
+  		
+      
+      </tr>
+    </tbody>
+    
+  </table>
+  </div>
+</div>
+</div>
+
+</div>
+</div>
 </div>
