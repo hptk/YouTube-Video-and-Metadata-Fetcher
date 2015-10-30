@@ -128,7 +128,7 @@ class YoutubeComment(db.Model):
     # There is a field 'textOriginal', but one is only guaranteed
     # access to this if one is the original author (we never are)
     textDisplay = db.Column(db.VARCHAR(1000))
-    # Only valid for top-level comments. -1 for replies
+    # Only valid for top-level comments. Always 0 for replies
     totalReplyCount = db.Column(db.Integer)
     authorDisplayName = db.Column(db.VARCHAR(100))
     authorProfileImageUrl = db.Column(db.VARCHAR(100))

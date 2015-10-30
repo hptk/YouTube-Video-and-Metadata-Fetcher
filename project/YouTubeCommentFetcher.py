@@ -53,6 +53,7 @@ class YouTubeCommentFetcher(RequestBase):
     def initWorkQueue(self):
         video_ids = db.session.query(QueryVideoMM).filter_by(youtube_query_id=self.parameter['queryId'])
         for video in video_ids:
+            #logger.info('Logging: ' + str([True, video.video_id, '', self.parameter['get_replies']]))
             self.putWorkQueueItem([True,
                                    video.video_id,
                                    '',
@@ -90,7 +91,7 @@ class YouTubeCommentFetcher(RequestBase):
 
         for comment_thread in result['items']:
             self.saveTemporary(workQueueItem, comment_thread)
-        print 'Got %d comments for videoId:%s, PNT:%s' % (result['pageInfo']['totalResults'], workQueueItem[1], workQueueItem[2])
+        logger.info('Got %d comments for videoId:%s, PNT:%s' % (result['pageInfo']['totalResults'], workQueueItem[1], workQueueItem[2]))
 
     def handleRequestSuccessReplies(self, workQueueItem, result):
         if result.get('nextPageToken'):
@@ -101,26 +102,29 @@ class YouTubeCommentFetcher(RequestBase):
 
         for comment in result['items']:
             self.saveTemporary(workQueueItem, comment)
-        print 'Got %d replies for parentId:%s, PNT:%s' % (len(result['items']), workQueueItem[3], workQueueItem[2])
+        logger.info('Got %d replies for parentId:%s, PNT:%s' % (len(result['items']), workQueueItem[3], workQueueItem[2]))
 
     # Resource is either a comment_thread or a comment
     def saveTemporary(self, workQueueItem, resource):
         comment = resource
         if workQueueItem[0]:
             comment = resource['snippet']['topLevelComment']
+        snippet = comment['snippet']
 
         db_comment = {}
         db_comment['video_id'] = str(workQueueItem[1])
         db_comment['thread_id'] = resource['id'] if workQueueItem[0] else workQueueItem[3]
         db_comment['id'] = comment['id']
-        db_comment['textDisplay'] = comment['snippet']['textDisplay']
-        db_comment['totalReplyCount'] = resource['snippet']['totalReplyCount'] if workQueueItem[0] else -1
-        db_comment['authorDisplayName'] = comment['snippet']['authorDisplayName']
-        db_comment['authorProfileImageUrl'] = comment['snippet']['authorProfileImageUrl']
-        db_comment['authorChannelUrl'] = comment['snippet']['authorChannelUrl']
-        db_comment['authorChannelId'] = comment['snippet']['authorChannelId']['value']
-        db_comment['authorGooglePlusProfileUrl'] = comment['authorGoogleplusProfileUrl']
-        db_comment['likeCount'] = comment['likeCount']
+        db_comment['textDisplay'] = snippet['textDisplay']
+        db_comment['totalReplyCount'] = resource['snippet']['totalReplyCount'] if workQueueItem[0] else 0
+        db_comment['authorDisplayName'] = snippet['authorDisplayName']
+        db_comment['authorProfileImageUrl'] = snippet['authorProfileImageUrl']
+        db_comment['authorChannelUrl'] = snippet['authorChannelUrl']
+        db_comment['authorChannelId'] = ''
+        if snippet.get('authorChannelId') and snippet['authorChannelId'].get('value'):
+            db_comment['authorChannelId'] = snippet['authorChannelId']['value']
+        db_comment['authorGooglePlusProfileUrl'] = comment.get('authorGoogleplusProfileUrl') or ''
+        db_comment['likeCount'] = snippet['likeCount']
         db_comment['publishedAt'] = comment['publishedAt']
         db_comment['updatedAt'] = comment['updatedAt']
 
