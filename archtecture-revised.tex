@@ -63,39 +63,10 @@ Progress bars are updated in real-time. %TODO: too short and list-y. Reword?
 
 \subsubsection{Result page}
 The Result page contains selected statistics for the dataset returned by a given
-query.
-...
-Due to the heavy work required to aggregate the necessary data, each section of
-the page loads asynchronously on demand.
-
-Of particular note is the graph showing the intersection between datasets. This
+query. Of particular note is the graph showing the intersection between datasets. This
 allows the user to quickly identify closely related queries, and can be helpful
 in e.g. parameter studies.
-%TODO: finish
-% All of the commented text below is superfluous, though some of it may be
-% salvageable. We need some way to glue the above sentences together.
-
-% On the result page we have aggregated some statistics about the videos which are
-% received by a selected query. Because the aggregation can take a lot of time for
-% a big dataset, every section on this pages does asynchronously load the result
-% by requesting the server only if it is necessary. Per default there are three
-% sections loaded on the initilization of the page. First, a summary of the
-% current selected query, containing informations about how many videos were
-% found, how many metadata, comments and video representations from the DASH mdp
-% file are related to the found videos and stored in the database. Second, a pie
-% chart and table showing the top 10 categories. Third, a table showingassociated
-% queries which were created in the past but share some videos within the group of
-% the current query's videos.
-% In the table there is a visualisation of the videos percentage intersection,
-% which allows the user to quickly identify related search queries. It might be
-% relevant to see how multiple queries are connected to each other after
-% manipulating only one search parameter as we will see in the experimential
-% results section.
-
-% For some numeric values such as the views, comments, likes, dislikes and
-% duration we also provide statistical aggregations of the minimum, maximum,
-% average and standard deviation for the selected query compared to all videos
-% saved in the database.
+%TODO: Maybe refine a bit.
 
 
 \subsection{Server}
