@@ -3,6 +3,9 @@ tags
 *apikey*
 *APIkey*
 client_secrets.json
-res/*
+downloads/*
+migrations/*
+project/*
+dump.rdb
 *.pyc
 *.swp

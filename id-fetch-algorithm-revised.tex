@@ -1,32 +1,46 @@
-For the ID-Fetching algorithm we utilize the search.list API endpoint, which returns
-a collection of search results for given parameters specified in the request.
+For the ID-fetching algorithm we utilize the search.list API endpoint, which
+returns a collection of search results for a given set of parameters. The API %TODO: This should be written out in full early on, and thereafter referred to only as "The API"
+provides a rich set of parameters to tune, but there are some inherent
+limitations that have to be taken into consideration when designing an unbiased
+algorithm.
 
-There are 
-Altought the API's search.list endpount provides a lot of different parameters, we had to solve some problems
+The search.list response will contain at most 50 videos. There may be
+multiple pages, as indicated by a \texttt{nextPageToken}, but no more than ten
+pages are returned for any one set of parameters. We want to access the %TODO: unpersonalize?
+complete list of video ID's for a given set of parameters, thus the chosen
+algorithm has to split the user input into multiple subqueries that by
+themselves do not match more than 500 videos.
 
-The YouTube Data API v3's video search endpoint has a lot of different parameters for requesting a list of
-videos matching these parameters. For example the user can define . 
-A full list of the parameters can be found here https://developers.google.com/youtube/v3/docs/search/list
+The search.list response contains a maximum of 50 videos per page and a total of
+10 pages. This restrictions leads to the fact that for a single static parameter
+set there is a maximum of 500 video provided by the API. To access the total 500
+videos, the 10 pages must be iterated, each iteration utilizing a new request
+which results in a total of 10 requests and 1000 quota unit costs.
 
-The search.list response contains a maximum of 50 videos per page and a total of 10 pages. This restrictions leads to
-the fact that for a single static parameter set there is a maximum of 500 video provided by the API. To access the total 500 videos,
-the 10 pages must be iterated, each iteration utilizing a new request which results in a total of 10 requests and 1000 quota unit costs.
+The main problem with the 500 video limit for a static parameter set is, that it
+an not be a good sample. There might be a lot of other videos which match the
+requested parameter, but YouTube restricts his response to the same 500 videos,
+even if the same request as been performed multiple times. Indeed there is some
+small variation of each request's response measurable, but only a few videos
+change and therefore it can be neglected.
 
-The main problem with the 500 video limit for a static parameter set is, that it can not be a good sample. There might be a lot of other videos
-which match the requested parameter, but YouTube restricts his response to the same 500 videos, even if the same request as been performed multiple times. 
-Indeed there is some small variation of each request's response measurable, but only a few videos change and therefore it can be neglected.
-
-Our approach of receiving an unbiased sample of videos from the API was to have a static parameter set with some
-variable parameter which allows us in theory to get all videos from YouTube. The user then has the possibility to select a subsample of all the
-videos available on the YouTube API for further research. After all videos are fetched, the user has a lot of metadata
+Our approach of receiving an unbiased sample of videos from the API was to have
+a static parameter set with some variable parameter which allows us in theory to
+et all videos from YouTube. The user then has the possibility to select a
+subsample of all the videos available on the YouTube API for further research. 
+After all videos are fetched, the user has a lot of metadata
 
 For the next section we have to define some words.
-A "static parameter set" is meant to be a global search request, like "All videos which are related to the word 'fun', are 2D and have a high video quality"
-A "variable parameter" is a parameter which can be changed for every single request, without changing the meaning of the "static parameter set", but gives us 
-the ability to create many different variations of the "static parameter set" in order to exceed the 500 videos maximum.
+A "static parameter set" is meant to be a global search request, like "All
+videos which are related to the word 'fun', are 2D and have a high video
+quality". A "variable parameter" is a parameter which can be changed for every
+single request, without changing the meaning of the "static parameter set", but
+gives us the ability to create many different variations of the "static
+parameter set" in order to exceed the 500 videos maximum.
  
 There are only four real variable
-parameters in the search.list API endpoint available. All other parameters are in some kind static and would result to a maximum of 500 videos.
+parameters in the search.list API endpoint available. All other parameters are
+in some kind static and would result to a maximum of 500 videos.
 
 channelid | indicates that the API response should only contain resources created by the channel
 location+locationRadius | defines a circular geographic area and restricts the search to videos that specify a geographic location in their metadata which falls within the requested area
