@@ -89,7 +89,7 @@ class VideoRepresentation(db.Model):
     mimeType = db.Column(db.VARCHAR(15))
     height = db.Column(db.Integer, primary_key=True)
     width = db.Column(db.Integer)
-    bitrate = db.Column(db.Integer)
+    bitrate = db.Column(db.Integer, primary_key=True)
     framerate = db.Column(db.Integer)
     codec = db.Column(db.VARCHAR(20))
 
