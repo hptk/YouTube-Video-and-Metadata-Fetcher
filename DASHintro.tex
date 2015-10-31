@@ -1,0 +1,37 @@
+\subsection{DASH}
+DASH is an abbrevation for Dynamic Adaptive Streaming over HTTP, and is
+defined in ISO/IEC 23009-1. The goal of DASH is to improve the user
+experience while streaming media content, by providing easy access to
+different media qualities so that the client can switch qualities based
+on available bandwidth to avoid stuttering and buffering.
+
+The core of DASH is the Media Presentation Description (MPD), sometimes
+referred to as the DASH manifest. The MPD contains all the information
+needed to display the media. When a user wants to access a streamed
+media, for instance a video, the streaming client (or website frontend)
+makes a request to get the MPD for the requested media. The client then
+parses the MPD and meassures available network and buffer resources,
+before the streaming is commenced at the best feasable quality. The
+client continues to monitor the available resources while playing the
+media back and requesting more, adapting quality dynamially if conditions
+should change.
+
+With this approach the descision making is left to the client alone. The
+server only presents all available information about the media in the
+MPD, it is the client that chooses how the media is to be presented to
+the user. The client can choose to focus on continously playing the
+media, for instance by jumping to lower qualities if the network
+conditions get worse, or focus on high quality with the possible
+disadvantage of stopping periodically to buffer data. The default
+behaviour for most streaming clients is to prioritise continous playback,
+while leaving an option for the user to manually pick quality form a list
+of available qualities to override the default.
+
+The developed tool only downloads the media files as specified by the
+user, and does not care about available resources or the user experience.
+The DASH manifest is still parsed, and all relevant data is stored in the
+database to provide an overview of the available medias and qualities,
+and their respective properties. Although we are not using DASH to
+accomplish better user experience, the MPD is still very useful as a
+single point to get information about a streamed media.
+
