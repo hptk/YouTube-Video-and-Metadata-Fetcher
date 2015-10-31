@@ -107,40 +107,18 @@ All requests created by the frontend are handled asynchronously by Celery and
 Redis.
 
 Celery is used as an asynchronous task queue based on distributed messages. It
-is capable of distributing tasks over a potentially vast network of nodes.~\cite{architecture:celery}
-Redis is a networked in-memory key-value database.~\cite{architecture:redis}
-The frameworks aren't used to their full extent given our current
-single-server environment, but having these frameworks already present massively
-aids future expansion.
+is capable of distributing tasks over a potentially vast network of nodes.
+~\cite{architecture:celery} Redis is a networked in-memory key-value database.
+~\cite{architecture:redis} The frameworks aren't used to their full extent given
+our current single-server environment, but having these frameworks already
+present will be of great aid in future expansion.
 
-%TODO: Hugo stopped here. This entire section needs massive reworks
-
-Since we already have a centralized server which processes all tasks created by the clients, such as searching for 
-video IDs and extracting the metadata, we had to think about how to run these tasks in a non-blocking way.
-This is important
-because the users might want to create multiple tasks at once and the frontend should not be blocked until one long running task
-is finished. In order to solve this problem, we had to utilize a task queue system and select a message broker to feed the task queue.
-We have evaluated Celery as our task queue and Redis as a message broker as the most suitable packages available for python.
-
-Celery is an asynchronous task queue based on distributed messages~\cite{architecture:celery}
-Redis itself is an open-source, networked, in-memory key-value data structure server.~\cite{architecture:redis} For our
-purpose we do not utilize the full capabilities of Celery and Redis, since we have one centralized server, but using
-this architecture from the very beginning makes it easy to distribute our tool on multiple servers which process the individual tasks and only
-have some light weight clients which request our API.
-This might be important for performance improvements and further developments.
-
-After the user has scheduled a task from the client user interface, the task is pushed to Redis and is in a pending state until a Celery worker is available to run the task in
-the background. While running the tasks in the background, celery provides an interface to update the current task's state. At this point it is important to have a different 
-result backend than the normal database where we want to store the received data from the YouTube API. Because each task updates his own state after every request to the YouTube API 
-in order to provide the client real time informations about the current state of a task. This results in multiple updates every second for a single task where there 
-might be multiple tasks running in concurrency. Using the database on the disk as the result backend would lead to a high
-disk I/O only for sharing the task's state with the client and block the saving of the data received by the YouTube API which would dramatically slow down the complete process.
-Since we already have Redis as our broker system with an in-memory data structure, we use it as the result backend for our tasks and only store the tasks informations 
-in the database persistently after the task has finished.
-
-
-
-
-
-
+After a task has been scheduled by the user, it is immediately pushed to Redis
+and put in a pending state until a Celery worker is available to process it.
+While the task is executing, Celery provides an interface with which to control
+it. It is because of this feature an in-memory database to keep track of running
+tasks is preferential. Given that our fetcher modules, the actual tasks that are
+being run, update their own status in the database after every single request to
+the YouTube API, a disk I/O-bound database would potentially severely limit
+performance.
 
