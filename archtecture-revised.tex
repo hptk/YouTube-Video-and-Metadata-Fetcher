@@ -25,55 +25,96 @@ tasks, and results presentation.
 
 
 \subsubsection{API key management}
-
 The API key management page lets the user register API keys to his account.
 API keys are instantly validated and, if valid, added to the dropdown list of
 available keys on the query builder page.
 While only a single key is required per API request (in the absence of OAuth
 2.0), having access to multiple keys makes for quick and easy testing and the
 ability to generate keys for a specific purpose or dataset. The latter is
-shown in action on the results page, where the user can view statistics filtered
-by a given API key.
+shown in action on the Result page, where the user can view statistics filtered
+by a given API key. %TODO: refine?
 
 
 \subsubsection{Query Builder}
-On this page the user has the possibility to define his search query. Based on our algorithm and the YouTube API requirements, there are
-three required fields.The API key, publishedAfter and publishedBefore parameter.
-In a hidden collapsed section we have integrated almost any parameters provided by the YouTube API search.list endpoint as optional fields, 
-such as video dimension, video duration, relevance language and much more. Every field has a popover displaying the description from the YouTube
-API documentation.
-Having such a big set of parameters, the user is able to build complex and highly variable search queries.
-Actually some parameters provided by the API are omitted because they are only usable to search own audio visual content uploaded on YouTube.
+On the Query builder page the user may build individual search queries using
+the provided interface. YouTube's API defines a set of options which we present
+to the user in the form of input boxes. Our algorithm for assuring unique
+results requires a timeframe, thus the two relevant query fields are required - 
+all other fields are deemed optional. Query fields that specify operations
+specifically on the user's own videos are deliberately omitted as this is
+not within the scope of the tool.
 
-Before a query is send to the server and stored in the database, it will be validated by creating a request to the YouTube API whereby
-the user gets a real time error description if the current composition of parameters is invalid. This client side validation is useful 
-to not only prevent invalid search queries to be stored in the databse but also to give the user a feeling for the YouTube API without having
-a long introduction on how to use the query builder.
+Before queries are dispatched to the task workers and any real work is
+performed, they are validated by issuing a small version of the query for
+verification only. The user is immediately notified if any of the given query
+parameters create an invalid combination. This will prove invaluable to new
+users who can safely learn to use the YouTube API, as well as preventing
+the storage of invalid queries.
+%TODO: reword?
+
 
 \subsubsection{Task Page}
-After a user has defined his search query, he can run several tasks on the query.
+Stored queries may be executed on the Task page. The user selects the task he
+wants performed and a query which defines the set of videos on which to operate.
+The first operation will always be the fetching of video IDs, as the rest of the
+available tasks depend on this. Multiple tasks may be launched in parallell.
+Progress bars are updated in real-time. %TODO: too short and list-y. Reword?
 
 
 \subsubsection{Result page}
-On the result page we have aggregated some statistics about the videos which are received by a selected query. 
-Because the aggregation can take a lot of time for a big dataset, every section on this pages does asynchronously load the result by 
-requesting the server only if it is necessary. Per default there are three sections loaded on the initilization of the page. 
-First, a summary of the current selected query, containing informations about how many videos were found, how many
-metadata, comments and video representations from the DASH mdp file are related to the found videos and stored in the database. 
-Second, a pie chart and table showing the top 10 categories. Third, a table showing 
-associated queries which were created in the past but share some videos within the group of the current query's videos.
-In the table there is a visualisation of the videos percentage intersection, which allows
-the user to quickly identify related search queries. It might be relevant to see how multiple queries are connected to each other after
-manipulating only one search parameter as we will see in the experimential results section.
+The Result page contains selected statistics for the dataset returned by a given
+query.
+...
+Due to the heavy work required to aggregate the necessary data, each section of
+the page loads asynchronously on demand.
 
-For some numeric values such as the views, comments, likes, dislikes and duration we also provide statistical aggregations of the minimum,
-maximum, average and standard deviation for the selected query compared to all videos saved in the database.
+Of particular note is the graph showing the intersection between datasets. This
+allows the user to quickly identify closely related queries, and can be helpful
+in e.g. parameter studies.
+%TODO: finish
+% All of the commented text below is superfluous, though some of it may be
+% salvageable. We need some way to glue the above sentences together.
+
+% On the result page we have aggregated some statistics about the videos which are
+% received by a selected query. Because the aggregation can take a lot of time for
+% a big dataset, every section on this pages does asynchronously load the result
+% by requesting the server only if it is necessary. Per default there are three
+% sections loaded on the initilization of the page. First, a summary of the
+% current selected query, containing informations about how many videos were
+% found, how many metadata, comments and video representations from the DASH mdp
+% file are related to the found videos and stored in the database. Second, a pie
+% chart and table showing the top 10 categories. Third, a table showingassociated
+% queries which were created in the past but share some videos within the group of
+% the current query's videos.
+% In the table there is a visualisation of the videos percentage intersection,
+% which allows the user to quickly identify related search queries. It might be
+% relevant to see how multiple queries are connected to each other after
+% manipulating only one search parameter as we will see in the experimential
+% results section.
+
+% For some numeric values such as the views, comments, likes, dislikes and
+% duration we also provide statistical aggregations of the minimum, maximum,
+% average and standard deviation for the selected query compared to all videos
+% saved in the database.
 
 
 \subsection{Server}
-The server is written in python
+The server is written in python %TODO: finish
+
 
 \subsubsection{Background tasks}
+All requests created by the frontend are handled asynchronously by Celery and
+Redis.
+
+Celery is used as an asynchronous task queue based on distributed messages. It
+is capable of distributing tasks over a potentially vast network of nodes.~\cite{architecture:celery}
+Redis is a networked in-memory key-value database.~\cite{architecture:redis}
+The frameworks aren't used to their full extent given our current
+single-server environment, but having these frameworks already present massively
+aids future expansion.
+
+%TODO: Hugo stopped here. This entire section needs massive reworks
+
 Since we already have a centralized server which processes all tasks created by the clients, such as searching for 
 video IDs and extracting the metadata, we had to think about how to run these tasks in a non-blocking way.
 This is important
