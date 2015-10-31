@@ -147,6 +147,7 @@ class YoutubeVideo(db.Model):
     id = db.Column(db.VARCHAR(12),primary_key=True,unique=True)
     meta = db.relationship("YoutubeVideoMeta", backref="video", uselist=False)
     representations = db.relationship("VideoRepresentation", backref="video")
+    comments = db.relationship("YouTubeComment", backref="video")
 
     def is_meta_available(self):
         if self.meta != None:
@@ -175,7 +176,7 @@ class YoutubeVideoMeta(db.Model):
     snippet_channel_title = db.Column(db.VARCHAR(100))
     snippet_title = db.Column(db.Text())
     snippet_description = db.Column(db.VARCHAR(5000))
-    snippet_category_id = db.Column(db.Integer)
+    snippet_category_id = db.Column(db.Integer, db.ForeignKey("categories.id")
     snippet_tags = db.Column(db.Text())
     snippet_liveBroadcastContent = db.Column(db.VARCHAR(10))
 
