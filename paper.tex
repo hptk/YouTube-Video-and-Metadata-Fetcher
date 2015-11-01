@@ -5,7 +5,17 @@
 %\DeclareGraphicsExtensions{.pdf,.png,.jpg}
 
 \title{test title}
-\author{your mom}
+\author{
+	Kragset, Hans Petter Taugb\o l
+	\and
+	Krieger, Lukas
+	\and
+	Wallenburg, Hugo Matthijs Harstad
+	\and
+	\newline
+	\texttt{\{hpkragse, hugomw\}@ifi.uio.no}
+	\texttt{lukas.krieger@me.com}
+}
 \date{\today}
 
 \begin{document}
@@ -16,6 +26,13 @@
 	\lipsum[1]
 \end{abstract}
 
+\section{Introduction}
+\input{introduction.tex}
+%\lipsum[1-9]
+
+\section{Related work}
+\lipsum[1-15]
+
 \input{DASHintro.tex}
 
 \begin{figure}
@@ -24,11 +41,20 @@
 	\caption{YouTube DASH MPD}
 \end{figure}
 
+\input{dash.tex}
 
-\input{archtecture-revised.tex}
+\input{architecture-revised.tex}
 
 \input{id-fetch-algorithm-revised.tex}
 
+\section{Future work}
+
+\lipsum[1-4]
+
 \input{conclusion.tex}
+
+\lipsum[1-4]
+
+References here...
 
 \end{document}
