@@ -1,20 +1,17 @@
-\begin{tikzpicture}[y=.2cm, x=.7cm,font=\sffamily]
- 	%axis
-	\draw (0,0) -- coordinate (x axis mid) (10,0);
-    \draw (0,0) -- coordinate (y axis mid) (0,30);
-    %ticks
-    \foreach \x in {0,...,10}
-        \draw (\x,1pt) -- (\x,-3pt)
-            node[anchor=north] {\x};
-    \foreach \y in {0,5,...,30}
-        \draw (1pt,\y) -- (-3pt,\y);
-            node[anchor=east] {\y}; 
-	%labels      
-	\node[below=0.8cm] at (x axis mid) {Year};
-	\node[rotate=90, above=0.8cm] at (y axis mid) {Unique video IDs};
 
-	%plots
-	\draw plot[mark=*, mark options={fill=white}] 
-		file {video_ids_january.data};    
+\begin{tikzpicture}
+	\begin{axis}[
+		xlabel=Year,
+		ylabel=Unique Video IDs]
+	\addplot[color=red,mark=x] coordinates {
+        (2009,9248)
+        (2010,9169)
+        (2011,10089)
+        (2012,10770)
+        (2013,12712)
+        (2014,12770)
+        (2015,11603)
+	   	};
+	\end{axis}
 \end{tikzpicture}
 
