@@ -10,4 +10,36 @@
 %	API over crawling
 % Sections
 
+YouTube is without a doubt the world's largest host of user-generated content,
+with over one billion users generating several billion
+views over hundreds of billions of hours every day ~\cite{officialstats}. Though
+there does not seem to be an official source, it is believed that by the end of
+2014, more than 300 hours worth of content was being uploaded to YouTube every
+minute ~\cite{dagensmediastats}~\cite{reelseostats}.
+
+This makes YouTube a fantastic resource of both videos and metadata to be used
+for analysis for a range of different purposes. Our tool aims to aid a group of
+users who may not be looking for a particular subset of data, but rather a
+large, unbiased sample. Our approach is to let the user create a search query
+for a specific timeframe, optionally limiting results further with additional
+fields, and querying the YouTube API for every available video within that
+timeframe. We deem this to be the easiest way to create an unbiased (or at the
+very least nearly so) set of videos using YouTube's API, seeing as YouTube will
+not let us create a truly random sample set\footnonemark[3].
+
+We provide the means to: build a large database
+of video ID's\footnotemark[1] within a set timeframe; fetch
+most metadata\footnotemark[2] for the given videos; fetch the videos
+themselves, with a set quality; and connect related data points with a
+SQLite database.
+
+
+
+\footnotetext[3]{The API seems to have some severe undocumented limitations
+regarding what videos it will return for a given query.}
+\footnotetext[1]{We fetch as much data as possible within the restraints imposed
+on us by the API.}
+\footnotetext[2]{We fetch all data associated with a video, as well as its
+comment threads and replies. Fetching of related videos has been deliberately
+left out - for now at least}
 
