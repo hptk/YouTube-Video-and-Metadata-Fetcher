@@ -8,6 +8,7 @@ import os
 import sys
 import xmltodict
 import logging
+import random
 logger = logging.getLogger('tasks')
 from project import db
 from project.models import QueryVideoMM
@@ -36,12 +37,20 @@ class YouTubeVideoFetcher(RequestBase):
         return self.url + '?video_id=' + workQueueItem[0]
 
     def initWorkQueue(self):
-        #select all videos from the db
-        video_ids = db.session.query(QueryVideoMM).filter_by(youtube_query_id=self.parameter['queryId'])
+        
+        #seeded random select from DB
+        if self.parameter['method']=='random':
+            random.seed(self.parameter['amount'])
+            seed = random.random() 
+            video_ids = db.session.execute('SELECT id as video_id from video JOIN query_video_mm on query_video_mm.video_id=video.id WHERE youtube_query_id='+str(self.parameter["queryId"])+' ORDER by (substr((uid)*'+str(seed)+',length(uid)+2)) LIMIT '+str(self.parameter["amount"]))
+        else:
+            #select all videos from the db
+            video_ids = db.session.query(QueryVideoMM).filter_by(youtube_query_id=self.parameter['queryId'])
+            
         for video in video_ids:
             self.putWorkQueueItem([video.video_id,
-                                   self.parameter['resolution'],
-                                   self.parameter['sound']])
+                                    self.parameter['resolution'],
+                                    self.parameter['sound']])
 
     def handleRequestSuccess(self,workQueueItem, response):
         got_video = False
@@ -90,7 +99,7 @@ class YouTubeVideoFetcher(RequestBase):
                         response = urllib.urlopen(url)
                         dl = 0
                         logger.info('Downloading sound! > ' + video_id + ' ' + mimeType[1])
-                        while True:
+                        while True and dl<filesize:
                             done = int(50 * dl / filesize)
                             dl += CHUNK
                             #sys.stdout.write("\r[%s%s]" % ('=' * done, ' ' * (50-done)) )
@@ -125,7 +134,7 @@ class YouTubeVideoFetcher(RequestBase):
                         dl = 0
                         filesize = int(last_representation['BaseURL']['@yt:contentLength'])
                         logger.info('Downloading video! > ' + video_id + ' ' + last_representation['@height'] + 'p' + "size: "+str(filesize))
-                        while True:
+                        while True and dl<filesize:
                             done = int(50 * dl / filesize)
                             dl += CHUNK
                             #sys.stdout.write("\r[%s%s]" % ('=' * done, ' ' * (50-done)) )

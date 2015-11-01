@@ -120,6 +120,13 @@
 			            </ui-select-choices>
 			          </ui-select>
 			          
+			          <div ng-show="vm.task.actionOptions.method=='random'">
+			          <label>How many random videos?</label>
+			          <input type="text" class="form-control"ng-model="vm.task.actionOptions.amount"/>
+			           
+
+			          </div>
+			          
 		     		</div> 
 		       	
 		       	<label style="display:block;">Submit</label>
@@ -210,7 +217,7 @@
         <td>{{ task.created_on }}</td>
         <td>{{task.state}}</td>
         <td>{{task.result.result}}</td>  		
-        <td><button class="btn btn-primary" ng-click="vm.createTask(task.queryId,task.action)">Again</button> <a href="#/result/{{task.queryId}}" class="btn btn-primary">View Results</a></td>
+        <td> <a href="#/result/{{task.queryId}}" class="btn btn-primary">View Results</a></td>
       </tr>
     </tbody>
     

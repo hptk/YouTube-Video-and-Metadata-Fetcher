@@ -108,6 +108,7 @@ def downloadVideos(self,queryId,options):
         option['resolution'] = options['resolution']
         option['sound'] = options['sound'] if 'sound' in options else False
         option['method'] = options['method'] if 'method' in options else 'all'
+        option['amount'] = options['amount'] if option['method']=='random' else 0
         
         fetcher = YouTubeVideoFetcher('https://www.youtube.com/get_video_info',option, 1, 1, self)
         result = fetcher.work()
