@@ -1,0 +1,34 @@
+\documentclass[10pt,journal]{IEEEtran} 
+\usepackage{lipsum}
+\usepackage{graphicx}
+
+%\DeclareGraphicsExtensions{.pdf,.png,.jpg}
+
+\title{test title}
+\author{your mom}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+	\lipsum[1]
+\end{abstract}
+
+\input{DASHintro.tex}
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.4\textwidth]{figures/yt-dash.png}
+	\caption{YouTube DASH MPD}
+\end{figure}
+
+
+\input{archtecture-revised.tex}
+
+\input{id-fetch-algorithm-revised.tex}
+
+\input{conclusion.tex}
+
+\end{document}
