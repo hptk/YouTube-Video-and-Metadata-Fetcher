@@ -28,9 +28,9 @@ define(['app'], function (app) {
             return deferred.promise;
         }
         
-        function createTask(id,action) {
+        function createTask(id,action,options) {
             var deferred = $q.defer();
-            $http.post('/api/queries/'+id,{ action: action })
+            $http.post('/api/queries/'+id,{ action: action,options:options })
                 .success(function(data, status){
                     if(data.success===true) {
                         deferred.resolve(data);

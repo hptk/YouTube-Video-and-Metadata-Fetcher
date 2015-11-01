@@ -9,6 +9,8 @@ import sys
 import xmltodict
 import logging
 logger = logging.getLogger('tasks')
+from project import db
+from project.models import QueryVideoMM
 
 # TODO:
 # parameters:
@@ -27,34 +29,48 @@ class YouTubeVideoFetcher(RequestBase):
     def initAdditionalStructures(self):
         dir = os.path.dirname(__file__)
         self.dl_path = os.path.join(dir, '../downloads/')
+        
+        
 
     def buildRequestURL(self, workQueueItem):
         return self.url + '?video_id=' + workQueueItem[0]
 
     def initWorkQueue(self):
-        query_id = self.parameter['id']
-        queries = YoutubeQuery.query.filter_by(id=query_id)
-        for video in queries.videos:
-            self.putWorkQueueItem(item)
+        #select all videos from the db
+        video_ids = db.session.query(QueryVideoMM).filter_by(youtube_query_id=self.parameter['queryId'])
+        for video in video_ids:
+            self.putWorkQueueItem([video.video_id,
+                                   self.parameter['resolution'],
+                                   self.parameter['sound']])
 
     def handleRequestSuccess(self,workQueueItem, response):
         got_video = False
         got_sound = False
         video_id = workQueueItem[0]
         CHUNK = 16 * 1024
-        path += video_id
+        path = self.dl_path
         if workQueueItem[2]:
             self.get_sound = True
 
         #download manifest
         video_info = parse_qs(unquote(response.read().decode('utf-8')))
-        manifest_url = video_info["dashmpd"][0]
-        manifest_file = urlopen(manifest_url).read()
-        manifest = xmltodict.parse(manifest_file)['MPD']['Period']['AdaptationSet']
-
-        #db
-        #video_dbitem = YouTubeVideo.query.filter_by(id=video_id)
-
+        try:
+            manifest_url = video_info['dashmpd'][0]
+            manifest_file = urlopen(manifest_url).read()
+            manifest = xmltodict.parse(manifest_file)['MPD']['Period']['AdaptationSet']
+        except:
+            if 'reason' in video_info:
+                logger.info('MPD fething failed for ' + str(video_id) + ' : ' + video_info['reason'][0])
+            elif 'errorcode' in video_info:
+                logger.info('MPD fething failed for ' + str(video_id)+' : errorcode ' + video_info['errorcode'][0])
+            elif 'errordetail' in video_info:
+                logger.info('MPD fething failed for ' + str(video_id)+' : errordetail ' + video_info['errordetail'][0])
+            elif 'status' in video_info:
+                logger.info('MPD fething failed for ' + str(video_id)+' : status ' + video_info['status'][0])
+            else:
+                logger.info('MPD fething failed for ' + str(video_id)+' : unknown error')
+            return
+        
         for adaptation in manifest:
             mimeType = adaptation['@mimeType'].split('/')
             if mimeType[0] == 'audio' and self.get_sound and not got_sound:
@@ -114,6 +130,7 @@ class YouTubeVideoFetcher(RequestBase):
                 got_video = True
 
             if got_video and (got_sound or (not self.get_sound and not got_sound)):
+                self.resultList[str(video_id)]=None
                 break
 
     def saveResult(self):
