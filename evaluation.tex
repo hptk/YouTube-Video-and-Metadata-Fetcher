@@ -1,0 +1,125 @@
+\usepackage{tikz}
+\usetikzlibrary{plotmarks}
+
+\begin{filecontents}{video_ids_january.data}
+#Year       ids[ms]
+2009        9248
+2010        9169
+2011        10089
+2012        10770
+2013        12712
+2014        12770
+2015        11603
+\end{filecontents}
+
+\begin{filecontents}{video_ids_2015.data}
+#Month  ids[ms]
+1       11603
+2       11194
+3       12907
+4       11581
+5       11572
+6       11609
+7       11410
+8       12716
+9       120304
+10      319270
+\end{filecontents}
+
+\begin{filecontents}{video_ids_october.data}
+#Month  ids[ms]
+1       4727
+2       4301
+3       3125
+4       3193
+5       3898
+6       3503
+7       3879
+8       3986
+9       3986
+10      3172
+11      9182
+12      25138
+13      25542
+14      
+15      26208
+16      30278
+17      4162
+18      26461
+19      33358
+20      34460
+21      19105
+22      34850
+23      30109
+24      66358
+25      72673    
+26      85737
+27      74498
+28      75169
+29      185940
+30      112485
+31      225263
+
+
+\end{filecontents}
+
+\begin{tikzpicture}[y=.2cm, x=.7cm,font=\sffamily]
+ 	%axis
+	\draw (0,0) -- coordinate (x axis mid) (10,0);
+    \draw (0,0) -- coordinate (y axis mid) (0,30);
+    %ticks
+    \foreach \x in {0,...,10}
+    \draw (\x,1pt) -- (\x,-3pt)
+        node[anchor=north] {\x};
+    \foreach \y in {0,5,...,30}
+        \draw (1pt,\y) -- (-3pt,\y);
+            node[anchor=east] {\y}; 
+	%labels      
+	\node[below=0.8cm] at (x axis mid) {Year};
+	\node[rotate=90, above=0.8cm] at (y axis mid) {Unique video IDs};
+
+	%plots
+	\draw plot[mark=*, mark options={fill=white}] 
+		file {video_ids_january.data};    
+\end{tikzpicture}
+
+\begin{tikzpicture}[y=.2cm, x=.7cm,font=\sffamily]
+ 	%axis
+	\draw (0,0) -- coordinate (x axis mid) (10,0);
+    \draw (0,0) -- coordinate (y axis mid) (0,30);
+    %ticks
+    \foreach \x in {0,...,10}
+    \draw (\x,1pt) -- (\x,-3pt)
+        node[anchor=north] {\x};
+    \foreach \y in {0,5,...,30}
+        \draw (1pt,\y) -- (-3pt,\y);
+            node[anchor=east] {\y}; 
+	%labels      
+	\node[below=0.8cm] at (x axis mid) {Month};
+	\node[rotate=90, above=0.8cm] at (y axis mid) {Unique video IDs};
+
+	%plots
+	\draw plot[mark=*, mark options={fill=white}] 
+		file {video_ids_2015.data};    
+\end{tikzpicture}\end{filecontents}
+
+\begin{tikzpicture}[y=.2cm, x=.7cm,font=\sffamily]
+ 	%axis
+	\draw (0,0) -- coordinate (x axis mid) (10,0);
+    \draw (0,0) -- coordinate (y axis mid) (0,30);
+    %ticks
+    \foreach \x in {0,...,10}
+    \draw (\x,1pt) -- (\x,-3pt)
+        node[anchor=north] {\x};
+    \foreach \y in {0,5,...,30}
+        \draw (1pt,\y) -- (-3pt,\y);
+            node[anchor=east] {\y}; 
+	%labels      
+	\node[below=0.8cm] at (x axis mid) {Day};
+	\node[rotate=90, above=0.8cm] at (y axis mid) {Unique video IDs};
+
+	%plots
+	\draw plot[mark=*, mark options={fill=white}] 
+		file {video_ids_october.data};    
+\end{tikzpicture}
+
