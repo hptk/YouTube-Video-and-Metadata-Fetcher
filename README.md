@@ -10,7 +10,7 @@
 
 ## Web Server
 
-The program is based on serverside flask and client side angularjs. After following the installation and running instructions below you can access the interface at [localhost:5000](http://localhost:5000).
+The program is based on serverside flask and clientside angularjs. After following the installation and running instructions below you can access the interface at [localhost:5000](http://localhost:5000).
 
 ### Database
 
@@ -22,16 +22,16 @@ the downloaded video files are stored server-side, storing is as follows:
 
 * In the root folder of this project, a folder '/downloads/' is created
 * Inside this folder, a folder is created for each video ID
-* Inside each video ID folder, downloaded corresponding files will be placed
+* Inside each video ID folder, two folders, sound and video, will contain downloaded files
 
-File estensions can vary, but the database will have information about file types, codecs and other information that may be needed to use the media files.
+File extensions can vary, but the database will have information about file types, codecs and other information that may be needed to use the media files.
 
 Thus, the following pattern emerges:
 
-    Video: /downloads/<videoID>/<videoID>.<resolution>.<extension>
-    Sound: /downloads/<videoID>/<videoID>.<extension>
+    Video: /downloads/<videoID>/video/<videoID>.<resolution>.<extension>
+    Sound: /downloads/<videoID>/sound/<videoID>.<extension>
 
-For video files, resolution is the heigth of the media file (1080, 720, etc).
+For video files, \<resolution\> is the heigth of the media file (1080, 720, etc).
 
 The extensions will be .m4a for audio and m4v for video, if a mp4 representation of the video is available. In the case that only WebM is available, the extensions will be .webm and .webms (s for sound). Again, this information will also be in the corresponding database entry.
 

@@ -25,6 +25,19 @@ define(['app'], function (app) {
         	    selectedOption: {value: '100', name: '100'} //This sets the default value of the select in the ui
         	    };
         
+        vm.downloadResolutions = [{type:240 , name:"240p"},
+                                  {type:360 , name:"360p"},
+                                  {type:480 , name:"480p"},
+                                  {type:720 , name:"720p"},
+                                  {type:1080 , name:"1080p"},
+                                  {type:1440 , name:"1440p"},
+                                  {type:2160 , name:"2160p"}];
+        
+        vm.downloadSound = [{type:true , name:"With sound"},
+                                  {type:false , name:"Without sound"}];
+        
+        vm.downloadMethod = [{type:'all' , name:"All"},
+                             {type:'random' , name:"Random"}];
         vm.taskOptions = [
 							{ name: 'Fetches only the Video IDs for the selected query' , type:'IDFetcher'},
 							{ name: 'Fetches the meta data for the videos which are associated with the selected query' , type:'MetaFetcher'},
@@ -83,7 +96,7 @@ define(['app'], function (app) {
        function createTask(id,action) {
     	   vm.createTaskClicked = true;
     	   vm.dataCheckingQuery = true;
-    	   taskService.createTask(id,action)
+    	   taskService.createTask(id,action,vm.task.actionOptions)
    			.then(function (data) {
    				if(data.success===true)
    				{

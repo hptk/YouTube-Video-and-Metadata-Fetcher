@@ -90,7 +90,45 @@
 			            </ui-select-choices>
 			          </ui-select>
 		        </div>
+		        
+		        
+		     		
 		       	<div class="form-group col-xs-6">
+		       	
+		       	<div ng-show="vm.task.action=='VideoFetcher'">
+		        	<label for="taskAction">Resolution</label>
+		       		<ui-select  ng-model="vm.task.actionOptions.resolution">
+			            <ui-select-match placeholder="Select a resolution for the download">{{$select.selected.name}}</ui-select-match>
+			            <ui-select-choices repeat="type.type as type in vm.downloadResolutions">
+			              <div ng-bind-html="type.name | highlight: $select.search"></div>
+			            </ui-select-choices>
+			          </ui-select>
+			         
+			         <label>Sound</label>
+		       		<ui-select  ng-model="vm.task.actionOptions.sound">
+			            <ui-select-match placeholder="Need sound?">{{$select.selected.name}}</ui-select-match>
+			            <ui-select-choices repeat="type.type as type in vm.downloadSound">
+			              <div ng-bind-html="type.name | highlight: $select.search"></div>
+			            </ui-select-choices>
+			          </ui-select>
+			          
+			          <label>Method</label>
+		       		<ui-select  ng-model="vm.task.actionOptions.method">
+			            <ui-select-match placeholder="Need sound?">{{$select.selected.name}}</ui-select-match>
+			            <ui-select-choices repeat="type.type as type in vm.downloadMethod">
+			              <div ng-bind-html="type.name | highlight: $select.search"></div>
+			            </ui-select-choices>
+			          </ui-select>
+			          
+			          <div ng-show="vm.task.actionOptions.method=='random'">
+			          <label>How many random videos?</label>
+			          <input type="text" class="form-control"ng-model="vm.task.actionOptions.amount"/>
+			           
+
+			          </div>
+			          
+		     		</div> 
+		       	
 		       	<label style="display:block;">Submit</label>
 		         <button ng-click="vm.createTask(vm.selectedOldQuery.id,vm.task.action)" type="submit" ng-disabled="!vm.selectedOldQuery || !vm.task.action" class="btn btn-primary">Create Task</button>
 		            <img ng-if="vm.dataCheckingQuery" src="data:image/gif;base64,R0lGODlhEAAQAPIAAP///wAAAMLCwkJCQgAAAGJiYoKCgpKSkiH/C05FVFNDQVBFMi4wAwEAAAAh/hpDcmVhdGVkIHdpdGggYWpheGxvYWQuaW5mbwAh+QQJCgAAACwAAAAAEAAQAAADMwi63P4wyklrE2MIOggZnAdOmGYJRbExwroUmcG2LmDEwnHQLVsYOd2mBzkYDAdKa+dIAAAh+QQJCgAAACwAAAAAEAAQAAADNAi63P5OjCEgG4QMu7DmikRxQlFUYDEZIGBMRVsaqHwctXXf7WEYB4Ag1xjihkMZsiUkKhIAIfkECQoAAAAsAAAAABAAEAAAAzYIujIjK8pByJDMlFYvBoVjHA70GU7xSUJhmKtwHPAKzLO9HMaoKwJZ7Rf8AYPDDzKpZBqfvwQAIfkECQoAAAAsAAAAABAAEAAAAzMIumIlK8oyhpHsnFZfhYumCYUhDAQxRIdhHBGqRoKw0R8DYlJd8z0fMDgsGo/IpHI5TAAAIfkECQoAAAAsAAAAABAAEAAAAzIIunInK0rnZBTwGPNMgQwmdsNgXGJUlIWEuR5oWUIpz8pAEAMe6TwfwyYsGo/IpFKSAAAh+QQJCgAAACwAAAAAEAAQAAADMwi6IMKQORfjdOe82p4wGccc4CEuQradylesojEMBgsUc2G7sDX3lQGBMLAJibufbSlKAAAh+QQJCgAAACwAAAAAEAAQAAADMgi63P7wCRHZnFVdmgHu2nFwlWCI3WGc3TSWhUFGxTAUkGCbtgENBMJAEJsxgMLWzpEAACH5BAkKAAAALAAAAAAQABAAAAMyCLrc/jDKSatlQtScKdceCAjDII7HcQ4EMTCpyrCuUBjCYRgHVtqlAiB1YhiCnlsRkAAAOwAAAAAAAAAAAA==" />
@@ -179,7 +217,7 @@
         <td>{{ task.created_on }}</td>
         <td>{{task.state}}</td>
         <td>{{task.result.result}}</td>  		
-        <td><button class="btn btn-primary" ng-click="vm.createTask(task.queryId,task.action)">Again</button> <a href="#/result/{{task.queryId}}" class="btn btn-primary">View Results</a></td>
+        <td> <a href="#/result/{{task.queryId}}" class="btn btn-primary">View Results</a></td>
       </tr>
     </tbody>
     
