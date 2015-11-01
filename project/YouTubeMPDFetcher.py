@@ -1,10 +1,9 @@
 import time
-import json
-import os
-import sys
 import xmltodict
 import logging
-import xml.etree.ElementTree as ET
+from project.models import VideoRepresentation
+from sqlalchemy.ext.compiler import compiles
+from sqlalchemy.sql.expression import Insert
 from RequestBase import RequestBase
 from urllib2 import urlopen, unquote;
 from urlparse import parse_qs;
@@ -14,19 +13,16 @@ logger = logging.getLogger('tasks')
 
 class YouTubeMPDFetcher(RequestBase):
 
-    def initAdditionalStructures(self):
-        pass
-
-    def buildRequestURL(self, workQueueItem):
-        return self.url+'?video_id='+workQueueItem
+    def buildRequestURL(self, work_queue_item):
+        return self.url + '?video_id=' + work_queue_item
 
     def initWorkQueue(self):
-        videoIDs = db.session.query(QueryVideoMM).filter_by(youtube_query_id=self.parameter).all()
-        for video in videoIDs:
+        video_ids = db.session.query(QueryVideoMM).filter_by(youtube_query_id=self.parameter).all()
+        for video in video_ids:
             self.putWorkQueueItem(video.video_id)
 
-    def handleRequestSuccess(self,workQueueItem, response):
-        video_id = workQueueItem
+    def handleRequestSuccess(self, work_queue_item, response):
+        video_id = work_queue_item
 
         #download manifest
         video_info = parse_qs(unquote(response.read().decode('utf-8')))
@@ -36,15 +32,15 @@ class YouTubeMPDFetcher(RequestBase):
             manifest = xmltodict.parse(manifest_file)['MPD']['Period']['AdaptationSet']
         except:
             if 'reason' in video_info:
-                logger.info('MPD fething failed for '+str(video_id)+' : '+video_info['reason'][0])
+                logger.info('MPD fething failed for ' + str(video_id) + ' : ' + video_info['reason'][0])
             elif 'errorcode' in video_info:
-                logger.info('MPD fething failed for '+str(video_id)+' : errorcode '+video_info['errorcode'][0])
+                logger.info('MPD fething failed for ' + str(video_id)+' : errorcode ' + video_info['errorcode'][0])
             elif 'errordetail' in video_info:
-                logger.info('MPD fething failed for '+str(video_id)+' : errordetail '+video_info['errordetail'][0])
+                logger.info('MPD fething failed for ' + str(video_id)+' : errordetail ' + video_info['errordetail'][0])
             elif 'status' in video_info:
-                logger.info('MPD fething failed for '+str(video_id)+' : status '+video_info['status'][0]+' (possibly live stream)')
+                logger.info('MPD fething failed for ' + str(video_id)+' : status ' + video_info['status'][0])
             else:
-                logger.info('MPD fething failed for '+str(video_id)+' : unknown error')
+                logger.info('MPD fething failed for ' + str(video_id)+' : unknown error')
             return
 
         for adaptation in manifest:
@@ -52,52 +48,47 @@ class YouTubeMPDFetcher(RequestBase):
             representations = adaptation['Representation']
             if not isinstance(representations, list):
                 representations = [representations]
+            res = {}
             if mimeType[0] == 'audio':
                 for representation in representations:
-                    uniqueKey = str(video_id)+str(representation['@id'])
-                    self.resultList[uniqueKey]= {}
-                    self.resultList[uniqueKey]['video_id'] = video_id
-                    self.resultList[uniqueKey]['mimeType'] = adaptation['@mimeType'] if '@mimeType' in adaptation else ''
-                    self.resultList[uniqueKey]['bitrate'] = representation['@bandwidth'] if '@bandwidth' in adaptation else ''
-                    self.resultList[uniqueKey]['codec'] = representation['@codecs'] if '@codecs' in adaptation else ''
-                    self.resultList[uniqueKey]['framerate'] = ''
-                    self.resultList[uniqueKey]['width'] = ''
-                    self.resultList[uniqueKey]['height'] = ''
-
-                got_sound = True
-
+                    uniqueKey = str(video_id) + str(representation['@id'])
+                    res['video_id'] = video_id
+                    res['mimeType'] = adaptation.get('@mimeType') or ''
+                    res['bitrate'] = representation.get('@bandwidth') or ''
+                    res['codec'] = representation.get('@codecs') or ''
+                    res['framerate'] = ''
+                    res['width'] = ''
+                    res['height'] = ''
+                    self.resultList[uniqueKey] = res
             elif mimeType[0] == 'video':
                 for representation in representations:
-                    uniqueKey = str(video_id)+str(representation['@id'])
-                    self.resultList[uniqueKey]= {}
-                    self.resultList[uniqueKey]['video_id'] = video_id
-                    self.resultList[uniqueKey]['mimeType'] = adaptation['@mimeType'] if '@mimeType' in adaptation  else ''
-                    self.resultList[uniqueKey]['bitrate'] = representation['@bandwidth'] if '@bandwidth' in representation else ''
-                    self.resultList[uniqueKey]['codec'] = representation['@codecs'] if '@codecs' in representation else ''
-                    self.resultList[uniqueKey]['framerate'] = representation['@frameRate'] if '@frameRate' in representation else ''
-                    self.resultList[uniqueKey]['width'] = representation['@height'] if '@height' in representation  else ''
-                    self.resultList[uniqueKey]['height'] = representation['@width'] if '@width' in representation else ''
+                    uniqueKey = str(video_id) + str(representation['@id'])
+                    res['video_id'] = video_id
+                    res['mimeType'] = adaptation.get('@mimeType') or ''
+                    res['bitrate'] = representation.get('@bandwidth') or ''
+                    res['codec'] = representation.get('@codecs') or ''
+                    res['framerate'] = representation.get('@frameRate') or ''
+                    res['width'] = representation.get('@height') or ''
+                    res['height'] = representation.get('@width') or ''
+                    self.resultList[uniqueKey] = res
 
     def saveResult(self):
         if len(self.resultList) > 0:
             self.updateProgress('SAVING')
-            from project.models import VideoRepresentation
-            from sqlalchemy.ext.compiler import compiles
-            from sqlalchemy.sql.expression import Insert
             @compiles(Insert)
             def replace_string(insert, compiler, **kw):
                 s = compiler.visit_insert(insert, **kw)
                 if 'replace_string' in insert.kwargs:
-                    return str(s).replace("INSERT",insert.kwargs['replace_string'])
+                    return str(s).replace("INSERT", insert.kwargs['replace_string'])
                 return s
 
             t0 = time.time()
             logger.info("save video MPD")
             #http://docs.sqlalchemy.org/en/rel_0_9/core/connections.html?highlight=engine#sqlalchemy.engine.Connection.execute
             db.session.execute(VideoRepresentation.__table__.insert(replace_string = 'INSERT OR REPLACE'),
-                   [value for key,value in self.resultList.iteritems()]
-                   )
-            logger.info("Total time for " + str(len(self.resultList)) +" records " + str(time.time() - t0) + " secs")
+                    [value for key, value in self.resultList.iteritems()]
+                    )
+            logger.info("Total time for " + str(len(self.resultList)) + " records " + str(time.time()-t0) + " secs")
 
 
 
