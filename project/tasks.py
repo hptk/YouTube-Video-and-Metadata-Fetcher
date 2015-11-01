@@ -2,6 +2,7 @@ from YouTubeIDFetcher import YouTubeIDFetcher
 from YouTubeMetaFetcher import YouTubeMetaFetcher
 from YouTubeMPDFetcher import YouTubeMPDFetcher
 from YouTubeCommentFetcher import YouTubeCommentFetcher
+from YouTubeVideoFetcher import YouTubeVideoFetcher
 from project import celery
 from project import db
 from celery.signals import task_prerun
@@ -92,3 +93,28 @@ def comments(self,queryId,parameters):
         current_task.state = result['state']
         db.session.commit()
         return result
+
+@celery.task(bind=True)
+def downloadVideos(self,queryId,options):
+    with celery.app.app_context():
+        from project.models import YoutubeQuery, Task
+        query = YoutubeQuery.query.filter_by(id=queryId).first()
+        #create the ORM Task Model for the database
+        current_task = Task(self.request.id,"VideoFetcher")
+        query.tasks.append(current_task)
+        db.session.commit()
+        option = {}
+        option['queryId'] = queryId 
+        option['resolution'] = options['resolution']
+        option['sound'] = options['sound'] if 'sound' in options else False
+        option['method'] = options['method'] if 'method' in options else 'all'
+        option['amount'] = options['amount'] if option['method']=='random' else 0
+        
+        fetcher = YouTubeVideoFetcher('https://www.youtube.com/get_video_info',option, 1, 1, self)
+        result = fetcher.work()
+
+        current_task.result = json.dumps(result)
+        current_task.state = result['state']
+        db.session.commit()
+        return result
+    

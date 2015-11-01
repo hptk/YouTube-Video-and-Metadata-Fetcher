@@ -145,6 +145,8 @@ class YoutubeVideo(db.Model):
     __tablename__ = "video"
 
     id = db.Column(db.VARCHAR(12),primary_key=True,unique=True)
+    #unique auto increment id needed for seed random selection
+    uid = db.Column(db.Integer,autoincrement=True)
     meta = db.relationship("YoutubeVideoMeta", backref="video", uselist=False)
     representations = db.relationship("VideoRepresentation", backref="video")
     comments = db.relationship("YoutubeComment", backref="video")

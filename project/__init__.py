@@ -20,7 +20,7 @@ db = SQLAlchemy(app)
 celery = make_celery(app)
 #important to import after app,db and celery is created
 from project.models import User, APIKey, YoutubeQuery
-from tasks import fetch,meta,manifest,comments
+from tasks import fetch,meta,manifest,comments,downloadVideos
 
 
 @app.route('/')
@@ -155,6 +155,8 @@ def setTask(id):
 			task = comments.delay(id,json_data)
 		elif action == "ManifestFetcher":
 			task = manifest.delay(id)
+		elif action == "VideoFetcher":
+			task = downloadVideos.delay(id,json_data['options'])
 			
 		return jsonify({'success':True,'task':{'task_id':task.id, 'task_action':action,'task_action_id':id, 'progress_url':url_for('getProgress',task_action_id=id,task_action=action,task_id=task.id)}})
 	except:
