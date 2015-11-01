@@ -1,11 +1,16 @@
 \documentclass[10pt,journal]{IEEEtran} 
 \usepackage{lipsum}
 \usepackage{graphicx}
+
+\usepackage{pgfplots}
+\pgfplotsset{compat=newest}
+
+
 %\usepackage{cite}	
 
 %\DeclareGraphicsExtensions{.pdf,.png,.jpg}
 
-\title{test title}
+\title{A tool for gathering unbiased sets of videos and metadata from YouTube}
 \author{
 	Kragset, Hans Petter Taugb\o l
 	\and
@@ -24,7 +29,7 @@
 \maketitle
 
 \begin{abstract}
-	\lipsum[1]
+	%\lipsum[1]
 \end{abstract}
 
 \section{Introduction}
@@ -32,7 +37,7 @@
 %\lipsum[1-9]
 
 \section{Related work}
-\lipsum[1-15]
+%\lipsum[1-15]
 
 \input{DASHintro.tex}
 
@@ -48,13 +53,17 @@
 
 \input{id-fetch-algorithm-revised.tex}
 
+\input{figures/videoIDstats1.tex}
+\input{figures/videoIDstats2.tex}
+\input{figures/videoIDstats3.tex}
+
 \section{Future work}
 
-\lipsum[1-4]
+%\lipsum[1-4]
 
 \input{conclusion.tex}
 
-\lipsum[1-4]
+%\lipsum[1-4]
 
 %\bibliography{bibliography}{}
 %\bibliographystyle{plain}
