@@ -1,93 +1,124 @@
-For the ID-fetching algorithm we utilize the search.list API endpoint, which
-returns a collection of search results for a given set of parameters. The API %TODO: This should be written out in full early on, and thereafter referred to only as "The API"
-provides a rich set of parameters to tune, but there are some inherent
-limitations that have to be taken into consideration when designing an unbiased
-algorithm.
+\section{Fetching an unbiased set of video IDs}
+For video analysis, an unbiased set of sample videos might be a requirement or
+a desire for the analysist. YouTube, of course, is inherently relying on its
+ability to provide the users the videos they want, and in turn this leads to
+(very) unbiased samples if one was to simply add the videos one found while
+browsing YouTube to a list. To circumvent YouTubes attempts at tailoring a set
+of videos, the algorithm uses the API to get videos.
 
-The search.list response will contain at most 50 videos. There may be
-multiple pages, as indicated by a \texttt{nextPageToken}, but no more than ten
-pages are returned for any one set of parameters. We want to access the %TODO: unpersonalize?
-complete list of video ID's for a given set of parameters, thus the chosen
-algorithm has to split the user input into multiple subqueries that by
-themselves do not match more than 500 videos.
+\subsection{the YouTube API}
+YouTube provides a REST API, from now on referred to as "the API", which can be
+queried for information with a set of parameters. The API consists of different
+endpoints, and the one used for searching videos is called "search.list". This
+endpoint returns a result as a json object. This endpoint provides a rich list
+of customiseable paramaeters, and optimising the use of these is important to
+achieve high efficiency while using the API. 
 
-The search.list response contains a maximum of 50 videos per page and a total of
-10 pages. This restrictions leads to the fact that for a single static parameter
-set there is a maximum of 500 video provided by the API. To access the total 500
-videos, the 10 pages must be iterated, each iteration utilizing a new request
-which results in a total of 10 requests and 1000 quota unit costs.
+For a given query, he search.list response will contain at most 50 videos. There
+may be multiple pages, as indicated by a \texttt{nextPageToken} in the json
+object, but no more than ten pages are returned for any one set of parameters.
+To get a complete list of video ID's for a given set of parameters the chosen
+query has to be split up into subqueries that by themselves does not match more
+than 500 videos. This splitting, and how we recommend doing it, is discussed in
+detail in this section.
 
-The main problem with the 500 video limit for a static parameter set is, that it
-an not be a good sample. There might be a lot of other videos which match the
-requested parameter, but YouTube restricts his response to the same 500 videos,
-even if the same request as been performed multiple times. Indeed there is some
-small variation of each request's response measurable, but only a few videos
-change and therefore it can be neglected.
+Why is it important to split up the query into subqueries? The main problem with
+the 500 video limit for a static parameter set is that it can not be a good
+sample. There might be a lot of other videos which match the requested
+parameter, but subsequent requests to the API only return more or less the exact
+same sample. There are minor variatons in the returned sample, and we will 
+discuss this and the issues realted to it in more detail later. 
 
-Our approach of receiving an unbiased sample of videos from the API was to have
-a static parameter set with some variable parameter which allows us in theory to
-et all videos from YouTube. The user then has the possibility to select a
-subsample of all the videos available on the YouTube API for further research. 
-After all videos are fetched, the user has a lot of metadata
+As a side note it should be mentioned that using an actual web crawler will have
+properties an API reliant fetcher can not recreate. A crawler will have its 
+behaviour logged by YouTube, which in turn provides more content in line with
+what it thinks the crawler likes. The resulting set of videos will be more like
+a set of videos a given user is likely to see, it is inherently biased. For some
+cases such a set of videos might be desirable, for instance if one wants to
+focus on popular videos, or if one wants to meassure how biased a set becomes
+over time.
 
-For the next section we have to define some words.
-A "static parameter set" is meant to be a global search request, like "All
-videos which are related to the word 'fun', are 2D and have a high video
-quality". A "variable parameter" is a parameter which can be changed for every
-single request, without changing the meaning of the "static parameter set", but
-gives us the ability to create many different variations of the "static
-parameter set" in order to exceed the 500 videos maximum.
- 
-There are only four real variable
-parameters in the search.list API endpoint available. All other parameters are
-in some kind static and would result to a maximum of 500 videos.
+Before continuing a few terms will have to be clarified. A  "static parameter 
+set" is the set of parameters that are static, globally, for a set of queries, 
+like "All videos which are related to the word 'fun', that are 2D and have a 
+high video quality". A "variable parameter" is a parameter that can be changed 
+for every single request in a request chaing, while the static parameter set 
+remains untouched. This results in the ability to create many different
+variations of the "static parameter set" in order to exceed the 500 videos 
+maximum.
 
-channelid | indicates that the API response should only contain resources created by the channel
-location+locationRadius | defines a circular geographic area and restricts the search to videos that specify a geographic location in their metadata which falls within the requested area
-q | specifies a query term to search for
-publishedAfter/publishedBefore
-
+From the search.list API endpoint only four different variables can be varied 
+between requests in a chain. All other parameters are in some kind static and
+would result in a maximum of 500 videos. Following is a description of the
+variable parameters.
 
 \subsubsection{location and locationRadius}
-The problem with this parameter is, that not every video on YouTube has specified the location in the metadata.
-Evaluating some hundred thousands of video's metadata has shown that only 5-10% of the videos has specified a location in their metadata.
-We can not verify that this is the average on all videos uploaded on YouTube, but the existens of non-location related videos indicates that
-this parameter is not a good choice to receive an unbiased sample of videos.
+The problem with this parameter is that not every video on YouTube has specified
+the location in the metadata. Evaluating some hundred thousands of video's
+metadata has shown that only 5-10\% of the videos has specified a location in
+their metadata. We can not verify that this is the average on all videos
+uploaded on YouTube, but just the fact that some (a lot) of videos lack data in
+this field indicates that trying to vary it to get an unbiased sample will
+result in a set of videos that be default leaves out a lot of videos. For
+unbiasedness this is sub-optimal, but not disasterous. It is reasonable to
+assume that the set of videos with location data contains a well distributed
+and unbiased (sub-) set, but this can not easily be verified.
 
 \subsubsection{channelId}
-In order to use this parameter, we would need to have a list of all channels available on YouTube. This is as much difficult as
-getting all videos of YouTube and therefore this parameter does not suit our needs. Some channels also have some thousands videos uploaded
-and with a static parameter set and only the variable channelId, the API response would have a maximum of 500 videos for these channels.
+In order to use this parameter as a means of getting an unbiased set of videos,
+we would need to have a list of all channels available on YouTube. This is as
+difficult as getting all videos of YouTube and therefore varying this parameter 
+is probably not a good approach to get an unbiased set of videos. Some channels
+also have some thousands videos uploaded, so with a static parameter set and
+only varying the channelId, the API response would be limited to 500 videos. One
+could argue that 500 videos is a representative set of videos for a channel, but
+the problem is that this subset of the channels full video list is provided by
+YouTube, outside our control. Thus the returned sample can not safely be assumed
+to be representative.
 
 \subsubsection{q - search term}
-Using this parameter as variable would lead to not having this parameter in a static set and therefore it becomes impossible to receive
-all videos for a single search term. We wanted to have this parameter in a static way in order to provide results
-for search queries like "All videos which are related to the search team 'fun'"
-Although if you try to iterate over this parameter, a huge list of keywords would be needed and it does not scale well since the iteration has
-to be done for every single API search. A search like "All videos which are 3D" with a keyword list containing 100.000 words, would result to
-perform 100.000 requests and costs 1 million units whereas there are only a few 3D videos on YouTube.
+In theory this parameter could be varied and cycled through all possible
+combinations of symbols (words, in a wide sense), and through that get an
+unbiased set of videos. This is not only unfeasable due to the remarkably big
+list of words one would need\footnote{171 000 words in english alone, then add
+all other languages, not to mention names and other word-constructs}, but for
+some cases the API quota cost would be extremely high meassured as cost per
+result. For instance, if one was to get an unbiased set of 3D videos, one would
+have to cycle through the whole word list and end up spending quota on queries
+that returns without new videos. In addition to this, if one is to vary the
+search term, the user is left without the ability to narrow down the search
+with a query. For some purposes, like machine learning algorithms, having a set
+of videos with cats will be useful, if you want to train the algorithm to look
+for cats.
 
 \subsubsection{publishedAfter and publishedBefore}
-Those parameters suit most to receive an unbiased sample of YouTube videos. They are completely independent from the other parameters and
-therefore they allow us to modify them without affecting the other parameters and the result of the request.
+By having a date range as the varying parameter for a serach query, and assuming
+that the API actually returns all videos matching the query, the resulting set
+would be unbiased with regards to all aspects except from time. Of course, for
+a big timeframe there exists more than 500 videos, so to circumvent this cap,
+the timeframe can be recursively sliced up until it is so small that less than
+500 videos match the parameters. Varying this way leaves the rest of the
+parameters unchanged, and the resulting set becomes as much as possible
+unbiased.
 
+By slicing the timeframe up like this, one will also be able to get more than
+500 videos from a given channel, or from within a geographic zone. It becomes
+apparent that varying this parameter alone is the best way to achieve a unbiased
+set of videos. A nice bonus is that it also allows customisation of the query
+without leaving videos out of the resulting set.
 
-In our tool, we provide the full list of all search.list parameters which can optional be set in a static way.
+\subsection{API Issues}
+We have experienced that the API in some situations returns and indicates that
+there are multiple pages, even if there are less then 50 videos in the result
+list. This is in itself illogical, as a more natural way to return results would
+be to fill each page, and only when there are less than 50 videos remaining that
+match the query return a non-full list. Our experience why querying for the next
+page when the list is not full, is that the page and subsequent pages contains 
+the exactly same videos. Thus iterating over the pages a single static parameter
+set has becomes a bad idea because it is impossible to know if there are new
+videos on the next page or not.  %TODO expand on this?
 
-
-After identifying publishedBefore/After as the most suitable variable parameters for our intend and to exceed the 500 video maximum limit for
-a "static parameter set", we had to think about how to utilize them in an algorithm.
-
-The first thought was to let the user define a "static parameter set" and a period of time in which the search should be performed.
-The fir
-
-We have experienced that the API in some situations tells there are multiple pages even if there are less then 50 videos and each page
-contains the exactly same videos.
-So iterating over the pages a single static parameter set has, became a bad idea because we did not know if there are indeed new videos
-on the next page or Google just wants us to reduce the total results we get and maximize the quota unit costs spent.
-
-
-
-
-The IDFetch and other YouTube API related algorithm are utilizing HTTP persistent connections, which allows to use a single TCP connection to
-send and receive multiple HTTP requests and responses.
+We have also found that when issuing the same request to the server several
+times, the API might respond slightly differently each time. This result is
+easily reproducable by selecting a standard query, and seems to be more
+frequent as the result list grows in size. %TODO more here!
