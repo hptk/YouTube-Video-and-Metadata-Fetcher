@@ -1,9 +1,13 @@
-\subsection{DASH}
-DASH is an abbrevation for Dynamic Adaptive Streaming over HTTP, and is
-defined in ISO/IEC 23009-1. The goal of DASH is to improve the user
-experience while streaming media content, by providing easy access to
-different media qualities so that the client can switch qualities based
-on available bandwidth to avoid stuttering and buffering.
+\section{DASH}
+Dynamic Adaptive Streaming over HTTP (DASH) is a protocol, defined in
+ISO/IEC 23009-1~\cite{ISO/IEC 23009-1:2014}, that facilitates 
+streaming of multimedia over the internet in varying network conditions.
+The goal of DASH is to improve the user
+experience while streaming media content by splitting the media file in question
+into smaller parts and letting the streaming client choose between several
+different versions of the same file depending on preferred quality and network
+conditions. In effect, it allows streaming clients the ability to aggressively
+limit stalling in video playback at the cost of perceived video/audio quality.
 
 The core of DASH is the Media Presentation Description (MPD), sometimes
 referred to as the DASH manifest. The MPD contains all the information
@@ -11,10 +15,11 @@ needed to display the media. When a user wants to access a streamed
 media, for instance a video, the streaming client (or website frontend)
 makes a request to get the MPD for the requested media. The client then
 parses the MPD and meassures available network and buffer resources,
-before the streaming is commenced at the best feasable quality. The
-client continues to monitor the available resources while playing the
-media back and requesting more, adapting quality dynamially if conditions
-should change.
+before the streaming is commenced at the best feasable quality. Many clients %TODO: references?
+seem to prefer starting the stream at the lowest available quality, and
+slowly ramp the quality up if no network problems occur. The
+client continues to monitor the available resources during playback, adapting
+quality dynamically if conditions should change.
 
 With this approach the descision making is left to the client alone. The
 server only presents all available information about the media in the
