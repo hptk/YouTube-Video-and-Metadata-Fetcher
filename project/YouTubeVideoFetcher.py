@@ -77,24 +77,28 @@ class YouTubeVideoFetcher(RequestBase):
                 filename = path + '/sound/' + video_id + '.' + ('m4a' if mimeType[1] == 'mp4' else mimeType[1])
                 if not os.path.exists(os.path.dirname(filename)):
                     os.makedirs(os.path.dirname(filename))
-                with open(filename, "w") as f:
-                    representation = adaptation['Representation']
-                    if isinstance(representation, list):
-                        representation = representation[0] #select first available sound
-                    url = representation['BaseURL']['#text']
-                    filesize = int(representation['BaseURL']['@yt:contentLength'])
-                    response = urllib.urlopen(url)
-                    dl = 0
-                    print 'Downloading sound! > ' + video_id + ' ' + mimeType[1]
-                    while True:
-                        done = int(50 * dl / filesize)
-                        dl += CHUNK
-                        sys.stdout.write("\r[%s%s]" % ('=' * done, ' ' * (50-done)) )
-                        sys.stdout.flush()
-                        chunk = response.read(CHUNK)
-                        if not chunk: break
-                        f.write(chunk)
-                print 'DONE!'
+                
+                already_downloaded_sound = os.path.isfile(filename)
+                #only download if file is not already downloaded
+                if not already_downloaded_sound:
+                    with open(filename, "w") as f:
+                        representation = adaptation['Representation']
+                        if isinstance(representation, list):
+                            representation = representation[0] #select first available sound
+                        url = representation['BaseURL']['#text']
+                        filesize = int(representation['BaseURL']['@yt:contentLength'])
+                        response = urllib.urlopen(url)
+                        dl = 0
+                        logger.info('Downloading sound! > ' + video_id + ' ' + mimeType[1])
+                        while True:
+                            done = int(50 * dl / filesize)
+                            dl += CHUNK
+                            #sys.stdout.write("\r[%s%s]" % ('=' * done, ' ' * (50-done)) )
+                            #sys.stdout.flush()
+                            chunk = response.read(CHUNK)
+                            if not chunk: break
+                            f.write(chunk)
+                    #print 'DONE!'
                 got_sound = True
 
             #download video file, quality as specified
@@ -112,24 +116,28 @@ class YouTubeVideoFetcher(RequestBase):
                     else:
                         break
                 filename += '.' + last_representation['@height'] + '.' + ('m4v' if mimeType[1] == 'mp4' else mimeType[1])
-                with open(filename, "w") as f:
-                    url = last_representation['BaseURL']['#text']
-                    response = urllib.urlopen(url)
-                    dl = 0
-                    filesize = int(last_representation['BaseURL']['@yt:contentLength'])
-                    print 'Downloading video! > ' + video_id + ' ' + last_representation['@height'] + 'p'
-                    while True:
-                        done = int(50 * dl / filesize)
-                        dl += CHUNK
-                        sys.stdout.write("\r[%s%s]" % ('=' * done, ' ' * (50-done)) )
-                        sys.stdout.flush()
-                        chunk = response.read(CHUNK)
-                        if not chunk: break
-                        f.write(chunk)
-                    print 'DONE!'
+                #only download if file is not already downloaded
+                already_downloaded_representation = os.path.isfile(filename)
+                if not already_downloaded_representation:
+                    with open(filename, "w") as f:
+                        url = last_representation['BaseURL']['#text']
+                        response = urllib.urlopen(url)
+                        dl = 0
+                        filesize = int(last_representation['BaseURL']['@yt:contentLength'])
+                        logger.info('Downloading video! > ' + video_id + ' ' + last_representation['@height'] + 'p' + "size: "+str(filesize))
+                        while True:
+                            done = int(50 * dl / filesize)
+                            dl += CHUNK
+                            #sys.stdout.write("\r[%s%s]" % ('=' * done, ' ' * (50-done)) )
+                            #sys.stdout.flush()
+                            chunk = response.read(CHUNK)
+                            if not chunk: break
+                            f.write(chunk)
+                        #print 'DONE!'
                 got_video = True
 
             if got_video and (got_sound or (not self.get_sound and not got_sound)):
+                #add to resultList for nice progress bar in the UI
                 self.resultList[str(video_id)]=None
                 break
 
