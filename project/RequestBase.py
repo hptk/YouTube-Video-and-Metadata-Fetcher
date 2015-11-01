@@ -185,7 +185,7 @@ class RequestBase(object):
 
             return statusCode
         except Exception,e:
-            print e
+            self.putWorkQueueItem(workQueueItem)
 
 
 
