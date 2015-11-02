@@ -12,7 +12,7 @@ import random
 logger = logging.getLogger('tasks')
 from project import db
 from project.models import QueryVideoMM
-
+from config import datadir
 # TODO:
 # parameters:
 #   this file requires: (not yet tested or fixed)
@@ -29,7 +29,7 @@ class YouTubeVideoFetcher(RequestBase):
 
     def initAdditionalStructures(self):
         dir = os.path.dirname(__file__)
-        self.dl_path = os.path.join(dir, '../downloads/')
+        self.dl_path = os.path.join(datadir, 'downloads')
         
         
 
@@ -57,7 +57,7 @@ class YouTubeVideoFetcher(RequestBase):
         got_sound = False
         video_id = workQueueItem[0]
         CHUNK = 16 * 1024
-        path = self.dl_path
+        path = os.path.join(self.dl_path, video_id)
         if workQueueItem[2]:
             self.get_sound = True
 

@@ -3,13 +3,14 @@
 import os
 
 basedir = os.path.abspath(os.path.dirname(__file__))
+datadir = os.path.join(basedir,'../data')
 
 
 class BaseConfig(object):
 	SECRET_KEY = 'tc7NG9RbAMhV3rLUj8RwF2rzu7BZLbQ5'
 	DEBUG = True
 	BCRYPT_LOG_ROUNDS = 13
-	SQLALCHEMY_DATABASE_URI = 'sqlite:///'+os.path.join(basedir,'dev.sqlite')
+	SQLALCHEMY_DATABASE_URI = 'sqlite:///'+os.path.join(datadir,'database.sqlite')
 	REDIS_QUEUE_KEY = 'youtube-teleseminar'
 	# Logging defaults
 	LOGGING = {

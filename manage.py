@@ -1,10 +1,11 @@
 #!/usr/bin/env python2.7
 # manage.py
-
+import os
 from flask.ext.script import Manager
 from flask.ext.migrate import Migrate, MigrateCommand
 from project import app, db, celery
 from project.models import VideoCategory
+from project.config import datadir
 migrate = Migrate(app, db)
 manager = Manager(app)
 
@@ -14,7 +15,10 @@ manager.add_command('db', MigrateCommand)
 
 @manager.command
 def create_db():
-	"""Creates the db tables"""
+	"""Creates the db tables and generates the data folder"""
+	if not os.path.exists(os.path.dirname(datadir)):
+		os.makedirs(os.path.dirname(datadir))
+	
 	db.create_all()
 
 @manager.command
