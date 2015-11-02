@@ -60,7 +60,7 @@ def meta(self,queryId,parameters):
 
 
 @celery.task(bind=True)
-def manifest(self,queryId,parameters):
+def manifest(self,queryId):
     with celery.app.app_context():
         from project.models import YoutubeQuery, Task
         query = YoutubeQuery.query.filter_by(id=queryId).first()
