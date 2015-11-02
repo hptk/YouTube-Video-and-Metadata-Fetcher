@@ -1,16 +1,10 @@
 \documentclass[10pt,journal]{IEEEtran} 
-\usepackage{lipsum}
 \usepackage{graphicx}
 \usepackage{listings}
-%\usepackage{svg}
 
 \usepackage{pgfplots}
 \pgfplotsset{compat=newest}
 
-
-%\usepackage{cite}	
-
-% \DeclareGraphicsExtensions{.svg}
 
 \title{A tool for gathering unbiased sets of videos and metadata from YouTube}
 \author{
@@ -31,39 +25,25 @@
 \maketitle
 
 \begin{abstract}
-	%\lipsum[1]
+    \input{abstract.tex}
 \end{abstract}
 
-\section{Introduction}
+\begin{IEEEkeywords}
+    MPEG-DASH, YouTube, Metadata, unbiased dataset
+\end{IEEEkeywords}
+
 \input{introduction.tex}
-%\lipsum[1-9]
-
-\section{Related work}
-%\lipsum[1-15]
-
-\input{DASHintro.tex}
-
 
 \input{dash.tex}
-
-\input{architecture-revised.tex}
-
-\input{id-fetch-algorithm-revised.tex}
-
+\input{architecture.tex}
+\input{id-fetch-algorithm.tex}
 \input{figures/videoIDstats1.tex}
 \input{figures/videoIDstats2.tex}
 \input{figures/videoIDstats3.tex}
 
-\section{Future work}
-%\lipsum[1-4]
 \input{future-work.tex}
-
 \input{conclusion.tex}
 
-%\lipsum[1-4]
-
-%\bibliography{bibliography}{}
-%\bibliographystyle{plain}
 \input{bibliography.tex}
 
 \end{document}
