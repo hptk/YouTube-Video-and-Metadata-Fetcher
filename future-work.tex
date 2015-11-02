@@ -8,7 +8,7 @@ Investigating why the API return rate drops dramatically at certain intervals
 when looking back in time, and looking at what kind of videos that disappear
 from the returned set, will give interesting knowledge about the YouTube API,
 as well as perhaps give a final answer to whether the returned video set is
-biased or not.
+indeed biased.
 
 There are many conceivable additions to the tool as it is now. Improving the
 statistics view could improve the user experience and make it easier for the
@@ -16,4 +16,13 @@ user to make decisions about what to do next. A feature that allows the user to
 export a database containing only a selected set of videos could drastically
 reduce SQL query times during analysis, and we would recommend making some
 feature like this if SQL querying becomes a major time and resource consumer.
+
+There is a lot of room for performance improvements, especially when it comes to
+concurrency. The tool was tested on a variety of platforms, and performed
+reasonably well on most of them, but on certain configurations the API requests
+were inexplicably horrendously slow. The cause of this might be a weird
+combination of hardware, drivers, and TCP implementation in the OS kernel - 
+we simply had no time to narrow down the possible causes. Adding support to run
+multiple Celery jobs per task might have alleviated some of the performance
+hangups.
 
