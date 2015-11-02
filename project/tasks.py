@@ -15,8 +15,9 @@ def celery_prerun(*args, **kwargs):
         pass
 
 @celery.task(bind=True)
-def fetch(self,queryId):
+def fetch(self,queryId,parameters):
     with celery.app.app_context():
+        
         from project.models import YoutubeQuery, Task
         query = YoutubeQuery.query.filter_by(id=queryId).first()
         #create the ORM Task Model for the database
@@ -27,7 +28,7 @@ def fetch(self,queryId):
         parameter['queryId'] = queryId
         parameter['queryRaw'] = query.queryRaw
         logger.info("Start fetching ids for query id :"+str(parameter['queryId'])+" with parameter: "+parameter['queryRaw'])
-        fetcher = YouTubeIDFetcher("https://www.googleapis.com/youtube/v3/search",parameter,50,50,self)
+        fetcher = YouTubeIDFetcher("https://www.googleapis.com/youtube/v3/search",parameter,int(parameters['HTTPClients']),int(parameters['ClientConnectionPool']),self)
 
         result = fetcher.work()
         current_task.result = json.dumps(result)
@@ -37,7 +38,7 @@ def fetch(self,queryId):
 
 
 @celery.task(bind=True)
-def meta(self,queryId):
+def meta(self,queryId,parameters):
     with celery.app.app_context():
         from project.models import YoutubeQuery, Task
         query = YoutubeQuery.query.filter_by(id=queryId).first()
@@ -49,7 +50,7 @@ def meta(self,queryId):
         parameter['queryId'] = queryId
         queryRaw = json.loads(query.queryRaw)
         parameter['key'] = queryRaw['key']
-        fetcher = YouTubeMetaFetcher("https://www.googleapis.com/youtube/v3/videos",parameter,50,50,self)
+        fetcher = YouTubeMetaFetcher("https://www.googleapis.com/youtube/v3/videos",parameter,int(parameters['HTTPClients']),int(parameters['ClientConnectionPool']),self)
         result = fetcher.work()
 
         current_task.result = json.dumps(result)
@@ -59,7 +60,7 @@ def meta(self,queryId):
 
 
 @celery.task(bind=True)
-def manifest(self,queryId):
+def manifest(self,queryId,parameters):
     with celery.app.app_context():
         from project.models import YoutubeQuery, Task
         query = YoutubeQuery.query.filter_by(id=queryId).first()
@@ -68,7 +69,7 @@ def manifest(self,queryId):
         query.tasks.append(current_task)
         db.session.commit()
 
-        fetcher = YouTubeMPDFetcher("https://www.youtube.com/get_video_info",queryId,50,50,self)
+        fetcher = YouTubeMPDFetcher("https://www.youtube.com/get_video_info",queryId,1,1,self)
         result = fetcher.work()
 
         current_task.result = json.dumps(result)
@@ -80,6 +81,7 @@ def manifest(self,queryId):
 @celery.task(bind=True)
 def comments(self,queryId,parameters):
     with celery.app.app_context():
+
         from project.models import YoutubeQuery, Task
         query = YoutubeQuery.query.filter_by(id=queryId).first()
         #create the ORM Task Model for the database
@@ -87,11 +89,11 @@ def comments(self,queryId,parameters):
         query.tasks.append(current_task)
         db.session.commit()
         parameter = {}
-        parameter['get_replies'] = parameters['get_replies']
+        parameter['get_replies'] = parameters['getReplies']
         parameter['queryId'] = queryId
         queryRaw = json.loads(query.queryRaw)
         parameter['key'] = queryRaw['key']
-        fetcher = YouTubeCommentFetcher('https://www.googleapis.com/youtube/v3',parameter, 50, 50, self)
+        fetcher = YouTubeCommentFetcher('https://www.googleapis.com/youtube/v3',parameter, int(parameters['HTTPClients']),int(parameters['ClientConnectionPool']), self)
         result = fetcher.work()
 
         current_task.result = json.dumps(result)

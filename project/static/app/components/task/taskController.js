@@ -7,7 +7,13 @@ define(['app'], function (app) {
      function (APIKeyService,queryService,taskService, $rootScope, $routeParams, $location, $timeout,$filter) {
 
         var vm = this;
-        
+
+        vm.task = {
+        		'actionOptions': {
+        			'HTTPClients':50,
+        			'ClientConnectionPool':50
+        		}
+        } 
         vm.loadOldQueries = loadOldQueries;
         vm.createTask = createTask;
         vm.oldTasks = [];

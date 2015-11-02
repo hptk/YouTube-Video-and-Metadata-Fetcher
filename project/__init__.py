@@ -148,9 +148,9 @@ def setTask(id):
 	action = json_data['action']
 	try:
 		if action == "IDFetcher":
-			task = fetch.delay(id)
+			task = fetch.delay(id,json_data['options'])
 		elif action == "MetaFetcher":
-			task = meta.delay(id)
+			task = meta.delay(id,json_data['options'])
 		elif action == "CommentFetcher":
 			task = comments.delay(id,json_data['options'])
 		elif action == "ManifestFetcher":
