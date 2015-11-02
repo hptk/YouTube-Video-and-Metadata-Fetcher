@@ -10,15 +10,17 @@ experience while streaming media content by splitting the media file in question
 into smaller parts and letting the streaming client choose between several
 different versions of the same file depending on preferred quality and network
 conditions. In effect, it allows streaming clients the ability to aggressively
-limit stalling in video playback at the cost of perceived video/audio quality.
+limit stalling in video playback at the cost of perceived video/audio quality
+while simultaneously saving the service provider a significant amount of
+network traffic~\cite[p. 412]{dashing-youtube}~\cite{Google I/O 2013}.
 
 The core of DASH is the Media Presentation Description (MPD), sometimes
 referred to as the DASH manifest. The MPD contains all the information
 needed to display the media. When a user wants to access a streamed
 media, for instance a video, the streaming client (or website frontend)
 makes a request to get the MPD for the requested media. The client then
-parses the MPD and meassures available network and buffer resources,
-before the streaming is commenced at the best feasable quality. Many clients %TODO: references?
+parses the MPD and measures available network and buffer resources,
+before the streaming is commenced at the best feasible quality. Many clients %TODO: references?
 seem to prefer starting the stream at the lowest available quality, and
 slowly ramp the quality up if no network problems occur. The
 client continues to monitor the available resources during playback, adapting
@@ -53,7 +55,7 @@ single point to get information about a streamed media.
     \label{fig:dash-mpd-diagram}
 \end{figure}
 
-~\ref{fig:dash-mpd-diagram} depicts the basic outline of a Media Presentation
+~\cref{fig:dash-mpd-diagram} depicts the basic outline of a Media Presentation
 Description. The uppermost layer of the YouTube MPD contains duration of the
 media as well as information about the format. Each MPD contains a set of
 adaptations, each describing a media type. An arbitrary YouTube video might have
@@ -63,7 +65,7 @@ adaptation (media type) might have multiple representations each designating a
 different media quality.
 
 Note that this differs from what one might consider the \textit{standard ISO
-DASH}\footnote{The DASH standard is incedibly loose in order to allow different
+DASH}\footnote{The DASH standard is incredibly loose in order to allow different
 implementations and the freedom to make changes that benefit the specific media
 host the most, thus there is not really a \textit{standard} DASH implementation.}
 implementation. The standard facilitates using periods to
@@ -112,24 +114,24 @@ fetch in order to assure smooth playback.
 \end{figure}
 
 \subsubsection{\texttt{@id}}
-Sspecifies an identifier for this Representation, used for easy lookup and the
+Specifies an identifier for this Representation, used for easy lookup and the
 potential for (reckless) hard-coding of identifiers instead of checking for
 video parameters as strings.
 Each id is linked with a specific type of video. In the case of the
 YouTube MPD, $137$ is defined to always be a 1920x1080 mp4 video, for
 example~\cite[line 303]{youtube-dl:youtube.py}\footnote{The retrieval of MPD's
 does not seem to be officially supported in the YouTube API v3, thus there are
-no truly reliable sources. The reference is to a popular youtube downloader tool
+no truly reliable sources. The reference is to a popular YouTube downloader tool
 that seems to have figured out how the MPD is laid out as of 2015-11-01}
 
 \subsubsection{\texttt{@codecs}}
 Specifies the codecs present with this
 Representation. The field should also include the profile and level
 information where applicable. For this video, the codec specifies a
-H.264/AVC video, High Profile, Level 40 (fix).
+H.264/AVC video, High Profile, Level 40~\cite[p. 12]{rfc6381}.
 
-The \texttt{@width} and \texttt{@height} fields specifies the resolution of the video in
-pixels (not the ISO DASH definition, but always true for youtube
+\subsubsection{\texttt{@width} and \texttt{@height}}
+Specifies the resolution of the video in pixels (not the ISO DASH definition, but always true for YouTube
 videos?).
 
 TODO: describe SAP
@@ -157,6 +159,6 @@ URL for the Representation.
 
 When switching between different qualities, the base URL is used
 together with content length and stuff to start downloading at the
-correct loaction for the next Representation. \emph{super pr0
+correct location for the next Representation. \emph{super pr0
 description here}
 

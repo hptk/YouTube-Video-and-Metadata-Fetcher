@@ -1,21 +1,21 @@
 \section{Fetching an unbiased set of video IDs}
 For video analysis, an unbiased set of sample videos might be a requirement or
-a desire for the analysist. YouTube, of course, is inherently relying on its
+a desire for the analyst. YouTube, of course, is inherently relying on its
 ability to provide the users the videos they want, and in turn this leads to
-(very) unbiased samples if one was to simply add the videos one found while
-browsing YouTube to a list. To circumvent YouTubes attempts at tailoring a set
+biased samples if one was to simply add the videos one found while
+browsing YouTube to a list. To circumvent YouTube's attempts at tailoring a set
 of videos, the algorithm uses the API to get videos.
 
 \subsection{The YouTube API}
 YouTube provides a REST API, from now on referred to as "the API", which can be
 queried for information with a set of parameters. The API consists of different
 endpoints, and the one used for searching videos is called "search.list". This
-endpoint returns a result as a json object. This endpoint provides a rich list
-of customiseable paramaeters, and optimising the use of these is important to
+endpoint returns a result as a JSON object. This endpoint provides a rich list
+of customizable paramaeters, and optimizing the use of these is important to
 achieve high efficiency while using the API. 
 
-For a given query, he search.list response will contain at most 50 videos. There
-may be multiple pages, as indicated by a \texttt{nextPageToken} in the json
+For a given query, the search.list response will contain at most 50 videos. There
+may be multiple pages, as indicated by a \texttt{nextPageToken} in the JSON
 object, but no more than ten pages are returned for any one set of parameters.
 To get a complete list of video IDs for a given set of parameters the chosen
 query has to be split up into subqueries that by themselves does not match more
@@ -26,8 +26,8 @@ Why is it important to split up the query into subqueries? The main problem with
 the 500 video limit for a static parameter set is that it can not be a good
 sample. There might be a lot of other videos which match the requested
 parameter, but subsequent requests to the API only return more or less the exact
-same sample. There are minor variatons in the returned sample, and we will 
-discuss this and the issues realted to it in more detail later. 
+same sample. There are minor variations in the returned sample, and we will 
+discuss this and the related issues in more detail later. 
 
 As a side note it should be mentioned that using an actual web crawler will have
 properties an API reliant fetcher can not recreate. A crawler will have its 
@@ -35,14 +35,14 @@ behaviour logged by YouTube, which in turn provides more content in line with
 what it thinks the crawler likes. The resulting set of videos will be more like
 a set of videos a given user is likely to see, it is inherently biased. For some
 cases such a set of videos might be desirable, for instance if one wants to
-focus on popular videos, or if one wants to meassure how biased a set becomes
+focus on popular videos, or if one wants to measure how biased a set becomes
 over time.
 
 Before continuing a few terms will have to be clarified. A  "static parameter 
 set" is the set of parameters that are static, globally, for a set of queries, 
 like "All videos which are related to the word 'fun', that are 2D and have a 
 high video quality". A "variable parameter" is a parameter that can be changed 
-for every single request in a request chaing, while the static parameter set 
+for every single request in a request chain, while the static parameter set 
 remains untouched. This results in the ability to create many different
 variations of the "static parameter set" in order to exceed the 500 videos 
 maximum.
@@ -60,19 +60,19 @@ their metadata. We can not verify that this is the average on all videos
 uploaded on YouTube, but just the fact that some (a lot) of videos lack data in
 this field indicates that trying to vary it to get an unbiased sample will
 result in a set of videos that be default leaves out a lot of videos. For
-unbiasedness this is sub-optimal, but not disasterous. It is reasonable to
+unbiasedness this is sub-optimal, but not disastrous. It is reasonable to
 assume that the set of videos with location data contains a well distributed
-and unbiased (sub-) set, but this can not easily be verified.
+and unbiased subset, but this can not easily be verified.
 
 \subsubsection{channelId}
 In order to use this parameter as a means of getting an unbiased set of videos,
 we would need to have a list of all channels available on YouTube. This is as
 difficult as getting all videos of YouTube and therefore varying this parameter 
 is probably not a good approach to get an unbiased set of videos. Some channels
-also have some thousands videos uploaded, so with a static parameter set and
+also have some thousands of videos uploaded, so with a static parameter set and
 only varying the channelId, the API response would be limited to 500 videos. One
 could argue that 500 videos is a representative set of videos for a channel, but
-the problem is that this subset of the channels full video list is provided by
+the problem is that this subset of the channel's full video list is provided by
 YouTube, outside our control. Thus the returned sample can not safely be assumed
 to be representative.
 
@@ -82,7 +82,7 @@ combinations of symbols (words, in a wide sense), and through that get an
 unbiased set of videos. This is not only unfeasable due to the remarkably big
 list of words one would need\footnote{171 000 words in english alone, then add
 all other languages, not to mention names and other word-constructs}, but for
-some cases the API quota cost would be extremely high meassured as cost per
+some cases the API quota cost would be extremely high measured as cost per
 result. For instance, if one was to get an unbiased set of 3D videos, one would
 have to cycle through the whole word list and end up spending quota on queries
 that returns without new videos. In addition to this, if one is to vary the

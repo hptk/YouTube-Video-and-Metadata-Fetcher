@@ -1,13 +1,13 @@
 \section{API Issues}
 We have experienced that the API in some situations returns and indicates that
-there are multiple pages, even if there are less then 50 videos in the result
+there are multiple pages, even if there are less than 50 videos in the result
 list. This is in itself illogical, as a more natural way to return results would
 be to fill each page, and only when there are less than 50 videos remaining that
-match the query return a non-full list. Our experience why querying for the next
-page when the list is not full, is that the page and subsequent pages contains 
-the exactly same videos. Thus iterating over the pages a single static parameter
-set has becomes a bad idea because it is impossible to know if there are new
-videos on the next page or not.  %TODO expand on this?
+match the query return a non-full list. Our experience when querying for the next
+page when the list is not full, is that the page and all subsequent pages contain
+the exact same set of videos. Thus iterating over the pages a  for a single
+static parameter set has becomes a bad idea because it is impossible to know if
+there are new videos on the next page or not.  %TODO expand on this?
 
 We have also found that when issuing the same request to the server several
 times, the API might respond slightly differently each time. This result is

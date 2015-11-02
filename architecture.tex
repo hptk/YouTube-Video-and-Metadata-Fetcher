@@ -18,8 +18,8 @@ facilitates easy setup and management of single-page web applications using the
 model-view-controller (MVC) pattern.
 
 The frontend is separated into four main pages that each have a specific
-function: Management of API keys, creation of API queries, creation of celery
-tasks, and results presentation.
+function: Management of API keys, creation of API queries, creation of tasks,
+and results presentation.
 
 
 \subsubsection{User management}
@@ -31,13 +31,10 @@ API keys are instantly validated and, if valid, added to the dropdown list of
 available keys on the query builder page.
 While only a single key is required per API request (in the absence of OAuth
 2.0), having access to multiple keys makes for quick and easy testing and the
-ability to generate keys for a specific purpose or dataset. The latter is
-shown in action on the Result page, where the user can view statistics filtered
-by a given API key. %TODO: refine?
-
+ability to generate keys for a specific purpose or dataset.
 
 \subsubsection{Query Builder}
-On the Query builder page the user may build individual search queries using
+On the query builder page the user may build individual search queries using
 the provided interface. YouTube's API defines a set of options which we present
 to the user in the form of input boxes. Our algorithm for assuring unique
 results requires a timeframe, thus the two relevant query fields are required - 
@@ -46,7 +43,7 @@ specifically on the user's own videos are deliberately omitted as this is
 not within the scope of the tool.
 
 Before queries are dispatched to the task workers and any real work is
-performed, they are validated by issuing a small version of the query for
+performed, they are validated by issuing a complete query for syntax
 verification only. The user is immediately notified if any of the given query
 parameters create an invalid combination. This will prove invaluable to new
 users who can safely learn to use the YouTube API, as well as preventing
@@ -58,7 +55,7 @@ the storage of invalid queries.
 Stored queries may be executed on the Task page. The user selects the task he
 wants performed and a query which defines the set of videos on which to operate.
 The first operation will always be the fetching of video IDs, as the rest of the
-available tasks depend on this. Multiple tasks may be launched in parallell.
+available tasks depend on this. Multiple tasks may be launched in parallel.
 Progress bars are updated in real-time. %TODO: too short and list-y. Reword?
 
 

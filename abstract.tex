@@ -1,7 +1,8 @@
-YouTube provides a massive amount of media data freely, available as video and
-audio data. Analysing this data can provide invaluable information, and YouTube
-is especially interesting as there is a similarily massive amount of metadata
-available. Analysing video together with metadata such as recording time and
+\begin{abstract}
+YouTube provides a massive amount of publicly available audiovisual content.
+Analyzing this data can provide invaluable information, and YouTube
+is especially interesting as there is a similarly massive amount of related metadata
+available. Analyzing video together with metadata such as recording time and
 location, view count, like and dislike counts, description, tags and last but
 not least comments enables a whole new depth of video analysis. With this in 
 mind we have developed a tool that makes it easy to download a set of videos
@@ -14,14 +15,15 @@ for that algorithm's ability to understand a video outside of the training set.
 During development we discovered interesting aspects about the YouTube API.
 The API seems to be inconsistent in the replies it gives, the API endpoint gives
 slightly different results when queried with the same query multiple times. This
-behaviour is understandible and negligible, and does not compare to the issue
-that is the massive dropoff of returned result when stepping backwards in time.
-Compared to requesting videos from yesterday, requesting videos form a day a
+behavior is not unexpected - and negligible. It does not compare to the issue
+that is the massive decline in returned results when stepping backwards in time.
+Compared to requesting videos from yesterday, requesting videos from a day a
 months back return only about 2\% of the unique video ID count. 
 
-YouTube uses Dynamic Adaptive Streaming over HTTP, DASH, to provide it is media
+YouTube uses Dynamic Adaptive Streaming over HTTP (DASH) to provide its media
 content. Our tool uses this to provide the user with information about available
 qualities for a given video or video query set, and subsequently issues HTTP GET
 requests as described in the DASH Media Presentation Description (MPD). 
-YouTube's implementation of DASH does not differ much from ISO 23009-1 where 
-DASH is defined.
+YouTube's implementation of DASH does not differ much from ISO
+23009-1~\cite{iso-dash-2014} where DASH is defined.
+\end{abstract}

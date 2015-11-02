@@ -14,17 +14,17 @@
 
 YouTube is without a doubt the world's largest host of user-generated content,
 with over one billion users generating several billion views, spending hundreds
-of billions of hours every day ~\cite{officialstats}. Though there does not seem
+of billions of hours every day~\cite{officialstats}. Though there does not seem
 to be an official source, it is believed that by the end of 2014, more than 300
-hours worth of content was being uploaded to YouTube every minute 
-~\cite{dagensmediastats}~\cite{reelseostats}. 
+hours worth of content was being uploaded to YouTube every
+minute~\cite{dagensmediastats}~\cite{reelseostats}. 
 
-This makes YouTube a fantastic resource of both videos and metadata to be used
-for analysis for a range of different purposes. Especially with regards to
-machine learning algorithms, a large, good sample set of videos will be required
-to train an algorithm. For such an algorithm to stay relevant also for videos
-that was not in the inital training set, the training set will have to be as
-unbiased as possible.
+This makes YouTube a fantastic resource of both videos and metadata intended for
+uses such as e.g. statistical analysis and machine learning: Fields like these
+require considerable amounts of data to be expected to yield reasonable results.
+Of particular note is the relation between the videos and the corresponding 
+metadata, as it may provide the means to interpret the media data in its true
+context.
 
 It is neither our desire nor task to create a tool that by default limits the
 returned data set in any way. By letting the users specify as little or as much
@@ -42,28 +42,26 @@ with a video, as well as its comment threads and replies. Fetching of related
 videos has been deliberately left out - for now at least} for the given videos;
 fetch the videos themselves, with sound; and connect all related data points
 with a SQL database. Alongside the documentation for the source code there will
-be a databse diagram show how all the data is related. Making an SQL database
+be a database diagram show how all the data is related. Making an SQL database
 made sense because, as we saw our dataset grow with hundreds of thousands of
-videos with related metadata and comment data, storing it in CSV, XML or some
-other file format made little sense. SQL is also a widely adapted database
-format, and all the widely adapted programming languages has support for
+videos with related metadata and comment data, its storage would be required
+to handle a massive I/O load. SQL is also a widely adapted database
+format, and all widely adapted programming languages has support for
 extracting data from an SQL database in one way or another.
 
 One of the main goals of the tool, as described earlier and in even more detail
 later, is to be unbiased. In the context of this paper, to be unbiased means
-to not whiegh videos differently based on their properties. When gathering a
+to not wheigh videos differently based on their properties. When gathering a
 set of videos, the only limitations, if any, are the ones provided by the user.
 The resulting videoset will consist of all videos matching the query, without
 being wheighted towards popular videos, new videos, high quality videos, 
-advertised videos, recommended videos or any other imaginable parameter. This
-is inherently different from the video set a normal user sees while browsing, 
-and this is discussed later.
+advertised videos, recommended videos or any other imaginable
+parameter\footnote{Assuming the query responses themselves are unbiased}. This
+is inherently different from the video set a normal user sees while browsing.
 
 With this foundation our work has been centered around trying to gather as much
-information as possible from YouTube whilst being unbiased and efficient with
-resources. Resources can here mean several things, as well as the users CPU,
-network and storage resources, we also have tried minimising the API quota
-\footnote{A form of cradit assosiated with an API key, quota is lost when making
+information as possible from YouTube whilst being both unbiased and efficient
+resource-wise: We attempt to minimize CPU load, network usage, storage required,
+while also minimizing the API quota\footnote{A form of credit assosiated with an API key, quota is spent making
 API requests.} costs for the user.
-
 
