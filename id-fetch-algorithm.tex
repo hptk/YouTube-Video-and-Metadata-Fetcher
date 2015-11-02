@@ -17,7 +17,7 @@ achieve high efficiency while using the API.
 For a given query, he search.list response will contain at most 50 videos. There
 may be multiple pages, as indicated by a \texttt{nextPageToken} in the json
 object, but no more than ten pages are returned for any one set of parameters.
-To get a complete list of video ID's for a given set of parameters the chosen
+To get a complete list of video IDs for a given set of parameters the chosen
 query has to be split up into subqueries that by themselves does not match more
 than 500 videos. This splitting, and how we recommend doing it, is discussed in
 detail in this section.
@@ -54,7 +54,7 @@ variable parameters.
 
 \subsubsection{location and locationRadius}
 The problem with this parameter is that not every video on YouTube has specified
-the location in the metadata. Evaluating some hundred thousands of video's
+the location in the metadata. Evaluating some hundred thousands of videos
 metadata has shown that only 5-10\% of the videos has specified a location in
 their metadata. We can not verify that this is the average on all videos
 uploaded on YouTube, but just the fact that some (a lot) of videos lack data in

@@ -12,9 +12,10 @@ capabilities.
 
 
 \subsection{Client}
-The user interface of the tool is written in AngularJS, an open-source framework
-that facilitates easy setup and management of single-page web applications using
-the model-view-controller (MVC) pattern.~\cite{architecture:angularjs}
+The user interface of the tool is written in
+AngularJS\footnote{https://angularjs.org/}, an open-source framework that
+facilitates easy setup and management of single-page web applications using the
+model-view-controller (MVC) pattern.
 
 The frontend is separated into four main pages that each have a specific
 function: Management of API keys, creation of API queries, creation of celery
@@ -77,10 +78,12 @@ The server is written in python %TODO: finish
 All requests created by the frontend are handled asynchronously by Celery and
 Redis.
 
-Celery is used as an asynchronous task queue based on distributed messages. It
-is capable of distributing tasks over a potentially vast network of nodes.
-~\cite{architecture:celery} Redis is a networked in-memory key-value database.
-~\cite{architecture:redis} The frameworks aren't used to their full extent given
+Celery\footnote{http://www.celeryproject.org/} is used as an asynchronous task
+queue based on distributed messages. It is capable of distributing tasks over a
+potentially vast network of nodes.
+
+Redis\footnote{http://www.redis.io} is a networked in-memory key-value database.
+The frameworks are not used to their full extent given
 our current single-server environment, but having these frameworks already
 present will be of great aid in future expansion.
 
