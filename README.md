@@ -1,4 +1,4 @@
-# YouTube MetaData and Video Fetcher
+# YouTube Video and Metadata Fetcher
 
 ### Contents
 
