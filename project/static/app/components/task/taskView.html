@@ -94,7 +94,15 @@
 		        
 		     		
 		       	<div class="form-group col-xs-6">
-		       	
+		       	<div ng-show="vm.task.action=='CommentFetcher'">
+		       	<label for="taskAction">Replies</label>
+		       		<ui-select  ng-model="vm.task.actionOptions.getReplies">
+			            <ui-select-match placeholder="Do you also want to store the replies on the comments?">{{$select.selected.name}}</ui-select-match>
+			            <ui-select-choices repeat="type.type as type in vm.commentReplies">
+			              <div ng-bind-html="type.name | highlight: $select.search"></div>
+			            </ui-select-choices>
+			          </ui-select>
+		       	</div>
 		       	<div ng-show="vm.task.action=='VideoFetcher'">
 		        	<label for="taskAction">Resolution</label>
 		       		<ui-select  ng-model="vm.task.actionOptions.resolution">
@@ -130,7 +138,7 @@
 		     		</div> 
 		       	
 		       	<label style="display:block;">Submit</label>
-		         <button ng-click="vm.createTask(vm.selectedOldQuery.id,vm.task.action)" type="submit" ng-disabled="!vm.selectedOldQuery || !vm.task.action || (vm.task.action=='VideoFetcher' && (!vm.task.actionOptions.resolution || !vm.task.actionOptions.sound || !vm.task.actionOptions.method || (vm.task.actionOptions.method=='random' && !vm.task.actionOptions.amount)))" class="btn btn-primary">Create Task</button>
+		         <button ng-click="vm.createTask(vm.selectedOldQuery.id,vm.task.action)" type="submit" ng-disabled="!vm.selectedOldQuery || !vm.task.action || (vm.task.action=='VideoFetcher' && (!vm.task.actionOptions.resolution || vm.task.actionOptions.sound===undefined || !vm.task.actionOptions.method || (vm.task.actionOptions.method=='random' && !vm.task.actionOptions.amount)) || (vm.task.action=='CommentFetcher' && vm.task.actionOptions.get_replies===undefined))" class="btn btn-primary">Create Task</button>
 		            <img ng-if="vm.dataCheckingQuery" src="data:image/gif;base64,R0lGODlhEAAQAPIAAP///wAAAMLCwkJCQgAAAGJiYoKCgpKSkiH/C05FVFNDQVBFMi4wAwEAAAAh/hpDcmVhdGVkIHdpdGggYWpheGxvYWQuaW5mbwAh+QQJCgAAACwAAAAAEAAQAAADMwi63P4wyklrE2MIOggZnAdOmGYJRbExwroUmcG2LmDEwnHQLVsYOd2mBzkYDAdKa+dIAAAh+QQJCgAAACwAAAAAEAAQAAADNAi63P5OjCEgG4QMu7DmikRxQlFUYDEZIGBMRVsaqHwctXXf7WEYB4Ag1xjihkMZsiUkKhIAIfkECQoAAAAsAAAAABAAEAAAAzYIujIjK8pByJDMlFYvBoVjHA70GU7xSUJhmKtwHPAKzLO9HMaoKwJZ7Rf8AYPDDzKpZBqfvwQAIfkECQoAAAAsAAAAABAAEAAAAzMIumIlK8oyhpHsnFZfhYumCYUhDAQxRIdhHBGqRoKw0R8DYlJd8z0fMDgsGo/IpHI5TAAAIfkECQoAAAAsAAAAABAAEAAAAzIIunInK0rnZBTwGPNMgQwmdsNgXGJUlIWEuR5oWUIpz8pAEAMe6TwfwyYsGo/IpFKSAAAh+QQJCgAAACwAAAAAEAAQAAADMwi6IMKQORfjdOe82p4wGccc4CEuQradylesojEMBgsUc2G7sDX3lQGBMLAJibufbSlKAAAh+QQJCgAAACwAAAAAEAAQAAADMgi63P7wCRHZnFVdmgHu2nFwlWCI3WGc3TSWhUFGxTAUkGCbtgENBMJAEJsxgMLWzpEAACH5BAkKAAAALAAAAAAQABAAAAMyCLrc/jDKSatlQtScKdceCAjDII7HcQ4EMTCpyrCuUBjCYRgHVtqlAiB1YhiCnlsRkAAAOwAAAAAAAAAAAA==" />
 		     		</div>      
 		 </div> 

@@ -152,7 +152,7 @@ def setTask(id):
 		elif action == "MetaFetcher":
 			task = meta.delay(id)
 		elif action == "CommentFetcher":
-			task = comments.delay(id,json_data)
+			task = comments.delay(id,json_data['options'])
 		elif action == "ManifestFetcher":
 			task = manifest.delay(id)
 		elif action == "VideoFetcher":

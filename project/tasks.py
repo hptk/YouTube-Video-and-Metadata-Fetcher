@@ -85,7 +85,7 @@ def comments(self,queryId,parameters):
         db.session.commit()
         parameter = {}
         parameter['queryId'] = queryId
-        parameter['get_replies'] = True
+        parameter['get_replies'] = parameters['get_replies']
         fetcher = YouTubeCommentFetcher('https://www.googleapis.com/youtube/v3',parameter, 50, 50, self)
         result = fetcher.work()
 

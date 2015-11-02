@@ -38,6 +38,11 @@ define(['app'], function (app) {
         
         vm.downloadMethod = [{type:'all' , name:"All"},
                              {type:'random' , name:"Random"}];
+        
+        vm.commentReplies = [{type:true , name:"With replies"},
+                            {type:false , name:"Without replies"}];
+  
+        
         vm.taskOptions = [
 							{ name: 'Fetches only the Video IDs for the selected query' , type:'IDFetcher'},
 							{ name: 'Fetches the meta data for the videos which are associated with the selected query' , type:'MetaFetcher'},
