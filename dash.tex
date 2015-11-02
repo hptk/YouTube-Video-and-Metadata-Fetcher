@@ -50,7 +50,7 @@ single point to get information about a streamed media.
 
 \begin{figure}
     \centering
-    \includegraphics[width=0.2\textwidth]{figures/dash-mpd-diagram}
+    \includegraphics[width=0.6\textwidth]{figures/dash-mpd-diagram}
     \caption{Diagram of the YouTube Media Presentation Description.}
     \label{fig:dash-mpd-diagram}
 \end{figure}
@@ -114,8 +114,9 @@ fetch in order to assure smooth playback.
 \end{figure}
 
 \subsubsection{\texttt{@id}}
-Specifies an identifier for this Representation, used for easy lookup and the
-potential for (reckless) hard-coding of identifiers instead of checking for
+Specifies a unique (within the Period) identifier for this Representation, used
+for easy lookup and the
+potential for (reckless!) hard-coding of identifiers instead of checking for
 video parameters as strings.
 Each id is linked with a specific type of video. In the case of the
 YouTube MPD, $137$ is defined to always be a 1920x1080 mp4 video, for
@@ -131,34 +132,38 @@ information where applicable. For this video, the codec specifies a
 H.264/AVC video, High Profile, Level 40~\cite[p. 12]{rfc6381}.
 
 \subsubsection{\texttt{@width} and \texttt{@height}}
-Specifies the resolution of the video in pixels (not the ISO DASH definition, but always true for YouTube
-videos?).
+Specifies the resolution of the video in pixels.
 
-TODO: describe SAP
+\subsubsection{\texttt{@startWithSAP}}
+The SAP, or Stream Access Point, describes a position in a Representation
+enabling playback of a media stream to be started using only the information
+contained in Representation data starting form that position
+onwards~\cite[p. 11]{iso-dash-2014}. The usage of this type of parameter
+is not specified exactly in the standard, but its general use is described.
 
-\texttt{@maxPlayoutRate} specifies the maximum playout rate as a multiple of the
-regular playout rate, in this example it is set to 1, which means that
-it is not supported on any level.
+\subsubsection{\texttt{@maxPlayoutRate}}
+Specifies the maximum playout rate as a multiple of the
+regular playout rate. in this example it is set to 1: It is not supported.
 
-The \texttt{@bandwidth} field is a little more complicated than the other fields.
-If a Representation is continuously delivered at this bitrate (in a
-constant bitrate channel of \texttt{@bandwidth} bps), starting at SAP 1, a client
-can be assured of having enough data for continuous playout providing
+\subsubsection{\texttt{@bandwidth}}
+A little more complicated than the other fields.
+If a Representation is continuously delivered at this bitrate in a
+constant bitrate channel of \texttt{@bandwidth} bits per second starting at
+SAP 1, a client
+can be assured of having enough data for continuous playback providing
 playout begins after \texttt{@minBufferTime} * \texttt{@bandwidth} bits have been
-received. If you consider the value to be bits per second in a channel
-with constant bitrate,
+received. In short: If the client is able to maintain a download rate
+consistently equal to or greater than \texttt{@bandwidth} during the entire
+playback, the user will never experience stalling.
 
+\subsubsection{Other}
 Not all identifiers are specified in the ISO DASH standard. YouTube
-provides some of its own, and these are prefixed with yt:. One example
-is the \texttt{@yt:contentLength} field. This specifies the size of the
-Representation in bytes. So the total download size of the
-Representation will match this value.
+provides some of its own, and these are prefixed with \textit{yt:}.
+The \texttt{@yt:contentLength} field, for example, specifies the size of the
+Representation in bytes, to be used in calculating chunk offsets into the file.
 
-BaseURL contains the contentLength and a HTTP URL to be used as a base
-URL for the Representation.
-
-When switching between different qualities, the base URL is used
-together with content length and stuff to start downloading at the
-correct location for the next Representation. \emph{super pr0
-description here}
+When switching from Presentation $X$ to Presentation $Y$ at segment $n$, the
+\texttt{@baseURL/#text} (URI describing the media resource of Presentation $Y$)
+is used in conjunction with \texttt{@bandwidth} of Presentation $Y$ to
+calculate the chunk offset of segment $n+1$ into the media file.
 
