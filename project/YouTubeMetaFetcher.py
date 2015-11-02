@@ -39,8 +39,7 @@ class YouTubeMetaFetcher(RequestBase):
         return int(string)
 
     def initWorkQueue(self):
-        """initialize the working queue, selecting all video ids for the given query id"""
-        #nice to have: only select which do not have meta data yet in order
+        """initialize the working queue, selecting all video ids for the given query id and chunks them down into 50er tuples"""
 
         #fetch all rows
         videoIDRows = db.engine.execute('select video_id from query_video_mm where youtube_query_id='+str(self.parameter['queryId']))
@@ -97,7 +96,6 @@ class YouTubeMetaFetcher(RequestBase):
                 db_meta['status_publicStatsViewable'] = status['publicStatsViewable']
 
                 #statistics
-                #TODO: Cast to int needed?
                 stats = item['statistics']
                 db_meta['statistics_viewCount'] = stats['viewCount']
                 db_meta['statistics_likeCount'] = stats.get('likeCount') or ''
