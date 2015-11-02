@@ -1,0 +1,20 @@
+\section{Related Work}
+A lot of work has by now been done related to DASH and Adaptive streaming in
+general. DASH ~\cite{iso-dash-2014} was the first adaptive streaming
+technology using HTTP that became an international standard. This is in large
+due to pioneering work from Adobe with their Adobe Systems HTTP Dynamic Streaming
+\HUGOFIX{Adobe HTTP Dynamic Streaming. http://www.adobe.com/products/hds-dynamic-streaming.html}, 
+Apple with HTTP Live Streaming (HLS) \HUGOFIX{Apple HTTP Live Streaming. https://developer.apple.com/resources/http-
+streaming/}, and Microsoft with Microsoft Smooth Streaming \HUGOFIX{Microsoft Smooth Streaming.
+http://www.iis.net/downloads/microsoft/smooth-streaming.}. DASH has quickly
+spread, and YouTube has now implemented DASH as their prefered streaming technology ~\cite{Google I/O 2013}. 
+D. Krishnappa et al. (2013) \HUGOFIX{DASHING YOUTUBE} discussed possible resource savings of implementing DASH in YouTube,
+somewhat related to our work. 
+
+youtube-dl (sic.) ~\cite{youtube-dl} is an open source tool developed by P. Hagemeister et al. (2008-today) that provides
+the ability to download videos from youtube and other similar media hosting sites. Their source code has been the only
+significant inspiration for our own source code. We had the option of simply including their source code and interact with it
+directly, as a way to outsource the video file downloading, but the code required is not complex enough to justify the loss
+of control. One of the most usable features youtube-dl provides, that our tool currently does not provide, is the 
+merging of sound and video into a single file. This would make storage on our part a bit less complicated, but on the other
+hand having split video and sound files can be an advantage for analysis tools. 
