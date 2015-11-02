@@ -29,8 +29,8 @@ context.
 It is neither our desire nor task to create a tool that by default limits the
 returned data set in any way. By letting the users specify as little or as much
 as they want in their query, we leave as much control as possible with the user,
-who, of course, knows much better than us what the resulting dataset will be
-used for. This makes the tool very versatile, as you could, for instance, first
+who has a more intimate knowledge about the dataset he wants to obtain.
+This makes the tool versatile, as you could, for instance, first
 download a big set of videos related to the search term "cat", before
 downloading a completely random video set and using an algorithm trained with
 the first data set to find cat-related videos in this second set. 
@@ -42,9 +42,10 @@ with a video, as well as its comment threads and replies. Fetching of related
 videos has been deliberately left out - for now at least} for the given videos;
 fetch the videos themselves, with sound; and connect all related data points
 with a SQL database. Alongside the documentation for the source code there will
-be a database diagram show how all the data is related. Making an SQL database
+be a database diagram to show how all the data is related. Making an SQL database
 made sense because, as we saw our dataset grow with hundreds of thousands of
-videos with related metadata and comment data, its storage would be required
+videos with related metadata and comment data, its storage capabilities
+would be required
 to handle a massive I/O load. SQL is also a widely adapted database
 format, and all widely adapted programming languages has support for
 extracting data from an SQL database in one way or another.
