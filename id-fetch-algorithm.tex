@@ -1,14 +1,48 @@
-\section{Fetching an unbiased set of video IDs}
-For video analysis, an unbiased set of sample videos might be a requirement or
-a desire for the analyst. YouTube, of course, is inherently relying on its
-ability to provide the users the videos they want, and in turn this leads to
-biased samples if one was to simply add the videos one found while
-browsing YouTube to a list. To circumvent YouTube's attempts at tailoring a set
-of videos, the algorithm uses the API to get videos.
+\subsection{Selecting a representative sample of video from YouTube}
 
-\subsection{The YouTube API}
-YouTube provides a REST API, from now on referred to as "the API", which can be
-queried for information with a set of parameters. The API consists of different
+%TO WRITE: SOME INTRO WHY WE WANT TO GET VIDEOS, WHAT IS OUR AIM
+%- chosen parameter
+%- unbiased
+%- large dataset
+
+Before we present our implementation we want to give a brief summary of
+different kinds of strategies to receive data from YouTube since there might be
+some limitations and choosing a strategy depends on various individual decision
+criteria.
+
+\subsubsection{Crawling the YouTube website}
+An unbiased set of videos and metadata may be a desire of, or indeed a
+requirement for, a statistical analyst. YouTube's recommendation system is
+tailored to provide the most relevant content to one user during a single
+session, or over the course of multiple sessions. Up to 20 recommended videos are shown per video page. Among these are paid
+promotions by other users or networks, top trending videos, and videos directly related to the last
+submitted search query, (probably) amongst others. If one was to naively crawl
+through content served to them by the YouTube recommendation system one would
+certainly not venture far from the starting point due to an inherent
+confirmation bias in algorithms typically chosen for this
+purpose~\cite{youtube-recommendation-system}: YouTube will
+continue to serve videos related to the ones one is already watching, thus it is
+difficult to break out of even a certain category of content. One might think of
+this as actively hindering us in our hunt for an unbiased representative dataset.
+
+\subsubsection{Random generation of video IDs}
+We considered for a moment attempting to create a brute force solution to
+create truly unique and random video IDs and trying as many of these as
+possible, but there is a tiny problem with that approach:
+Assume that YouTube uses a modified Base64 encoding for URLs with 11 digits
+for their video IDs. A ballpark (insane over-)estimation for the total amount of videos on
+YouTube is 300 hours per minute since Google's acquisition in 2006 (9 years).
+If we estimate the average video to be five minutes long, that leaves us with
+\[frac{85\,140\,000\,000}{5} = 17\,028\,000\,000\] videos. With 64 to the power
+of 11 possible video IDs we would have to generate more than four billion random
+IDs before we could expect to get a single hit. Not feasable.
+
+\subsubsection{The YouTube API}
+YouTube provides a REST\footnote{REpresentational State Transfer: http://www.jopera.org/docs/publications/2008/restws} Application Programming Interface (API)~\cite(youtube-api)
+which can be
+queried for information with a set of parameters, in absence of a standard
+website interface to utilize (like the one provided by
+\texttt{www.youtube.com}). The API consists of different
 endpoints, and the one used for searching videos is called "search.list". This
 endpoint returns a result as a JSON object. This endpoint provides a rich list
 of customizable paramaeters, and optimizing the use of these is important to
@@ -105,24 +139,4 @@ By slicing the timeframe up like this, one will also be able to get more than
 apparent that varying this parameter alone is the best way to achieve a unbiased
 set of videos. A nice bonus is that it also allows customization of the query
 without leaving videos out of the resulting set.
-
-\subsubsection{Evaluation / experimental results}
-Contrary to natural intuition, the API may return a wholly different set of
-videos for two queries one might have thought to return the same as a single
-\textit{superquery}. By example: If you search for "All videos between date
-$X$ and date $Y$ you might get 1\,000 results. But if you split the query into
-two queries: one specifically for 2D videos and one specifically for 3D videos;
-you might get a subset of the results for the single query, but in addition,
-the API might return a much larger set than before.
-
-By splitting the set timeframe in two, creating two subqueries in the process,
-one can trick\footnote{To a certain extent. Our tool is by no means perfect. The
-API still severely limits our search.} the API into returning more videos for a given
-timeframe than the original query would have yielded. We have expanded our
-possible result space simply by using unused parameters to create distinct
-subqueries with increasing granularity.
-Our tool will do this through narrowing the timeframe of the query (and
-in the process providing a section on this on the result page), but
-it would be fairly trivial to implement an algorithm that uses all possible
-unused parameters and some clever pruning to increase the possible result space.
 

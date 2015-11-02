@@ -40,7 +40,7 @@ in~\cref{october-video-ids}. For the past three days the returned unique video
 IDs are around 200\,000. The next five days back returns around 65\,000 to 
 75\,000 video IDs, and the subsequent 12-14 days return 20\,000 to 30\,000
 videos. From that point and backwards the number of videos per day remain
-stable at aorund2\,000 to 4\,000, slowly declining to only a few hundred
+stable at around 2\,000 to 4\,000, slowly declining to only a few hundred
 returned videos per day.~\cref{jan-ids-year} shows the return when asking for 
 videos published in January from 2009 to 2015. 
 
@@ -53,4 +53,24 @@ videos (20\,000+ views) is missing in the data set when requeried a month later.
 The remaining data set also seems random, containing videos with view counts 
 from very small number to very large numbers. Perhaps with more research the
 nature of this video ID purging can be understood.
+
+\subsubsection{Accounting for API inconsistances}
+Contrary to natural intuition, the API may return a wholly different set of
+videos for two queries one might have thought to return the same as a single
+\textit{superquery}. By example: If you search for "All videos between date
+$X$ and date $Y$ you might get 1\,000 results. But if you split the query into
+two queries: one specifically for 2D videos and one specifically for 3D videos;
+you might get a subset of the results for the single query, but in addition,
+the API might return a much larger set than before.
+
+By splitting the set timeframe in two, creating two subqueries in the process,
+one can trick\footnote{To a certain extent. Our tool is by no means perfect. The
+API still severely limits our search.} the API into returning more videos for a given
+timeframe than the original query would have yielded. We have expanded our
+possible result space simply by using unused parameters to create distinct
+subqueries with increasing granularity.
+Our tool will do this through narrowing the timeframe of the query (and
+in the process providing a section on this on the result page), but
+it would be fairly trivial to implement an algorithm that uses all possible
+unused parameters and some clever pruning to increase the possible result space.
 
