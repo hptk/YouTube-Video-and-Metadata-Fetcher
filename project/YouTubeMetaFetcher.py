@@ -14,7 +14,9 @@ from sqlalchemy.ext.compiler import compiles
 from sqlalchemy.sql.expression import Insert
 logger = logging.getLogger('tasks')
 class YouTubeMetaFetcher(RequestBase):
+    
 
+        
     def chunkHelper(self,data,SIZE=50):
         """Chunks a given dictonary in smaller dictionaries of the size SIZE"""
         it=iter(data)
@@ -41,7 +43,7 @@ class YouTubeMetaFetcher(RequestBase):
         #nice to have: only select which do not have meta data yet in order
 
         #fetch all rows
-        videoIDRows = db.engine.execute('select video_id from query_video_mm where youtube_query_id='+str(self.parameter))
+        videoIDRows = db.engine.execute('select video_id from query_video_mm where youtube_query_id='+str(self.parameter['queryId']))
         #convert to list of dicts
         videoIDs = {}
         for video in videoIDRows:
@@ -55,7 +57,7 @@ class YouTubeMetaFetcher(RequestBase):
     def buildRequestURL(self, workQueueItem):
         #because we have put 50 videoIDs per queueItem, we have to implode it like "id1,id2,id3,id4,...,id49,id50"
         videoIDs = ','.join(workQueueItem)
-        return self.url+"?part=snippet,contentDetails,liveStreamingDetails,recordingDetails,statistics,status,topicDetails&id="+videoIDs+"&key=AIzaSyBlO0GfmL5LuRJoVlRhMVM8VjViE5BAAs8"
+        return self.url+"?part=snippet,contentDetails,liveStreamingDetails,recordingDetails,statistics,status,topicDetails&id="+videoIDs+"&key="+self.parameter['key']
 
 
 

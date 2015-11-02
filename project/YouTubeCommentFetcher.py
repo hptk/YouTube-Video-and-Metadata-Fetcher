@@ -30,7 +30,6 @@ logger = logging.getLogger('tasks')
 
 _COMMENTHREADS_MAXRESULTS = 100
 _COMMENTS_MAXRESULTS = 100
-apikey='AIzaSyA99dYY8k12G93N9SP5DzmHc95gH5-aIfI'
 
 class YouTubeCommentFetcher(RequestBase):
 
@@ -47,7 +46,7 @@ class YouTubeCommentFetcher(RequestBase):
         if workQueueItem[2] != '':
             request += '&pageToken=' + workQueueItem[2]
 
-        request += '&part=snippet&key=' + apikey
+        request += '&part=snippet&key=' + self.parameter['key']
         return request
 
     def initWorkQueue(self):

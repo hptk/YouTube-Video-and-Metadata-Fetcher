@@ -45,8 +45,11 @@ def meta(self,queryId):
         current_task = Task(self.request.id,"MetaFetcher")
         query.tasks.append(current_task)
         db.session.commit()
-
-        fetcher = YouTubeMetaFetcher("https://www.googleapis.com/youtube/v3/videos",queryId,50,50,self)
+        parameter = {}
+        parameter['queryId'] = queryId
+        queryRaw = json.loads(query.queryRaw)
+        parameter['key'] = queryRaw['key']
+        fetcher = YouTubeMetaFetcher("https://www.googleapis.com/youtube/v3/videos",parameter,50,50,self)
         result = fetcher.work()
 
         current_task.result = json.dumps(result)
@@ -84,8 +87,10 @@ def comments(self,queryId,parameters):
         query.tasks.append(current_task)
         db.session.commit()
         parameter = {}
-        parameter['queryId'] = queryId
         parameter['get_replies'] = parameters['get_replies']
+        parameter['queryId'] = queryId
+        queryRaw = json.loads(query.queryRaw)
+        parameter['key'] = queryRaw['key']
         fetcher = YouTubeCommentFetcher('https://www.googleapis.com/youtube/v3',parameter, 50, 50, self)
         result = fetcher.work()
 
