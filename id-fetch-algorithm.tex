@@ -44,9 +44,10 @@ queried for information with a set of parameters, in absence of a standard
 website interface to utilize (like the one provided by
 \texttt{www.youtube.com}). The API consists of different
 endpoints, and the one used for searching videos is called "search.list". This
-endpoint returns a result as a JSON object. This endpoint provides a rich list
-of customizable paramaeters, and optimizing the use of these is important to
-achieve high efficiency while using the API. 
+endpoint returns a result as a JSON object. It accepts a rich list
+of customizable parameters as input allowing users to create highly specific and
+optimized queries to achieve the best possible efficiency for the specific use
+case.
 
 For a given query, the search.list response will contain at most 50 videos. There
 may be multiple pages, as indicated by a \texttt{nextPageToken} in the JSON

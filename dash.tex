@@ -128,7 +128,7 @@ that seems to have figured out how the MPD is laid out as of 2015-11-01}
 \subsubsection{\texttt{@codecs}}
 Specifies the codecs present with this
 Representation. The field should also include the profile and level
-information where applicable. For this video, the codec specifies a
+information where applicable. For this video,~\cref{fig:dash-1080p-representation}, the codec specifies a
 H.264/AVC video, High Profile, Level 40~\cite[p. 12]{rfc6381}.
 
 \subsubsection{\texttt{@width} and \texttt{@height}}
@@ -146,7 +146,7 @@ described by the current Period.
 
 \subsubsection{\texttt{@maxPlayoutRate}}
 Specifies the maximum playout rate as a multiple of the
-regular playout rate. in this example it is set to 1: It is not supported.
+regular playout rate. In ~\cref{fig:dash-1080p-representation} it is set to 1: It is not supported.
 
 \subsubsection{\texttt{@bandwidth}}
 A little more complicated than the other fields.
@@ -163,7 +163,7 @@ playback, the user will never experience stalling.
 Not all identifiers are specified in the ISO DASH standard. YouTube
 provides some of its own, and these are prefixed with \textit{yt:}.
 The \texttt{@yt:contentLength} field, for example, specifies the size of the
-Representation in bytes, to be used in calculating chunk offsets into the file.
+Representation in bytes.
 
 When switching from Presentation $X$ to Presentation $Y$ at segment $n$, the
 \texttt{@baseURL/\#text} (URI describing the media resource of Presentation $Y$)
