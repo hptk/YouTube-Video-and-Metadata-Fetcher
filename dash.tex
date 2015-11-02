@@ -1,55 +1,149 @@
 \section{DASH}
 
-YouTube makes use of the DASH protocol to serve its videos.
+\subsection{Overview}
 
-Pros and cons of HTTP crap Can be used with normal HTTP servers? DASH
-makes it convenient to provide media content to users since it enables
-content delivery from standard HTTP servers to HTTP clients. HTTP
-provides reliable transfer of data, and enables caching of content by
-standard HTTP caches. Since DASH is using HTTP as a transport protocol
-it inherits many advanced features such as redirection, authentication,
-traversing of NATs/firewalls, and TLS. Media resources are referred to
-by using HTTP URLs, this provides a unique location for the resources,
-and a simple and well-tested (?) method of accessing the resources using
-HTTP GET and HTTP partial GET requests.
+Dynamic Adaptive Streaming over HTTP (DASH) is a protocol, defined in
+ISO/IEC 23009-1~\cite{ISO/IEC 23009-1:2014}, that facilitates 
+streaming of multimedia over the internet in varying network conditions.
+The goal of DASH is to improve the user
+experience while streaming media content by splitting the media file in question
+into smaller parts and letting the streaming client choose between several
+different versions of the same file depending on preferred quality and network
+conditions. In effect, it allows streaming clients the ability to aggressively
+limit stalling in video playback at the cost of perceived video/audio quality.
 
-One of the core features of DASH is the ability to request different
-qualities for each video. For many YouTube videos you can choose from a
-range of qualities between 122p and 1080p. Recently, YouTube also added
-4k videos.
+The core of DASH is the Media Presentation Description (MPD), sometimes
+referred to as the DASH manifest. The MPD contains all the information
+needed to display the media. When a user wants to access a streamed
+media, for instance a video, the streaming client (or website frontend)
+makes a request to get the MPD for the requested media. The client then
+parses the MPD and meassures available network and buffer resources,
+before the streaming is commenced at the best feasable quality. Many clients %TODO: references?
+seem to prefer starting the stream at the lowest available quality, and
+slowly ramp the quality up if no network problems occur. The
+client continues to monitor the available resources during playback, adapting
+quality dynamically if conditions should change.
 
-This is an example of a Representation of a 1080p mp4 video. The @id
+With this approach all decisions about download speed are left to the client
+alone.
+The server simply presents the entirety of the media information in the MPD,
+allowing the client to make its own informed choices. The client may choose
+to focus on continuous playback, for instance by downloading lower quality
+segments during heavy network congestion or local processor load, or it may
+force playback of a set quality no matter the conditions under which it
+operates. The behavioral pattern for most media streaming clients, among
+others YouTube's own media player, seems to be to value continuous playback
+over intermittent delays in high quality playback, unless the user should want
+to force a specific quality setting thus overriding default behavior.
+
+The developed tool only downloads the media files as specified by the
+user, and does not care about available resources or the user experience.
+The DASH manifest is still parsed, and all relevant data is stored in the
+database to provide an overview of the available medias and qualities,
+and their respective properties. Although we are not using DASH to
+accomplish better user experience, the MPD is still very useful as a
+single point to get information about a streamed media.
+
+\subsection{Details}
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.2\textwidth]{figures/dash-mpd-diagram}
+	\caption{Diagram of the YouTube Media Presentation Description.}
+    \label{fig:dash-mpd-diagram}
+\end{figure}
+
+~\ref{fig:dash-mpd-diagram} depicts the basic outline of a Media Presentation
+Description. The uppermost layer of the YouTube MPD contains duration of the
+media as well as information about the format. Each MPD contains a set of
+adaptations, each describing a media type. An arbitrary YouTube video might have
+the following adaptations: audio/mp4, audio/webm, video/mp4, video/webm. There
+are also different adaptations for 3D videos, live media streams, etc. Each
+adaptation (media type) might have multiple representations each designating a
+different media quality.
+
+Note that this differs from what one might consider the \textit{standard ISO
+DASH}\footnote{The DASH standard is incedibly loose in order to allow different
+implementations and the freedom to make changes that benefit the specific media
+host the most, thus there is not really a \textit{standard} DASH implementation.}
+implementation. The standard facilitates using periods to
+describe discrete segments within the media, with each period containing links
+to separate files containing separate quality versions of that same period.
+YouTube works differently: There is only one period, with several adaptations
+describing different media types, each with several representations describing
+different qualities of media. YouTube MPD representations contain a single file\footnote{Or more specifically, a single URI}
+containing the entire video in the quality specified in the representation.
+The media player client does not have to do anything more advanced than simply
+request this file in order to play the designated media. If it is to utilize
+DASH, however, it needs to calculate which chunks of which file it needs to
+fetch in order to assure smooth playback.
+
+\begin{figure}
+    \centering
+    \begin{lstlisting}[
+        basicstyle = \footnotesize\ttfamily
+    ]
+    {
+        "@id": "137",
+            "@codecs": "avc1.640028",
+            "@width": "1920",
+            "@height": "1080",
+            "@startWithSAP": "1",
+            "@maxPlayoutRate": "1",
+            "@bandwidth": "4133205",
+            "@frameRate": "24",
+            "BaseURL": {
+                "@yt:contentLength": "148765820",
+                "#text": [OMITTED - URI goes here]
+            },
+            "SegmentBase": {
+                "@indexRange": "711-1942",
+                "@indexRangeExact": "true",
+                "Initialization": {
+                    "@range": "0-710"
+                }
+            }
+    }
+    \end{lstlisting}
+    \caption{Example of a mp4 1080p representation}
+    \label{fig:dash-1080p-representation}
+\end{figure}
+
+~\ref{fig:dash-1080p-representation} is an example of a Representation of a 1080p mp4 video. The \texttt{@id}
 field specifies an identifier for this Representation, it's used to do
-what exactly? Each id is linked with a specific type of video. 137 is
-always a 1920x1080 mp4 video, for example
-{[}https://github.com/rg3/youtube-dl/blob/master/youtube\_dl/extractor/youtube.py{]}.
+what exactly? Each id is linked with a specific type of video. In the case of
+YouTube, \texttt{137} is defined to always be a 1920x1080 mp4 video, for
+example~\cite[line 303]{youtube-dl:youtube.py}\footnote{The retrieval of MPD's
+does not seem to be officially supported in the YouTube API v3, thus there are
+no truly reliable sources. The reference is to a popular youtube downloader tool
+that seems to have figured out how the MPD is laid out as of 2015-11-01}
 
-The @codecs field shall specify the codecs present with this
+The \texttt{@codecs} field shall specify the codecs present with this
 Representation. The field should also include the profile and level
 information where applicable. For this video, the codec specifies a
 H.264/AVC video, High Profile, Level 40 (fix).
 
-The @width and @height fields specifies the resolution of the video in
+The \texttt{@width} and \texttt{@height} fields specifies the resolution of the video in
 pixels (not the ISO DASH definition, but always true for youtube
 videos?).
 
 TODO: describe SAP
 
-@maxPlayoutRate specifies the maximum playout rate as a multiple of the
+\texttt{@maxPlayoutRate} specifies the maximum playout rate as a multiple of the
 regular playout rate, in this example it is set to 1, which means that
 it's not supported on any level.
 
-The @bandwidth field is a little more complicated than the other fields.
+The \texttt{@bandwidth} field is a little more complicated than the other fields.
 If a Representation is continuously delivered at this bitrate (in a
-constant bitrate channel of @bandwidth bps), starting at SAP 1, a client
+constant bitrate channel of \texttt{@bandwidth} bps), starting at SAP 1, a client
 can be assured of having enough data for continuous playout providing
-playout begins after @minBufferTime * @bandwidth bits have been
+playout begins after \texttt{@minBufferTime} * \texttt{@bandwidth} bits have been
 received. If you consider the value to be bits per second in a channel
 with constant bitrate,
 
 Not all identifiers are specified in the ISO DASH standard. YouTube
 provides some of its own, and these are prefixed with yt:. One example
-is the @yt:contentLength field. This specifies the size of the
+is the \texttt{@yt:contentLength} field. This specifies the size of the
 Representation in bytes. So the total download size of the
 Representation will match this value.
 
@@ -61,35 +155,3 @@ together with content length and stuff to start downloading at the
 correct loaction for the next Representation. \emph{super pr0
 description here}
 
-\begin{verbatim}
-{
-    "@id": "137",
-        "@codecs": "avc1.640028",
-        "@width": "1920",
-        "@height": "1080",
-        "@startWithSAP": "1",
-        "@maxPlayoutRate": "1",
-        "@bandwidth": "4133205",
-        "@frameRate": "24",
-        "BaseURL": {
-            "@yt:contentLength": "148765820",
-            "#text": "http://r8---sn-uxaxovg-vnad.googlevideo.com/videoplayback?id=9d3e9e6819bcd9b4&itag=137&source=youtube&ms=au&pl=22&mv=m&mn=sn-uxaxovg-vnad&mm=31&ratebypass=yes&mime=video/mp4&gir=yes&clen=148765820&lmt=1443591699166739&dur=531.864&fexp=9405989,9408209,9408710,9414764,9414930,9415870,9416126,9416179,9416984,9417132,9417707,9420934,9421175,9422460,9422592,9422596,9422674,9422867,9423429&sver=3&key=dg_yt0&upn=rTJyK8MSOVI&signature=466BA9528939E220DBE518CD8F8D00C971D3D818.0D8F0B72BC71EDC25B5CDFC9285B6A182811F218&mt=1446290848&ip=95.34.86.97&ipbits=0&expire=1446312558&sparams=ip,ipbits,expire,id,itag,source,ms,pl,mv,mn,mm,ratebypass,mime,gir,clen,lmt,dur"
-        },
-        "SegmentBase": {
-            "@indexRange": "711-1942",
-            "@indexRangeExact": "true",
-            "Initialization": {
-                "@range": "0-710"
-            }
-        }
-}
-\end{verbatim}
-
-\subsubsection{Links}\label{links}
-
-http caching:
-https://developers.google.com/web/fundamentals/performance/optimizing-content-efficiency/http-caching?hl=en
-RFC6381: https://tools.ietf.org/html/rfc6381
-https://en.wikipedia.org/wiki/ISO\_8601\#Durations
-https://tech.ebu.ch/docs/events/webinar043-mpeg-dash/presentations/ebu\_mpeg-dash\_webinar043.pdf
-http://www.w3.org/2010/11/web-and-tv/papers/webtv2\_submission\_64.pdf
