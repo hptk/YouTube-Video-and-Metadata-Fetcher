@@ -114,7 +114,7 @@
 			          
 			          <label>Method</label>
 		       		<ui-select  ng-model="vm.task.actionOptions.method">
-			            <ui-select-match placeholder="Need sound?">{{$select.selected.name}}</ui-select-match>
+			            <ui-select-match placeholder="Select a strategy to download the videos">{{$select.selected.name}}</ui-select-match>
 			            <ui-select-choices repeat="type.type as type in vm.downloadMethod">
 			              <div ng-bind-html="type.name | highlight: $select.search"></div>
 			            </ui-select-choices>
