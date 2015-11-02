@@ -22,7 +22,7 @@ query has to be split up into subqueries that by themselves does not match more
 than 500 videos. This splitting, and how we recommend doing it, is discussed in
 detail in this section.
 
-Why is it important to split up the query into subqueries? The main problem with
+The main problem with
 the 500 video limit for a static parameter set is that it can not be a good
 sample. There might be a lot of other videos which match the requested
 parameter, but subsequent requests to the API only return more or less the exact
@@ -105,4 +105,24 @@ By slicing the timeframe up like this, one will also be able to get more than
 apparent that varying this parameter alone is the best way to achieve a unbiased
 set of videos. A nice bonus is that it also allows customization of the query
 without leaving videos out of the resulting set.
+
+\subsubsection{Evaluation / experimental results}
+Contrary to natural intuition, the API may return a wholly different set of
+videos for two queries one might have thought to return the same as a single
+\textit{superquery}. By example: If you search for "All videos between date
+$X$ and date $Y$ you might get 1\,000 results. But if you split the query into
+two queries: one specifically for 2D videos and one specifically for 3D videos;
+you might get a subset of the results for the single query, but in addition,
+the API might return a much larger set than before.
+
+By splitting the set timeframe in two, creating two subqueries in the process,
+one can trick\footnote{To a certain extent. Our tool is by no means perfect. The
+API still severely limits our search.} the API into returning more videos for a given
+timeframe than the original query would have yielded. We have expanded our
+possible result space simply by using unused parameters to create distinct
+subqueries with increasing granularity.
+Our tool will do this through narrowing the timeframe of the query (and
+in the process providing a section on this on the result page), but
+it would be fairly trivial to implement an algorithm that uses all possible
+unused parameters and some clever pruning to increase the possible result space.
 
