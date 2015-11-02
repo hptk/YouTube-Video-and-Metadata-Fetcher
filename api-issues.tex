@@ -1,0 +1,35 @@
+\section{API Issues}
+We have experienced that the API in some situations returns and indicates that
+there are multiple pages, even if there are less then 50 videos in the result
+list. This is in itself illogical, as a more natural way to return results would
+be to fill each page, and only when there are less than 50 videos remaining that
+match the query return a non-full list. Our experience why querying for the next
+page when the list is not full, is that the page and subsequent pages contains 
+the exactly same videos. Thus iterating over the pages a single static parameter
+set has becomes a bad idea because it is impossible to know if there are new
+videos on the next page or not.  %TODO expand on this?
+
+We have also found that when issuing the same request to the server several
+times, the API might respond slightly differently each time. This result is
+easily reproducable by selecting a standard query, and seems to be more
+frequent as the result list grows in size. %TODO more here!
+
+As a part of our experiment we issued a lot of requests to the YouTube API to
+gather data. A strange pattern quickly emerged, requests for timeslots longer
+back than a few days contained drastically less returned unique videos, and 
+stepping a month back, a request for all videos uploaded a given day will be 
+about 98\% less than a request for videos uploaded yesterday. This dropoff in
+returned video IDs seem to go in steps, as visualised in 
+~\ref{october-video-ids}. For the past three days the returned unique video IDs
+are around 200,000. The next five days back returns around 65,000 to 75,000
+video IDs, and the subsequent 12-14 days return 20,000 to 30,000 videos. From
+that point and backwards the number of videos per day remain stable at aorund
+2,000 to 4,000, slowly declining to only a few hundred returned videos per day.
+
+At September 26th 2015 the API returned a total 246,106 video IDs for that day.
+For the same day, if queried a little more than a month later, the API returns
+a mere 4,394 videos. 
+
+This behaviour is very hard for us to explain. In 
+
+
