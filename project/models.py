@@ -12,7 +12,6 @@ from sqlalchemy.pool import Pool
 import sqlite3
 import math
 from sqlalchemy.sql.expression import desc
-from matplotlib.cbook import Null
 
 #http://stackoverflow.com/questions/2298339/standard-deviation-for-sqlite
 class StdevFunc:
