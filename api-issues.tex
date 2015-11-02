@@ -1,40 +1,56 @@
 \section{API Issues}
 We have experienced that the API in some situations returns and indicates that
 there are multiple pages, even if there are less than 50 videos in the result
-list. This is in itself illogical, as a more natural way to return results would
-be to fill each page, and only when there are less than 50 videos remaining that
-match the query return a non-full list. Our experience when querying for the next
-page when the list is not full, is that the page and all subsequent pages contain
-the exact same set of videos. Thus iterating over the pages a  for a single
-static parameter set has becomes a bad idea because it is impossible to know if
-there are new videos on the next page or not.  %TODO expand on this?
+list. The returned result also contains a field representing the number of items
+returned, but this field often does not match the actual amount of items in the 
+result~\cite[Issue 5173]{conclusion:gdataissue}. Returning results as lists with
+open spots while at the same time indicating that more results is on the next
+page is in itself illogical, as a more natural way to return results would be to
+fill each page, and only when there are less than 50 videos remaining that match
+the query return a non-full list. This leads to flaws or imperfections in the 
+logic in the clients making queries to the API, as one can not trust either the
+total count field, the presense of a next page token or the actual number of
+returned results.
+
+Our experience when querying for the next page when the list is not full, shows
+that the page and all subsequent pages contain the exact same set of videos. 
+This is a known issue in the API~\cite[Issue 6406]{conclusion:gdataissue}. In 
+combination with the aforementioned issues this leads us to the conclusion that 
+iterating over the pages a for a single static parameter set has becomes a bad 
+idea because it is impossible to know if there are new videos on the next page 
+or not. %TODO expand on this?
 
 We have also found that when issuing the same request to the server several
 times, the API might respond slightly differently each time. This result is
-easily reproducible by selecting a standard query, and seems to be more
-frequent as the result list grows in size. %TODO more here!
+easily reproducible and also a know issue with the 
+API~\cite[Issue 4275]{conclusion:gdataissue}. 
+
+The unfortunate consequences of these issues include excess API quota spending,
+excess time consumption whilst getting results from the API, increased network
+and local resource consumption and uncertainty with regards to the integrity of
+the results. 
 
 As a part of our experiment we issued a lot of requests to the YouTube API to
 gather data. A strange pattern quickly emerged, requests for timeslots longer
 back than a few days contained drastically less returned unique videos, and 
 stepping a month back, a request for all videos uploaded a given day will be 
-about 98\% less than a request for videos uploaded yesterday. This dropoff in
+about 98\% less than a request for videos uploaded yesterday. This decline in
 returned video IDs seem to go in steps, as visualised
 in~\cref{october-video-ids}. For the past three days the returned unique video
-IDs are around 200\,000. The next five days back returns around 65\,000 to 75\,000
-video IDs, and the subsequent 12-14 days return 20\,000 to 30\,000 videos. From
-that point and backwards the number of videos per day remain stable at aorund
-2\,000 to 4\,000, slowly declining to only a few hundred returned videos per day.
+IDs are around 200\,000. The next five days back returns around 65\,000 to 
+75\,000 video IDs, and the subsequent 12-14 days return 20\,000 to 30\,000
+videos. From that point and backwards the number of videos per day remain
+stable at aorund2\,000 to 4\,000, slowly declining to only a few hundred
+returned videos per day.~\ref{jan-ids-year} shows the return when asking for 
+videos published in January from 2009 to 2015. 
 
 At September 26th 2015 the API returned a total 246\,106 video IDs for that day.
 For the same day, if queried a little more than a month later, the API returns
-a mere 4\,394 videos. The missing videos are seemingly random, everything from 
-strange videos with very few views to relatively large videos (20\,000+ views)
-is missing in the data set when requeried a month later. The remaining data set
-also seems random, containing videos with view counts from very small number to
-very large numbers. Perhaps with more research the nature of this video ID
-purging can be understood.
-
-This behaviour is very hard for us to explain. In 
-
+a mere 4\,394 videos.~\ref{2015-video-ids} shows how after a month has passed 
+the amount of videos dramatically decline. The missing videos are seemingly 
+random, everything from strange videos with very few views to relatively large 
+videos (20\,000+ views) is missing in the data set when requeried a month later. 
+The remaining data set also seems random, containing videos with view counts 
+from very small number to very large numbers. Perhaps with more research the
+nature of this video ID purging can be understood.
 
