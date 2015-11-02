@@ -42,7 +42,7 @@ class YouTubeVideoFetcher(RequestBase):
         if self.parameter['method']=='random':
             random.seed(self.parameter['amount'])
             seed = random.random() 
-            video_ids = db.session.execute('SELECT id as video_id from video JOIN query_video_mm on query_video_mm.video_id=video.id WHERE youtube_query_id='+str(self.parameter["queryId"])+' ORDER by (substr((uid)*'+str(seed)+',length(uid)+2)) LIMIT '+str(self.parameter["amount"]))
+            video_ids = db.session.execute('SELECT id as video_id from video JOIN query_video_mm on query_video_mm.video_id=video.id WHERE youtube_query_id='+str(self.parameter["queryId"])+' ORDER by (substr((random)*'+str(seed)+',length(random)+2)) LIMIT '+str(self.parameter["amount"]))
         else:
             #select all videos from the db
             video_ids = db.session.query(QueryVideoMM).filter_by(youtube_query_id=self.parameter['queryId'])

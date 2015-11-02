@@ -8,6 +8,7 @@ import pprint
 import time
 from project import db
 import logging
+from random import randint
 logger = logging.getLogger('tasks')
 class YouTubeIDFetcher(RequestBase):
          
@@ -103,13 +104,13 @@ class YouTubeIDFetcher(RequestBase):
             t0 = time.time()
             logger.info("save video ids")
             #http://docs.sqlalchemy.org/en/rel_0_9/core/connections.html?highlight=engine#sqlalchemy.engine.Connection.execute
-            db.engine.execute(YoutubeVideo.__table__.insert(replace_string = 'INSERT OR REPLACE'),
-                   [{"id": videoID} for videoID in self.resultList]
+            db.session.execute(YoutubeVideo.__table__.insert(replace_string = 'INSERT OR REPLACE'),
+                   [{"id": videoID, 'random':randint(1,len(self.resultList)+1)} for videoID in self.resultList]
                    )
             logger.info("Total time for " + str(len(self.resultList)) +" records " + str(time.time() - t0) + " secs")
             
             logger.info("save query video association")
-            db.engine.execute(QueryVideoMM.__table__.insert(replace_string = 'INSERT OR REPLACE'),
+            db.session.execute(QueryVideoMM.__table__.insert(replace_string = 'INSERT OR REPLACE'),
                    [{"youtube_query_id":self.parameter['queryId'],"video_id": videoID} for videoID in self.resultList]
                    )
             logger.info("Total time for " + str(len(self.resultList)) +" records " + str(time.time() - t0) + " secs")
