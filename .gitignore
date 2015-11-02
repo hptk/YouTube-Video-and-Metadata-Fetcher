@@ -9,3 +9,5 @@ project/*
 dump.rdb
 *.pyc
 *.swp
+*.aux
+*.log
