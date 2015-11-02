@@ -11,35 +11,57 @@
 % Sections
 
 YouTube is without a doubt the world's largest host of user-generated content,
-with over one billion users generating several billion
-views over hundreds of billions of hours every day ~\cite{officialstats}. Though
-there does not seem to be an official source, it is believed that by the end of
-2014, more than 300 hours worth of content was being uploaded to YouTube every
-minute ~\cite{dagensmediastats}~\cite{reelseostats}.
+with over one billion users generating several billion views, spending hundreds
+of billions of hours every day ~\cite{officialstats}. Though there does not seem
+to be an official source, it is believed that by the end of 2014, more than 300
+hours worth of content was being uploaded to YouTube every minute 
+~\cite{dagensmediastats}~\cite{reelseostats}. 
 
 This makes YouTube a fantastic resource of both videos and metadata to be used
-for analysis for a range of different purposes. Our tool aims to aid a group of
-users who may not be looking for a particular subset of data, but rather a
-large, unbiased sample. Our approach is to let the user create a search query
-for a specific timeframe, optionally limiting results further with additional
-fields, and querying the YouTube API for every available video within that
-timeframe. We deem this to be the easiest way to create an unbiased (or at the
-very least nearly so) set of videos using YouTube's API, seeing as YouTube will
-not let us create a truly random sample set\footnonemark[3].
+for analysis for a range of different purposes. Especially with regards to
+machine learning algorithms, a large, good sample set of videos will be required
+to train an algorithm. For such an algorithm to stay relevant also for videos
+that was not in the inital training set, the training set will have to be as
+unbiased as possible.
 
-We provide the means to: build a large database
-of video ID's\footnotemark[1] within a set timeframe; fetch
-most metadata\footnotemark[2] for the given videos; fetch the videos
-themselves, with a set quality; and connect related data points with a
-SQLite database.
+It is neither our desire nor task to create a tool that by default limits the
+returned data set in any way. By letting the users specify as little or as much
+as they want in their query, we leave as much control as possible with the user,
+who, of course, knows much better than us what the resulting dataset will be
+used for. This makes the tool very versatile, as you could, for instance, first
+download a big set of videos related to the search term "cat", before
+downloading a completely random video set and using an algorithm trained with
+the first data set to find cat-related videos in this second set. 
 
+More specifically, we provide the means to: build a large database of video ID's
+\footnote{We fetch as much data as possible within the restraints imposed
+on us by the API.}; fetch most metadata\footnote{We fetch all data associated
+with a video, as well as its comment threads and replies. Fetching of related
+videos has been deliberately left out - for now at least} for the given videos;
+fetch the videos themselves, with sound; and connect all related data points
+with a SQL database. Alongside the documentation for the source code there will
+be a databse diagram show how all the data is related. Making an SQL database
+made sense because, as we saw our dataset grow with hundreds of thousands of
+videos with related metadata and comment data, storing it in CSV, XML or some
+other file format made little sense. SQL is also a widely adapted database
+format, and all the widely adapted programming languages has support for
+extracting data from an SQL database in one way or another.
 
+One of the main goals of the tool, as described earlier and in even more detail
+later, is to be unbiased. In the context of this paper, to be unbiased means
+to not whiegh videos differently based on their properties. When gathering a
+set of videos, the only limitations, if any, are the ones provided by the user.
+The resulting videoset will consist of all videos matching the query, without
+being wheighted towards popular videos, new videos, high quality videos, 
+advertised videos, recommended videos or any other imaginable parameter. This
+is inherently different from the video set a normal user sees while browsing, 
+and this is discussed later.
 
-\footnotetext[3]{The API seems to have some severe undocumented limitations
-regarding what videos it will return for a given query.}
-\footnotetext[1]{We fetch as much data as possible within the restraints imposed
-on us by the API.}
-\footnotetext[2]{We fetch all data associated with a video, as well as its
-comment threads and replies. Fetching of related videos has been deliberately
-left out - for now at least}
+With this foundation our work has been centered around trying to gather as much
+information as possible from YouTube whilst being unbiased and efficient with
+resources. Resources can here mean several things, as well as the users CPU,
+network and storage resources, we also have tried minimising the API quota
+\footnote{A form of cradit assosiated with an API key, quota is lost when making
+API requests.} costs for the user.
+
 
