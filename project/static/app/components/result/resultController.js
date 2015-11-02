@@ -90,7 +90,7 @@ define(['app'], function (app) {
         vm.result.commentCount = null;
 		vm.result.likeCount = null;
 		vm.result.dislikeCount = null;
-
+		vm.result.dashRepresentation = null;
         $scope.plot = [];
         $scope.plot.publishedAt = [];
         $scope.plot.category = [];
@@ -135,9 +135,11 @@ define(['app'], function (app) {
         				if(section=="intersection") {
         					vm.result.intersection = data.statistics
         				}
-        
+        				if(section=="dash_representations") {
+        					vm.result.dashRepresentation = data.statistics;
+        				}
         				if(section=="publishedAt" && !vm.result.publishedAt) {
-        					vm.result.publishedAt = data.statistics
+        					vm.result.publishedAt = data.statistics;
         					vm.temp = [];
             				angular.forEach(vm.result.publishedAt,function(day){
             					vm.temp.push([day.date,day.count]);
@@ -194,6 +196,9 @@ define(['app'], function (app) {
 				loadResults(section);
 			}
         	if(section=="statistics_dislikeCount" && !vm.result.dislikeCount) {
+				loadResults(section);
+			}
+        	if(section=="dash_representations" && !vm.result.dashRepresentation) {
 				loadResults(section);
 			}
         }

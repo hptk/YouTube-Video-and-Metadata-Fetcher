@@ -12,6 +12,7 @@ from sqlalchemy.pool import Pool
 import sqlite3
 import math
 from sqlalchemy.sql.expression import desc
+from matplotlib.cbook import Null
 
 #http://stackoverflow.com/questions/2298339/standard-deviation-for-sqlite
 class StdevFunc:
@@ -325,7 +326,13 @@ class YoutubeQuery(db.Model):
         dates_query = db.session.query(YoutubeVideoMeta,db.func.count().label("count"),db.func.date(YoutubeVideoMeta.snippet_publishedAt).label("date")).outerjoin((QueryVideoMM, QueryVideoMM.video_id == YoutubeVideoMeta.id)).filter_by(youtube_query_id=self.id).group_by(db.func.strftime('%Y',YoutubeVideoMeta.snippet_publishedAt),db.func.strftime('%m',YoutubeVideoMeta.snippet_publishedAt),db.func.strftime('%d',YoutubeVideoMeta.snippet_publishedAt)).order_by(YoutubeVideoMeta.snippet_publishedAt)
         dates = dates_query.all()
         return [{"date":date.date,"count":date.count} for date in dates]
-
+    
+    def get_statistics_dash(self):
+        """Returns a dictonary containing an aggregation of the DASH representation and amount of videos"""
+        query = dates_query = db.session.query(VideoRepresentation,db.func.count().label("count"),VideoRepresentation.height.label("height")).outerjoin((QueryVideoMM, QueryVideoMM.video_id == VideoRepresentation.video_id)).filter_by(youtube_query_id=self.id).group_by(VideoRepresentation.height).order_by(VideoRepresentation.height)
+        representations = query.all()
+        return [{"height":representation.height if representation.height !='' else 'audio',"count":representation.count} for representation in representations]
+        
     def getAggregations(self,table,field,forQuery=False):
         """Gets an aggregation of the table.field max,min,avg,sum,stdev
         forQuery: parameter to select the current query, or global
@@ -388,6 +395,8 @@ class YoutubeQuery(db.Model):
                 field = YoutubeVideoMeta.statistics_commentCount
             elif section=="statistics_viewCount":
                 field = YoutubeVideoMeta.statistics_viewCount
+        elif section=="dash_representations":
+            return self.get_statistics_dash()
 
             globalStat = self.getAggregations(table,field,forQuery=False)
             queryStat = self.getAggregations(table,field,forQuery=True)

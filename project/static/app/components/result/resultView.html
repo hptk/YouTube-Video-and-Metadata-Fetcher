@@ -334,6 +334,34 @@
 			</div>
 			
 			
+			<div class="panel panel-default">
+			  <div class="panel-heading btn" style="width:100%;"">
+			    <h3 class="panel-title" ng-click="vm.dashIsCollapsed = !vm.dashIsCollapsed; vm.loadAdditionalData('dash_representations')">DASH Representations <i class="glyphicon glyphicon-info-sign" uib-popover="Click on it to load the data, it can take some time" popover-trigger="mouseenter"></i></h3>
+			  </div>
+			  <div class="panel-body">
+				<div class="row" ng-show="vm.dashIsCollapsed">
+					<div class="loading" ng-show="!vm.result.dashRepresentation">Loading data...</div>
+					<div ng-show="vm.result.dashRepresentation">
+						<table class="table table-bordered table-striped">
+    					<thead>
+      						<tr>
+        						<td>Height</td>
+        						<td>Count</td>
+      						</tr>
+    					</thead>
+    					<tbody>
+    					<tr ng-repeat="representation in vm.result.dashRepresentation">
+    						<td>{{representation.height}}</td>
+    						<td>{{representation.count}}</td>
+    					</tr>
+
+    					</tbody>
+    				</table>
+					</div>
+				</div>
+			</div>
+			</div>
+			
 						
 
 <div class="row">
