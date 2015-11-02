@@ -42,13 +42,18 @@ with a video, as well as its comment threads and replies. Fetching of related
 videos has been deliberately left out - for now at least} for the given videos;
 fetch the videos themselves, with sound; and connect all related data points
 with a SQL database. Alongside the documentation for the source code there will
-be a database diagram to show how all the data is related. Making an SQL database
-made sense because, as we saw our dataset grow with hundreds of thousands of
-videos with related metadata and comment data, its storage capabilities
-would be required
-to handle a massive I/O load. SQL is also a widely adapted database
-format, and all widely adapted programming languages has support for
-extracting data from an SQL database in one way or another.
+be a database diagram to show how all the data is related.
+
+As we tested our tool and our working data set grew up to hundreds of thousands,
+if not millions of entries, we realized we could not simply store the resulting
+datasets in a straight-forward manner. We needed a system that could handle the
+potentially massive I/O spikes our tool would create. We went for a relational database
+solution that can both handle the expected stress and facilitate connecting
+related data. SQL is a widely adapted database format, supported by plugins
+(both official and unofficial) in almost every programming language there is,
+and it can also handle the incredible stress we will subject it to. Additionally,
+it makes it easy for even a novice user to extract meaningful data from the
+database.
 
 One of the main goals of the tool, as described earlier and in even more detail
 later, is to be unbiased. In the context of this paper, to be unbiased means
