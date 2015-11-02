@@ -50,7 +50,7 @@ single point to get information about a streamed media.
 
 \begin{figure}
     \centering
-    \includegraphics[width=0.6\textwidth]{figures/dash-mpd-diagram}
+    \includegraphics[width=0.4\textwidth]{figures/dash-mpd-diagram}
     \caption{Diagram of the YouTube Media Presentation Description.}
     \label{fig:dash-mpd-diagram}
 \end{figure}
@@ -163,7 +163,7 @@ The \texttt{@yt:contentLength} field, for example, specifies the size of the
 Representation in bytes, to be used in calculating chunk offsets into the file.
 
 When switching from Presentation $X$ to Presentation $Y$ at segment $n$, the
-\texttt{@baseURL/#text} (URI describing the media resource of Presentation $Y$)
+\texttt{@baseURL/\#text} (URI describing the media resource of Presentation $Y$)
 is used in conjunction with \texttt{@bandwidth} of Presentation $Y$ to
 calculate the chunk offset of segment $n+1$ into the media file.
 
