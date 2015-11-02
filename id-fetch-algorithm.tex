@@ -79,20 +79,19 @@ to be representative.
 \subsubsection{q - search term}
 In theory this parameter could be varied and cycled through all possible
 combinations of symbols (words, in a wide sense), and through that get an
-unbiased set of videos. This is not only unfeasable due to the remarkably big
-list of words one would need\footnote{171 000 words in english alone, then add
+unbiased set of videos. This is not only unfeasible due to the remarkably big
+list of words one would need\footnote{171\,000 words in english alone, then add
 all other languages, not to mention names and other word-constructs}, but for
 some cases the API quota cost would be extremely high measured as cost per
 result. For instance, if one was to get an unbiased set of 3D videos, one would
-have to cycle through the whole word list and end up spending quota on queries
-that returns without new videos. In addition to this, if one is to vary the
-search term, the user is left without the ability to narrow down the search
-with a query. For some purposes, like machine learning algorithms, having a set
-of videos with cats will be useful, if you want to train the algorithm to look
-for cats.
+have to cycle through the whole word list and end up spending quota points on queries
+that return stale results. In addition to this, if one is to vary the
+search term, the user is left without the ability to manually narrow the result
+set. We want to allow the user the ability to create sets of data tailored to
+specific tasks, should it be required.
 
 \subsubsection{publishedAfter and publishedBefore}
-By having a date range as the varying parameter for a serach query, and assuming
+By having a date range as the varying parameter for a search query, and assuming
 that the API actually returns all videos matching the query, the resulting set
 would be unbiased with regards to all aspects except from time. Of course, for
 a big timeframe there exists more than 500 videos, so to circumvent this cap,
@@ -104,6 +103,6 @@ unbiased.
 By slicing the timeframe up like this, one will also be able to get more than
 500 videos from a given channel, or from within a geographic zone. It becomes
 apparent that varying this parameter alone is the best way to achieve a unbiased
-set of videos. A nice bonus is that it also allows customisation of the query
+set of videos. A nice bonus is that it also allows customization of the query
 without leaving videos out of the resulting set.
 
