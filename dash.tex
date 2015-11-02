@@ -44,12 +44,12 @@ and their respective properties. Although we are not using DASH to
 accomplish better user experience, the MPD is still very useful as a
 single point to get information about a streamed media.
 
-\subsection{Details}
+\subsection{Media Presentation Description}
 
 \begin{figure}
-	\centering
-	\includegraphics[width=0.2\textwidth]{figures/dash-mpd-diagram}
-	\caption{Diagram of the YouTube Media Presentation Description.}
+    \centering
+    \includegraphics[width=0.2\textwidth]{figures/dash-mpd-diagram}
+    \caption{Diagram of the YouTube Media Presentation Description.}
     \label{fig:dash-mpd-diagram}
 \end{figure}
 
@@ -78,6 +78,8 @@ request this file in order to play the designated media. If it is to utilize
 DASH, however, it needs to calculate which chunks of which file it needs to
 fetch in order to assure smooth playback.
 
+\subsection{Representation details}
+
 \begin{figure}
     \centering
     \begin{lstlisting}[
@@ -85,40 +87,43 @@ fetch in order to assure smooth playback.
     ]
     {
         "@id": "137",
-            "@codecs": "avc1.640028",
-            "@width": "1920",
-            "@height": "1080",
-            "@startWithSAP": "1",
-            "@maxPlayoutRate": "1",
-            "@bandwidth": "4133205",
-            "@frameRate": "24",
-            "BaseURL": {
-                "@yt:contentLength": "148765820",
-                "#text": [OMITTED - URI goes here]
-            },
-            "SegmentBase": {
-                "@indexRange": "711-1942",
-                "@indexRangeExact": "true",
-                "Initialization": {
-                    "@range": "0-710"
-                }
+        "@codecs": "avc1.640028",
+        "@width": "1920",
+        "@height": "1080",
+        "@startWithSAP": "1",
+        "@maxPlayoutRate": "1",
+        "@bandwidth": "4133205",
+        "@frameRate": "24",
+        "BaseURL": {
+            "@yt:contentLength": "148765820",
+            "#text": [OMITTED - URI goes here]
+        },
+        "SegmentBase": {
+            "@indexRange": "711-1942",
+            "@indexRangeExact": "true",
+            "Initialization": {
+                "@range": "0-710"
             }
+        }
     }
     \end{lstlisting}
-    \caption{Example of a mp4 1080p representation}
+    \caption{Example of an mp4 1080p (\textit{full HD}) representation}
     \label{fig:dash-1080p-representation}
 \end{figure}
 
-~\ref{fig:dash-1080p-representation} is an example of a Representation of a 1080p mp4 video. The \texttt{@id}
-field specifies an identifier for this Representation, it is used to do
-what exactly? Each id is linked with a specific type of video. In the case of
-YouTube, \texttt{137} is defined to always be a 1920x1080 mp4 video, for
+\subsubsection{\texttt{@id}}
+Sspecifies an identifier for this Representation, used for easy lookup and the
+potential for (reckless) hard-coding of identifiers instead of checking for
+video parameters as strings.
+Each id is linked with a specific type of video. In the case of the
+YouTube MPD, $137$ is defined to always be a 1920x1080 mp4 video, for
 example~\cite[line 303]{youtube-dl:youtube.py}\footnote{The retrieval of MPD's
 does not seem to be officially supported in the YouTube API v3, thus there are
 no truly reliable sources. The reference is to a popular youtube downloader tool
 that seems to have figured out how the MPD is laid out as of 2015-11-01}
 
-The \texttt{@codecs} field shall specify the codecs present with this
+\subsubsection{\texttt{@codecs}}
+Specifies the codecs present with this
 Representation. The field should also include the profile and level
 information where applicable. For this video, the codec specifies a
 H.264/AVC video, High Profile, Level 40 (fix).
