@@ -118,8 +118,8 @@ Specifies a unique (within the Period) identifier for this Representation, used
 for easy lookup and the
 potential for (reckless!) hard-coding of identifiers instead of checking for
 video parameters as strings.
-Each id is linked with a specific type of video. In the case of the
-YouTube MPD, $137$ is defined to always be a 1920x1080 mp4 video, for
+Each id is linked with a specific type of video. In the case of
+YouTube's version of MPDs, $137$ is defined to always be a 1920x1080 mp4 video, for
 example~\cite[line 303]{youtube-dl:youtube.py}\footnote{The retrieval of MPD's
 does not seem to be officially supported in the YouTube API v3, thus there are
 no truly reliable sources. The reference is to a popular YouTube downloader tool
@@ -140,6 +140,9 @@ enabling playback of a media stream to be started using only the information
 contained in Representation data starting form that position
 onwards~\cite[p. 11]{iso-dash-2014}. The usage of this type of parameter
 is not specified exactly in the standard, but its general use is described.
+In other words, using this attribute and only the attributes in the
+current Representation, the player must be able to play the media segment
+described by the current Period.
 
 \subsubsection{\texttt{@maxPlayoutRate}}
 Specifies the maximum playout rate as a multiple of the
