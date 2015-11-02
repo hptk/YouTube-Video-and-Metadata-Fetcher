@@ -6,7 +6,7 @@ Dynamic Adaptive Streaming over HTTP (DASH) is a protocol, defined in
 ISO/IEC 23009-1~\cite{iso-dash-2014}, that facilitates 
 streaming of multimedia over the internet in varying network conditions.
 The goal of DASH and other segment-based streaming service structures is to improve the user
-experience while streaming media content by splitting the media file in question
+experience~\cite{Google I/O 2013} while streaming media content by splitting the media file in question
 into smaller parts and letting the streaming client choose between several
 different versions of the same file depending on preferred quality and network
 conditions. In effect, it allows streaming clients the ability to aggressively
@@ -17,7 +17,7 @@ network traffic~\cite[p. 412]{dashing-youtube}~\cite{Google I/O 2013}.
 The core of DASH is the Media Presentation Description (MPD), sometimes
 referred to as the DASH manifest. The MPD contains all the information
 needed to display the media. When a user wants to access a streamed
-media, for instance a video, the streaming client (or website frontend)
+media (for instance a video) the streaming client (or website frontend)
 makes a request to get the MPD for the requested media. The client then
 parses the MPD and measures available network and buffer resources,
 before the streaming is commenced at the best feasible quality. Many clients %TODO: references?
@@ -35,13 +35,13 @@ segments during heavy network congestion or local processor load, or it may
 force playback of a set quality no matter the conditions under which it
 operates. The behavioral pattern for most media streaming clients, among
 others YouTube's own media player, seems to be to value continuous playback
-over intermittent delays in high quality playback, unless the user should want
+over intermittent delays in high quality playback~\cite{Google I/O 2013}, unless the user should want
 to force a specific quality setting thus overriding default behavior.
 
 The developed tool only downloads the media files as specified by the
 user, and does not care about available resources or the user experience.
 The DASH manifest is still parsed, and all relevant data is stored in the
-database to provide an overview of the available medias and qualities,
+database to provide an overview of the available medias, qualities,
 and their respective properties. Although we are not using DASH to
 accomplish better user experience, the MPD is still very useful as a
 single point to get information about a streamed media.
@@ -59,7 +59,7 @@ single point to get information about a streamed media.
 Description. The uppermost layer of the YouTube MPD contains duration of the
 media as well as information about the format. Each MPD contains a set of
 adaptations, each describing a media type. An arbitrary YouTube video might have
-the following adaptations: audio/mp4, audio/webm, video/mp4, video/webm. There
+the following adaptations: Audio/mp4, audio/webm, video/mp4, video/webm. There
 are also different adaptations for 3D videos, live media streams, etc. Each
 adaptation (media type) might have multiple representations each designating a
 different media quality.
