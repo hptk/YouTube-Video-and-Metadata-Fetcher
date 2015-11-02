@@ -130,14 +130,13 @@
 		     		</div> 
 		       	
 		       	<label style="display:block;">Submit</label>
-		         <button ng-click="vm.createTask(vm.selectedOldQuery.id,vm.task.action)" type="submit" ng-disabled="!vm.selectedOldQuery || !vm.task.action" class="btn btn-primary">Create Task</button>
+		         <button ng-click="vm.createTask(vm.selectedOldQuery.id,vm.task.action)" type="submit" ng-disabled="!vm.selectedOldQuery || !vm.task.action || (vm.task.action=='VideoFetcher' && (!vm.task.actionOptions.resolution || !vm.task.actionOptions.sound || !vm.task.actionOptions.method || (vm.task.actionOptions.method=='random' && !vm.task.actionOptions.amount)))" class="btn btn-primary">Create Task</button>
 		            <img ng-if="vm.dataCheckingQuery" src="data:image/gif;base64,R0lGODlhEAAQAPIAAP///wAAAMLCwkJCQgAAAGJiYoKCgpKSkiH/C05FVFNDQVBFMi4wAwEAAAAh/hpDcmVhdGVkIHdpdGggYWpheGxvYWQuaW5mbwAh+QQJCgAAACwAAAAAEAAQAAADMwi63P4wyklrE2MIOggZnAdOmGYJRbExwroUmcG2LmDEwnHQLVsYOd2mBzkYDAdKa+dIAAAh+QQJCgAAACwAAAAAEAAQAAADNAi63P5OjCEgG4QMu7DmikRxQlFUYDEZIGBMRVsaqHwctXXf7WEYB4Ag1xjihkMZsiUkKhIAIfkECQoAAAAsAAAAABAAEAAAAzYIujIjK8pByJDMlFYvBoVjHA70GU7xSUJhmKtwHPAKzLO9HMaoKwJZ7Rf8AYPDDzKpZBqfvwQAIfkECQoAAAAsAAAAABAAEAAAAzMIumIlK8oyhpHsnFZfhYumCYUhDAQxRIdhHBGqRoKw0R8DYlJd8z0fMDgsGo/IpHI5TAAAIfkECQoAAAAsAAAAABAAEAAAAzIIunInK0rnZBTwGPNMgQwmdsNgXGJUlIWEuR5oWUIpz8pAEAMe6TwfwyYsGo/IpFKSAAAh+QQJCgAAACwAAAAAEAAQAAADMwi6IMKQORfjdOe82p4wGccc4CEuQradylesojEMBgsUc2G7sDX3lQGBMLAJibufbSlKAAAh+QQJCgAAACwAAAAAEAAQAAADMgi63P7wCRHZnFVdmgHu2nFwlWCI3WGc3TSWhUFGxTAUkGCbtgENBMJAEJsxgMLWzpEAACH5BAkKAAAALAAAAAAQABAAAAMyCLrc/jDKSatlQtScKdceCAjDII7HcQ4EMTCpyrCuUBjCYRgHVtqlAiB1YhiCnlsRkAAAOwAAAAAAAAAAAA==" />
 		     		</div>      
 		 </div> 
   </div>
 </div>
 
-		  
 		 
 		 <div ng-show="vm.runningTasks.length">   
 		 <div class="panel panel-default">
@@ -147,9 +146,20 @@
   <div class="panel-body">
     <div class="row" ng-repeat="task in vm.runningTasks">
 				<div class="col-xs-4">
-					{{task.task_action_id}}
+					<b>{{task.task_action_id}}
 					{{task.task_action}}
-					{{task.progress.state}}
+					{{task.progress.state}}</b>
+					<br>
+					<table class="table">
+					<tr>
+						<td>Current Work Queue</td>
+						<td>{{task.progress.workQueue}}</td>
+					</tr>
+					<tr>
+						<td>Performed Requests</td>
+						<td>{{task.progress.requests}}</td>
+					</tr>
+					</table>
 					
 				</div>
 			
