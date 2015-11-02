@@ -1,12 +1,12 @@
 \section{Architecture of the tool}
-A client-server model with a REST API was chosen as the tool architecture. The
+A client-server model with a REST API was chosen as the tool's architecture. The
 proposed solution allows the tool to be used by multiple users simultaneously,
-as well as enabling deployment to distributed systems with distinct roles,
+as well as enabling deployment on distributed systems with distinct roles,
 responsibilities, and hardware resources.
-The frontend is a simple thin client whose sole job is relaying commands to a
-server and showing the returned results. The server is tasked with obtaining
-and processing the available YouTube data, and otherwise interacting with the
-API.
+The frontend is a simple thin client whose sole job is relaying commands to the
+server's backend and showing the returned results. The server is tasked with obtaining
+and processing the available data from YouTube, and otherwise interacting with the
+API as described later.
 Local deployment is a viable option, given sufficient storage and networking
 capabilities.
 
@@ -17,23 +17,23 @@ AngularJS\footnote{https://angularjs.org/}, an open-source framework that
 facilitates easy setup and management of single-page web applications using the
 model-view-controller (MVC) pattern.
 
-The frontend is separated into four main pages that each have a specific
-function: Management of API keys, creation of API queries, creation of tasks,
+The frontend is separated into four main pages, each serving a specific
+function: Management of API keys, creation of search queries, creation of tasks,
 and results presentation.
 
 \subsubsection{User management}
 Due to the potential usage by multiple users, a rough user management is the 
-database to handle concurrent sessions and a login required to access the pages
+foundation to handle concurrent sessions and a login is required to access the pages
 described as in the following. All the data in the database can be grouped by
-a users id.
+a single user.
 
 \subsubsection{API key management}
 The API key management page lets the user register API keys to his account.
 API keys are instantly validated and, if valid, added to the dropdown list of
 available keys on the query builder page.
-While only a single key is required per API request (in the absence of OAuth
-2.0), having access to multiple keys makes for quick and easy testing and the
-ability to generate keys for a specific purpose or dataset.
+While only one key is required per API request (in the absence of OAuth
+2.0), having access to multiple extends the tool's features to generate keys 
+for a specific purpose or dataset.
 
 \subsubsection{Query Builder}
 On the query builder page the user may build individual search queries using
@@ -54,14 +54,14 @@ the storage of invalid queries.
 \subsubsection{Task Page}
 Stored queries may be used to execute tasks on the Task page. The user selects
 the task he or she wants performed and a query which defines the set of videos
-on which to operate. The first task should always be to fetche video IDs for
+on which to operate. The first task should always be to fetch video IDs for
 the given query, as the rest of the available tasks depends on the video ID. 
-Multiple tasks may be launched in parallel, and theid progress is tracked in
+Multiple tasks may be launched in parallel, and their progress is tracked in
 real time.
 
 \subsubsection{Result page}
 The Result page contains selected statistics for the dataset returned by a given
-query. Of particular note is the graph showing the intersection between datasets.
+query. Of particular note is the table showing the intersection between datasets.
 This allows the user to quickly identify closely related queries, and can be
 helpful in e.g. parameter studies. The result page can show different statistics,
 and the different parts are loaded asynchronously on demand. It is relatively
@@ -72,7 +72,8 @@ The server is written in python, using flask\footnote{http://flask.pocoo.org/}
 as the server framework. Flask integrates with 
 Jinja\footnote{http://jinja.pocoo.org/docs/dev/templates/} for templating, 
 and has support for a range of third party plugins to handle everything from
-encryption to database integration.
+encryption to database integration. The communication between the server and
+the client is established by a REST API. 
 
 
 \subsubsection{Background tasks}
@@ -86,10 +87,10 @@ potentially vast network of nodes.
 Redis\footnote{http://www.redis.io} is a networked in-memory key-value database.
 After a task has been scheduled by the user, it is immediately pushed to Redis
 and put in a pending state until a Celery worker is available to process it.
-While the task is executing, Celery provides an interface with which to control
-it. It is because of this feature an in-memory database to keep track of running
-tasks is preferential. Given that our fetcher modules, the actual tasks that are
-being run, update their own status in the database after every single request to
+While the task is executing, Celery provides an interface to update the current
+task's state. It is because of this feature an in-memory database to keep track of running
+tasks preferential. Given that our fetcher modules, the actual tasks that are
+being run, update their own status after every single request to
 the YouTube API, a disk I/O-bound database would potentially severely limit
 performance.
 
