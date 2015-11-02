@@ -1,4 +1,4 @@
-\section{Architecture}
+\section{Architecture of the tool}
 A client-server model with a REST API was chosen as the tool architecture. The
 proposed solution allows the tool to be used by multiple users simultaneously,
 as well as enabling deployment to distributed systems with distinct roles,
@@ -21,9 +21,11 @@ The frontend is separated into four main pages that each have a specific
 function: Management of API keys, creation of API queries, creation of tasks,
 and results presentation.
 
-
 \subsubsection{User management}
-
+Due to the potential usage by multiple users, a rough user management is the 
+database to handle concurrent sessions and a login required to access the pages
+described as in the following. All the data in the database can be grouped by
+a users id.
 
 \subsubsection{API key management}
 The API key management page lets the user register API keys to his account.
@@ -48,27 +50,29 @@ verification only. The user is immediately notified if any of the given query
 parameters create an invalid combination. This will prove invaluable to new
 users who can safely learn to use the YouTube API, as well as preventing
 the storage of invalid queries.
-%TODO: reword?
-
 
 \subsubsection{Task Page}
-Stored queries may be executed on the Task page. The user selects the task he
-wants performed and a query which defines the set of videos on which to operate.
-The first operation will always be the fetching of video IDs, as the rest of the
-available tasks depend on this. Multiple tasks may be launched in parallel.
-Progress bars are updated in real-time. %TODO: too short and list-y. Reword?
-
+Stored queries may be used to execute tasks on the Task page. The user selects
+the task he or she wants performed and a query which defines the set of videos
+on which to operate. The first task should always be to fetche video IDs for
+the given query, as the rest of the available tasks depends on the video ID. 
+Multiple tasks may be launched in parallel, and theid progress is tracked in
+real time.
 
 \subsubsection{Result page}
 The Result page contains selected statistics for the dataset returned by a given
-query. Of particular note is the graph showing the intersection between datasets. This
-allows the user to quickly identify closely related queries, and can be helpful
-in e.g. parameter studies.
-%TODO: Maybe refine a bit.
-
+query. Of particular note is the graph showing the intersection between datasets.
+This allows the user to quickly identify closely related queries, and can be
+helpful in e.g. parameter studies. The result page can show different statistics,
+and the different parts are loaded asynchronously on demand. It is relatively
+easy to expand this page by adding more queries or statistics.
 
 \subsection{Server}
-The server is written in python %TODO: finish
+The server is written in python, using flask\footnote{http://flask.pocoo.org/}
+as the server framework. Flask integrates with 
+Jinja\footnote{http://jinja.pocoo.org/docs/dev/templates/} for templating, 
+and has support for a range of third party plugins to handle everything from
+encryption to database integration.
 
 
 \subsubsection{Background tasks}
@@ -80,10 +84,6 @@ queue based on distributed messages. It is capable of distributing tasks over a
 potentially vast network of nodes.
 
 Redis\footnote{http://www.redis.io} is a networked in-memory key-value database.
-The frameworks are not used to their full extent given
-our current single-server environment, but having these frameworks already
-present will be of great aid in future expansion.
-
 After a task has been scheduled by the user, it is immediately pushed to Redis
 and put in a pending state until a Celery worker is available to process it.
 While the task is executing, Celery provides an interface with which to control
@@ -92,4 +92,9 @@ tasks is preferential. Given that our fetcher modules, the actual tasks that are
 being run, update their own status in the database after every single request to
 the YouTube API, a disk I/O-bound database would potentially severely limit
 performance.
+
+The frameworks are not used to their full extent in our current single-server
+environment, but having these frameworks already present will be of great aid in
+possible future expansion. 
+
 
