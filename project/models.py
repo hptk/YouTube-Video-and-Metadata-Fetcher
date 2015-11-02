@@ -313,7 +313,13 @@ class YoutubeQuery(db.Model):
         dashs = VideoRepresentation.query.outerjoin((QueryVideoMM, QueryVideoMM.video_id == VideoRepresentation.video_id)).filter_by(youtube_query_id=self.id)
         count = dashs.count()
         return count
-
+    
+    def count_comments(self):
+        """Returns the amount of dash representations associated to this query"""
+        comments = YoutubeComment.query.outerjoin((QueryVideoMM, QueryVideoMM.video_id == YoutubeComment.video_id)).filter_by(youtube_query_id=self.id)
+        count = comments.count()
+        return count
+    
     def get_statistics_dayHistogram(self):
         """Returns a dictonary which contains an aggregation of day=>amount"""
         dates_query = db.session.query(YoutubeVideoMeta,db.func.count().label("count"),db.func.date(YoutubeVideoMeta.snippet_publishedAt).label("date")).outerjoin((QueryVideoMM, QueryVideoMM.video_id == YoutubeVideoMeta.id)).filter_by(youtube_query_id=self.id).group_by(db.func.strftime('%Y',YoutubeVideoMeta.snippet_publishedAt),db.func.strftime('%m',YoutubeVideoMeta.snippet_publishedAt),db.func.strftime('%d',YoutubeVideoMeta.snippet_publishedAt)).order_by(YoutubeVideoMeta.snippet_publishedAt)
@@ -359,6 +365,7 @@ class YoutubeQuery(db.Model):
                         'videos':len(self.videos),
                         'meta':self.count_video_meta(),
                         'dash':self.count_dash(),
+                        'comments':self.count_comments(),
                     },
                     'global': {
                         'videos':YoutubeVideo.query.count(),
