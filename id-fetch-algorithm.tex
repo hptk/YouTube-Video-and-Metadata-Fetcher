@@ -33,12 +33,12 @@ Assume that YouTube uses a modified Base64 encoding for URLs with 11 digits
 for their video IDs. A ballpark (insane over-)estimation for the total amount of videos on
 YouTube is 300 hours per minute since Google's acquisition in 2006 (9 years).
 If we estimate the average video to be five minutes long, that leaves us with
-\[frac{85\,140\,000\,000}{5} = 17\,028\,000\,000\] videos. With 64 to the power
+\[\frac{85\,140\,000\,000}{5} = 17\,028\,000\,000\] videos. With 64 to the power
 of 11 possible video IDs we would have to generate more than four billion random
 IDs before we could expect to get a single hit. Not feasable.
 
 \subsubsection{The YouTube API}
-YouTube provides a REST\footnote{Representational State Transfer: http://www.jopera.org/docs/publications/2008/restws} Application Programming Interface (API)~\cite(youtube-api)
+YouTube provides a REST\footnote{Representational State Transfer:\\http://www.jopera.org/docs/publications/2008/restws} Application Programming Interface (API)~\cite(youtube-api)
 which can be
 queried for information with a set of parameters, in absence of a standard
 website interface to utilize (like the one provided by
