@@ -1,6 +1,8 @@
 \documentclass[10pt,journal]{IEEEtran} 
 \usepackage{lipsum}
 \usepackage{graphicx}
+\usepackage{listings}
+%\usepackage{svg}
 
 \usepackage{pgfplots}
 \pgfplotsset{compat=newest}
@@ -8,7 +10,7 @@
 
 %\usepackage{cite}	
 
-%\DeclareGraphicsExtensions{.pdf,.png,.jpg}
+% \DeclareGraphicsExtensions{.svg}
 
 \title{A tool for gathering unbiased sets of videos and metadata from YouTube}
 \author{
@@ -41,11 +43,6 @@
 
 \input{DASHintro.tex}
 
-\begin{figure}
-	\centering
-	\includegraphics[width=0.4\textwidth]{figures/yt-dash.png}
-	\caption{YouTube DASH MPD}
-\end{figure}
 
 \input{dash.tex}
 
@@ -58,8 +55,8 @@
 \input{figures/videoIDstats3.tex}
 
 \section{Future work}
-
 %\lipsum[1-4]
+\input{future-work.tex}
 
 \input{conclusion.tex}
 
